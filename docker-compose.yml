@@ -1,0 +1,112 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+
+    ports:
+      - "3307:3306"
+
+    environment:
+      MYSQL_DATABASE: aplicacion
+      MYSQL_USER: api_user
+      MYSQL_PASSWORD: api_password
+      MYSQL_ROOT_PASSWORD: root_password
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - backend
+
+
+  api-rest:
+    build:
+      context: ./api-rest
+
+    container_name: api-rest
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart: unless-stopped
+
+    networks:
+      - backend
+
+
+  rest-client:
+    build:
+      context: ./rest-client
+
+    container_name: rest-client
+
+    ports:
+      - "8081:8081"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    depends_on:
+      api-rest:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart: unless-stopped
+
+    networks:
+      - backend
+
+
+  nginx:
+    build:
+      context: ./nginx
+
+    container_name: nginx
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    depends_on:
+      rest-client:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+    networks:
+      - backend
+
+
+volumes:
+  mysql-data:
+
+
+networks:
+  backend:

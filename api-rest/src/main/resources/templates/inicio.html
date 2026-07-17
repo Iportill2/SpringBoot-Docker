@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Usuarios</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+        }
+
+        .usuario {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<h1>Usuarios registrados</h1>
+
+
+<div th:each="usuario : ${usuarios}" class="usuario">
+
+    ID:
+    <span th:text="${usuario.id}"></span>
+
+    -
+
+    Nombre:
+    <span th:text="${usuario.nombre}"></span>
+
+</div>
+
+
+</body>
+</html>

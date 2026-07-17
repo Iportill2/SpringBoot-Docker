@@ -1,0 +1,8 @@
+api:
+  base-url: http://api-rest:8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
