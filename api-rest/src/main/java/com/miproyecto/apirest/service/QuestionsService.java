@@ -15,7 +15,7 @@ public class QuestionsService  {
 	private final QuestionsRepository QRepo;
 	public QuestionsService(QuestionsRepository questionsRepository) {this.QRepo = questionsRepository;}
 
-	public List<Questions> findall(){return QRepo.findAll();}
+	public List<Questions> findAll(){return QRepo.findAll();}
 	public Questions create(Questions question)
 	{
 		if(question== null)
@@ -25,14 +25,21 @@ public class QuestionsService  {
 	}
 	public Questions findById(Integer id)
 	{
-		if(id <0)
+		if(id < 1)
 			return null;
 		Optional<Questions> temp = QRepo.findById(id);
 		return temp.get();
 	}
+	public Questions findByText(String text)
+	{
+		if(text == null || text.isBlank())
+			return null;
+		Optional<Questions> temp = QRepo.findByText(text);
+		return temp.get();
+	}
 	public Boolean delete(Integer Id)
 	{
-		if(Id <0)
+		if(Id <1)
 			return null;
 		Optional<Questions> temp = QRepo.findById(Id);
 		if(temp.isEmpty())

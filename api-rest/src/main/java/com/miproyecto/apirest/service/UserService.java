@@ -16,43 +16,32 @@ public class UserService {
 
     private final UsersRepository userRepo;
     public UserService(UsersRepository userRepository) {this.userRepo = userRepository;}
-
-    public List<Users> findAll() {return userRepo.findAll();}
-    
-    public Optional<Users>findByIdOptional(Integer id)
-    {
-    	// Si el usuario no existe, devuelve Optional.empty() no un NULL como en c++
-    	// Sino tendras el user
-    	return  userRepo.findById(id);
-    }
+    //Create
     public Users create(Users user)
     {
     	if(user == null)
     		return null;
+    	user.setId(null);
     	return userRepo.save(user);
     }
-    public Users update(Integer id, Users user)
+    //Read
+    public List<Users> findAll() {return userRepo.findAll();}
+    
+    public Optional<Users>findByIdOptional(Integer id)
     {
-    	if(user == null || id < 1)
-    		return null;
-        if (!userRepo.existsById(id))//verificamos si el id existe en la BD
-            return null;
-        user.setId(id);
-    	return userRepo.save(user);
+    	if(id == null || id < 1)
+            return Optional.empty();
+    	// Si el usuario no existe, devuelve Optional.empty() no un NULL como en c++
+    	// Sino tendras el user
+    	return  userRepo.findById(id);
     }
-    public Boolean delete(Integer id)
-    {
-    	 
-    	if(id < 1 )
-    		return false;
-    	Optional<Users> temp = userRepo.findById(id);
-    	if(temp.isEmpty())
-    		return null;
-    	userRepo.delete(temp.get());//hacemos esto para pasar de Optional<Users> a Users
-    	return true;
-    }
+
+
+
     public Users findByUsername(String username)
     {
+    	if(username == null)
+    		return null;
     	Optional<Users>temp = userRepo.findByUser(username);
     	if(temp.isEmpty())
     		return null;
@@ -82,6 +71,27 @@ public class UserService {
 
     	return false;
     }
-    
+    //Update
+    public Users update(Integer id, Users user)
+    {
+    	if(user == null || id < 1)
+    		return null;
+        if (!userRepo.existsById(id))//verificamos si el id existe en la BD
+            return null;
+        user.setId(id);
+    	return userRepo.save(user);
+    }
+    //Delete
+    public Boolean delete(Integer id)
+    {
+    	 
+    	if(id < 1 )
+    		return false;
+    	Optional<Users> temp = userRepo.findById(id);
+    	if(temp.isEmpty())
+    		return null;
+    	userRepo.delete(temp.get());//hacemos esto para pasar de Optional<Users> a Users
+    	return true;
+    }
     
 }

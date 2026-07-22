@@ -16,15 +16,15 @@ public class RolesService {
 	public RolesService(RolesRepository rolesRepository) {this.roleRepo = rolesRepository;}
 
 	public List<Roles> findAll(){return roleRepo.findAll();}
-	public Roles findById(Integer id)
+	public Optional<Roles> findById(Integer id)
 	{
 		if(id == null || id < 1)
 			return null;
 		Optional<Roles> temp = roleRepo.findById(id);
 		if(temp.isEmpty())
-	        return null;
+			return Optional.empty();
 
-		return temp.get();
+		return temp);
 	}
 	public Roles create(Roles role)
 	{

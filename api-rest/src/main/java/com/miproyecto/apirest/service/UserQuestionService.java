@@ -14,6 +14,13 @@ public class UserQuestionService {
 	public UserQuestionService(UserQuestionRepository userQuestionRepository) {this.userQRepo = userQuestionRepository;}
 
 	public List<UserQuestion> findAll(){return userQRepo.findAll();}
+	public Optional<UserQuestion> findById(Integer id)
+	{
+		if(id == null || id < 1)
+			return Optional.empty();
+		
+		return userQRepo.findById(id);
+	}
 	public List<UserQuestion> findByUser(Integer id)
 	{
 	    if(   id ==null || id < 1)
@@ -37,5 +44,18 @@ public class UserQuestionService {
 		if(temp.get().getAnswer().equals(answer))
 			return true;
 		return false;
+	}
+	public Boolean delete(Integer id)
+	{
+	    if(id == null || id < 1)
+	        return false;
+
+	    Optional<UserQuestion> temp = userQRepo.findById(id);
+
+	    if(temp.isEmpty())
+	        return null;
+
+	    userQRepo.delete(temp.get());
+	    return true;
 	}
 }
