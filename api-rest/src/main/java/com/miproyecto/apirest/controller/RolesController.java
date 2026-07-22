@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.miproyecto.apirest.model.Roles;
-import com.miproyecto.apirest.repository.RolesRepository;
+
 import com.miproyecto.apirest.service.RolesService;
 
 @RestController
@@ -60,7 +60,7 @@ public class RolesController {
 		if(temp == null)
 			return ResponseEntity.notFound().build();
 		return ResponseEntity.ok(temp);
-		return null;
+		
 	}
 
 

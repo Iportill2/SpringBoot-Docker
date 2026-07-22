@@ -18,13 +18,15 @@ public class RolesService {
 	public List<Roles> findAll(){return roleRepo.findAll();}
 	public Optional<Roles> findById(Integer id)
 	{
-		if(id == null || id < 1)
-			return null;
-		Optional<Roles> temp = roleRepo.findById(id);
-		if(temp.isEmpty())
-			return Optional.empty();
+	    if(id == null || id < 1)
+	        return Optional.empty();
 
-		return temp);
+	    Optional<Roles> temp = roleRepo.findById(id);
+
+	    if(temp.isEmpty())
+	        return Optional.empty();
+
+	    return temp;
 	}
 	public Roles create(Roles role)
 	{
