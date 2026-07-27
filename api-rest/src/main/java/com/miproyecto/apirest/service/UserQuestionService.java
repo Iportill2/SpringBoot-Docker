@@ -5,13 +5,27 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.miproyecto.apirest.dto.UserQuestionDTO;
+import com.miproyecto.apirest.model.Questions;
 import com.miproyecto.apirest.model.UserQuestion;
+import com.miproyecto.apirest.model.Users;
+import com.miproyecto.apirest.repository.QuestionsRepository;
 import com.miproyecto.apirest.repository.UserQuestionRepository;
+import com.miproyecto.apirest.repository.UsersRepository;
 
 @Service
 public class UserQuestionService {
 	private final UserQuestionRepository userQRepo;
-	public UserQuestionService(UserQuestionRepository userQuestionRepository) {this.userQRepo = userQuestionRepository;}
+	private final UsersRepository userRepo;
+	private final QuestionsRepository questionRepo;
+
+	public UserQuestionService(UserQuestionRepository userQuestionRepository,
+	                           UsersRepository usersRepository,
+	                           QuestionsRepository questionsRepository) {
+		this.userQRepo = userQuestionRepository;
+		this.userRepo = usersRepository;
+		this.questionRepo = questionsRepository;
+	}
 
 	public List<UserQuestion> findAll(){return userQRepo.findAll();}
 	public Optional<UserQuestion> findById(Integer id)
@@ -45,6 +59,24 @@ public class UserQuestionService {
 			return true;
 		return false;
 	}
+	public UserQuestion createFromDTO(UserQuestionDTO dto) {
+		if (dto == null || dto.userId() == null || dto.questionId() == null || dto.answer() == null)
+			return null;
+
+		Optional<Users> userOpt = userRepo.findById(dto.userId());
+		Optional<Questions> questionOpt = questionRepo.findById(dto.questionId());
+
+		if (userOpt.isEmpty() || questionOpt.isEmpty())
+			return null;
+
+		UserQuestion uq = new UserQuestion();
+		uq.setUser(userOpt.get());
+		uq.setQuestion(questionOpt.get());
+		uq.setAnswer(dto.answer());
+
+		return userQRepo.save(uq);
+	}
+
 	public Boolean delete(Integer id)
 	{
 	    if(id == null || id < 1)

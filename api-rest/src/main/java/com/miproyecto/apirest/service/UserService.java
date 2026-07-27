@@ -71,7 +71,12 @@ public class UserService {
     	// Sino tendras el user
     	return  userRepo.findById(id);
     }
-
+    public Optional<Users> findByEmail(String email)
+    {
+    	if(email == null)
+    		return Optional.empty();
+    	return  userRepo.findByEmail(email);
+    }
 
 
     public Users findByUsername(String username)
@@ -84,7 +89,18 @@ public class UserService {
     	return temp.get();
     }
 
-    
+    public Boolean existsByUsername(String username) 
+    {
+    	if(username == null)
+    		return null;
+        return userRepo.existsByUsername(username);
+    }
+    public Boolean existsByEmail(String email) 
+    {
+    	if(email == null)
+    		return null;
+        return userRepo.existsByEmail(email);
+    }
     public Boolean isBlocked(Users user)
     {
     	Optional<Users> temp = userRepo.findById(user.getId());

@@ -25,7 +25,7 @@ public class Users {
 	@Column(nullable = false)
 	private String salt;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String email;
 
 	@Column(nullable = false, unique = true)
