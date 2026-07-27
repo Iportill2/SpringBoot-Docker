@@ -2,10 +2,14 @@ package com.miproyecto.apirest.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.miproyecto.apirest.dto.UserCreateDTO;
+import com.miproyecto.apirest.model.Roles;
 import com.miproyecto.apirest.model.Users;
+import com.miproyecto.apirest.repository.RolesRepository;
 import com.miproyecto.apirest.repository.UsersRepository;
 
 
@@ -15,14 +19,46 @@ import com.miproyecto.apirest.repository.UsersRepository;
 public class UserService {
 
     private final UsersRepository userRepo;
-    public UserService(UsersRepository userRepository) {this.userRepo = userRepository;}
-    //Create
-    public Users create(Users user)
+    private final RolesRepository roleRepo;
+    public UserService(UsersRepository userRepository, RolesRepository roleRepository) 
     {
-    	if(user == null)
-    		return null;
-    	user.setId(null);
-    	return userRepo.save(user);
+    	this.userRepo = userRepository;
+    	this.roleRepo = roleRepository;
+    }
+    //Create
+    public Users create(UserCreateDTO userDTO) {
+    try {
+
+        Users user = new Users();
+
+        user.setUsername(userDTO.username());
+        user.setPass(userDTO.password());
+        user.setEmail(userDTO.email());
+
+        user.setFails(0);
+        user.setBlocked(false);
+        user.setBanned(false);
+        user.setSalt("salt_generada");
+        user.setCode(UUID.randomUUID().toString());
+
+        Roles role = roleRepo.findById(3).orElse(null);
+
+        System.out.println("ROL = " + role);
+
+        user.setRole(role);
+
+        System.out.println("ANTES DEL SAVE");
+
+        Users saved = userRepo.save(user);
+
+        System.out.println("DESPUES DEL SAVE");
+
+        return saved;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        throw e;
+    }
     }
     //Read
     public List<Users> findAll() {return userRepo.findAll();}

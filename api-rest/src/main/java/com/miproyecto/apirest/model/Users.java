@@ -17,7 +17,7 @@ public class Users {
 	private Integer id;
 
 	@Column(nullable = false, unique = true)
-	private String user;
+	private String username;
 
 	@Column(nullable = false)
 	private String pass;
@@ -52,7 +52,7 @@ public class Users {
 	             boolean banned, Roles role) {
 
 	    this.id = id;
-	    this.user = user;
+	    this.username = user;
 	    this.pass = pass;
 	    this.salt = salt;
 	    this.email = email;
@@ -71,12 +71,12 @@ public class Users {
 	    this.id = id;
 	}
 
-	public String getUser() {
-	    return user;
+	public String getUsername() {
+	    return username;
 	}
 
-	public void setUser(String user) {
-	    this.user = user;
+	public void setUsername(String username) {
+	    this.username = username;
 	}
 
 	public String getPass() {
@@ -141,5 +141,13 @@ public class Users {
 
 	public void setRole(Roles role) {
 	    this.role = role;
+	}
+	@Override
+	public String toString() {
+	    return "Users{" +
+	            "id=" + id +
+	            ", username='" + username + '\'' +
+	            ", email='" + email + '\'' +
+	            '}';
 	}
 }

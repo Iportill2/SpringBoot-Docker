@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.miproyecto.apirest.dto.UserCreateDTO;
 import com.miproyecto.apirest.model.Users;
 import com.miproyecto.apirest.service.UserService;
 
@@ -32,9 +33,9 @@ public class UserController {
     }
     //Create
     @PostMapping
-    public ResponseEntity<Users> create(@RequestBody Users user)
+    public ResponseEntity<Users> create(@RequestBody UserCreateDTO userDTO)
     {
-        Users createdUser = userService.create(user);
+        Users createdUser = userService.create(userDTO);
 
         if (createdUser == null)
             return ResponseEntity.badRequest().build();

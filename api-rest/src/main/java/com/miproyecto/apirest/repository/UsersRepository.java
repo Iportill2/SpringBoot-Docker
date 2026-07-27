@@ -17,6 +17,6 @@ public interface UsersRepository extends JpaRepository<Users, Integer>{
 //	delete()
 //	count()
 //	existsById()
-    @Query("SELECT u FROM Users u WHERE u.user = :username")
+    @Query("SELECT u FROM Users u WHERE u.username = :username")
     Optional<Users> findByUser(String username);
 }
