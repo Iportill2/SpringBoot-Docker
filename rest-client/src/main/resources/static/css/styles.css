@@ -291,3 +291,145 @@ body {
 	justify-content: center;
 	font-size: x-large;
 }
+
+/* ===== ADMIN TABLE ===== */
+.admin-page {
+	padding: 2rem;
+	width: 100%;
+	box-sizing: border-box;
+	overflow-x: auto;
+	display: flex;
+	flex-direction: column;
+}
+
+.admin-title {
+	color: #1e293b;
+	font-size: 1.4rem;
+	margin-bottom: 1.5rem;
+}
+
+.admin-table {
+	width: 100%;
+	max-width: 100%;
+	table-layout: fixed;
+	border-collapse: collapse;
+	background-color: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.admin-table thead {
+	background: linear-gradient(135deg, #1e40af, #3b82f6);
+}
+
+.admin-table th {
+	color: white;
+	text-align: left;
+	padding: 0.9rem 1.2rem;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.admin-table td {
+	padding: 0.9rem 1.2rem;
+	border-bottom: 1px solid #e2e8f0;
+	font-size: 0.95rem;
+	color: #334155;
+}
+
+.admin-table tbody tr:hover {
+	background-color: #f8fafc;
+}
+
+.admin-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.admin-actions form {
+	display: inline;
+}
+
+.badge {
+	padding: 0.3rem 0.7rem;
+	border-radius: 20px;
+	font-size: 0.8rem;
+	font-weight: 600;
+}
+
+.badge-admin {
+	background-color: #ede9fe;
+	color: #6d28d9;
+}
+
+.badge-user {
+	background-color: #e0f2fe;
+	color: #0369a1;
+}
+
+.badge-blocked {
+	background-color: #fee2e2;
+	color: #dc2626;
+}
+
+.badge-active {
+	background-color: #dcfce7;
+	color: #16a34a;
+}
+
+.btn-approve {
+	background-color: #16a34a;
+	color: white;
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	cursor: pointer;
+}
+
+.btn-approve:hover {
+	background-color: #15803d;
+}
+
+.btn-delete {
+	background-color: #dc2626;
+	color: white;
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	cursor: pointer;
+}
+
+.btn-delete:hover {
+	background-color: #b91c1c;
+}
+
+.btn-block {
+	background-color: #f97316;
+	color: white;
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	cursor: pointer;
+}
+
+.btn-block:hover {
+	background-color: #ea580c;
+}
+
+.btn-delete {
+	background-color: #dc2626;
+	color: white;
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	cursor: pointer;
+}
+
+.btn-delete:hover {
+	background-color: #b91c1c;
+}
