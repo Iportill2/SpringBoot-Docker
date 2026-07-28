@@ -10,144 +10,146 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name ="users")
+@Table(name = "users")
 public class Users {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
 
-	@Column(nullable = false, unique = true)
-	private String username;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-	@Column(nullable = false)
-	private String pass;
+    @Column(nullable = false, unique = true)
+    private String username;
 
-	@Column(nullable = false)
-	private String salt;
+    @Column(nullable = false)
+    private String pass;
 
-	@Column(nullable = false, unique = true)
-	private String email;
+    @Column(nullable = false)
+    private String salt;
 
-	@Column(nullable = false, unique = true)
-	private String code;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-	@Column(nullable = false)
-	private int fails;
+    @Column(nullable = false, unique = true)
+    private String code;
 
-	@Column(nullable = false, columnDefinition = "TINYINT(1)")
-	private boolean blocked;
+    @Column(nullable = false)
+    private Integer fails;
 
-	@Column(nullable = false, columnDefinition = "TINYINT(1)")
-	private boolean banned;
+    @Column(nullable = false, columnDefinition = "TINYINT(1)")
+    private Boolean blocked;
 
-	@ManyToOne
-	@JoinColumn(name = "role_id")
-	private Roles role;
+    @Column(nullable = false, columnDefinition = "TINYINT(1)")
+    private Boolean banned;
 
-	public Users() {
-	}
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Roles role;
 
-	public Users(Integer id, String user, String pass, String salt, String email,
-	             String code, int fails, boolean blocked,
-	             boolean banned, Roles role) {
+    public Users() {
+    }
 
-	    this.id = id;
-	    this.username = user;
-	    this.pass = pass;
-	    this.salt = salt;
-	    this.email = email;
-	    this.code = code;
-	    this.fails = fails;
-	    this.blocked = blocked;
-	    this.banned = banned;
-	    this.role = role;
-	}
+    public Users(Integer id, String username, String pass, String salt,
+                 String email, String code, Integer fails,
+                 Boolean blocked, Boolean banned, Roles role) {
 
-	public Integer getId() {
-	    return id;
-	}
+        this.id = id;
+        this.username = username;
+        this.pass = pass;
+        this.salt = salt;
+        this.email = email;
+        this.code = code;
+        this.fails = fails;
+        this.blocked = blocked;
+        this.banned = banned;
+        this.role = role;
+    }
 
-	public void setId(Integer id) {
-	    this.id = id;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public String getUsername() {
-	    return username;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setUsername(String username) {
-	    this.username = username;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public String getPass() {
-	    return pass;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public void setPass(String pass) {
-	    this.pass = pass;
-	}
+    public String getPass() {
+        return pass;
+    }
 
-	public String getSalt() {
-	    return salt;
-	}
+    public void setPass(String pass) {
+        this.pass = pass;
+    }
 
-	public void setSalt(String salt) {
-	    this.salt = salt;
-	}
+    public String getSalt() {
+        return salt;
+    }
 
-	public String getEmail() {
-	    return email;
-	}
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
 
-	public void setEmail(String email) {
-	    this.email = email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public String getCode() {
-	    return code;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public void setCode(String code) {
-	    this.code = code;
-	}
+    public String getCode() {
+        return code;
+    }
 
-	public int getFails() {
-	    return fails;
-	}
+    public void setCode(String code) {
+        this.code = code;
+    }
 
-	public void setFails(int fails) {
-	    this.fails = fails;
-	}
+    public Integer getFails() {
+        return fails;
+    }
 
-	public boolean isBlocked() {
-	    return blocked;
-	}
+    public void setFails(Integer fails) {
+        this.fails = fails;
+    }
 
-	public void setBlocked(boolean blocked) {
-	    this.blocked = blocked;
-	}
+    public Boolean getBlocked() {
+        return blocked;
+    }
 
-	public boolean isBanned() {
-	    return banned;
-	}
+    public void setBlocked(Boolean blocked) {
+        this.blocked = blocked;
+    }
 
-	public void setBanned(boolean banned) {
-	    this.banned = banned;
-	}
+    public Boolean getBanned() {
+        return banned;
+    }
 
-	public Roles getRole() {
-	    return role;
-	}
+    public void setBanned(Boolean banned) {
+        this.banned = banned;
+    }
 
-	public void setRole(Roles role) {
-	    this.role = role;
-	}
-	@Override
-	public String toString() {
-	    return "Users{" +
-	            "id=" + id +
-	            ", username='" + username + '\'' +
-	            ", email='" + email + '\'' +
-	            '}';
-	}
+    public Roles getRole() {
+        return role;
+    }
+
+    public void setRole(Roles role) {
+        this.role = role;
+    }
+
+    @Override
+    public String toString() {
+        return "Users{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }
