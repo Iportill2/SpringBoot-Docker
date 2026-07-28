@@ -23,52 +23,41 @@
 			<div class="auth-form">
 
 				<form class="register-form"
-					  th:action="@{/register/questions}"
-					  th:object="${userQuestionsDTO}"
-					  method="post">
+				      th:action="@{/register/questions}"
+				      th:object="${userQuestionsDTO}"
+				      method="post">
 
+				    <!-- ID del usuario creado en el paso 1 -->
+				    <input type="hidden" th:field="*{userId}">
 
-					<!-- ID del usuario creado en el paso 1 -->
-					<input type="hidden" th:field="*{userId}">
+				    <div th:each="answer, stat : *{answers}">
 
+				        <select th:field="*{answers[__${stat.index}__].questionId}">
+				            <option value="">-- Selecciona una pregunta --</option>
+				            <option th:each="q : ${questions}"
+				                    th:value="${q.id}"
+				                    th:text="${q.text}">
+				            </option>
+				        </select>
 
-					<div th:each="answer, stat : *{answers}">
+				        <input type="text"
+				               th:field="*{answers[__${stat.index}__].answer}"
+				               placeholder="Introduce tu respuesta">
 
+				        <span class="error"
+				              th:if="${#fields.hasErrors('answers[' + stat.index + '].answer')}"
+				              th:errors="*{answers[__${stat.index}__].answer}">
+				        </span>
 
-						<!-- Guardamos el id de la pregunta -->
-						<input type="hidden"
-							   th:field="*{answers[__${stat.index}__].questionId}">
+				    </div>
 
+				    <button type="submit">
+				        Registrarse
+				    </button>
 
-						<label th:text="'Pregunta ' + ${stat.index + 1}">
-							Pregunta
-						</label>
-
-
-						<input type="text"
-							   th:field="*{answers[__${stat.index}__].answer}"
-							   placeholder="Introduce tu respuesta">
-
-
-						<span class="error"
-							  th:if="${#fields.hasErrors('answers[' + stat.index + '].answer')}"
-							  th:errors="*{answers[__${stat.index}__].answer}">
-						</span>
-
-
-					</div>
-
-
-
-					<button type="submit">
-						Registrarse
-					</button>
-
-
-					<a th:href="@{/login}">
-						¿Ya tienes cuenta? Inicia sesión
-					</a>
-
+				    <a th:href="@{/login}">
+				        ¿Ya tienes cuenta? Inicia sesión
+				    </a>
 
 				</form>
 
