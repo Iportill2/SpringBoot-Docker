@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import com.miproyecto.apirest.model.Questions;
 import com.miproyecto.apirest.model.Users;
+import java.util.List;
+
 
 
 @Repository
@@ -18,4 +20,5 @@ public interface QuestionsRepository extends JpaRepository<Questions, Integer>{
 //	count()
 //	existsById()
 	Optional<Questions> findByText(String text);
+	Optional<Questions> findById(Integer id);
 }
