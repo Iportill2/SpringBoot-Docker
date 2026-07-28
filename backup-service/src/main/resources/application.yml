@@ -1,0 +1,11 @@
+server:
+  port: 8082
+
+backup:
+  directory: /backup
+
+mysql:
+  host: mysql
+  database: aplicacion
+  user: backup_user
+  password: backup_password

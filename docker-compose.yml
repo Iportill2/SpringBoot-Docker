@@ -56,6 +56,44 @@ services:
       - backend
 
 
+  backup-service:
+    build:
+      context: ./backup-service
+
+    container_name: backup-service
+
+    ports:
+      - "8082:8082"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: aplicacion
+      MYSQL_USER: backup_user
+      MYSQL_PASSWORD: backup_password
+
+      BACKUP_DIRECTORY: /backup
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    volumes:
+      - backups:/backup
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart: unless-stopped
+
+    networks:
+      - backend
+
+
   rest-client:
     build:
       context: ./rest-client
@@ -105,8 +143,12 @@ services:
 
 
 volumes:
+
   mysql-data:
+
+  backups:
 
 
 networks:
+
   backend:
