@@ -107,7 +107,7 @@ public class UserService {
     	if(temp.isEmpty())
     		return null;
     	
-    	if ( temp.get().isBlocked() == true)
+    	if ( temp.get().getBlocked() == true)
     		return true;
 
     	return false;
@@ -118,20 +118,59 @@ public class UserService {
     	if(temp.isEmpty())
     		return null;
     	
-    	if ( temp.get().isBanned() == true)
+    	if ( temp.get().getBanned() == true)
     		return true;
 
     	return false;
     }
     //Update
-    public Users update(Integer id, Users user)
-    {
-    	if(user == null || id < 1)
-    		return null;
-        if (!userRepo.existsById(id))//verificamos si el id existe en la BD
+    public Users update(Integer id, Users user) {
+
+        Optional<Users> existing = userRepo.findById(id);
+
+        if (existing.isEmpty()) {
             return null;
-        user.setId(id);
-    	return userRepo.save(user);
+        }
+
+        Users current = existing.get();
+
+        if (user.getUsername() != null) {
+            current.setUsername(user.getUsername());
+        }
+
+        if (user.getPass() != null) {
+            current.setPass(user.getPass());
+        }
+
+        if (user.getSalt() != null) {
+            current.setSalt(user.getSalt());
+        }
+
+        if (user.getEmail() != null) {
+            current.setEmail(user.getEmail());
+        }
+
+        if (user.getCode() != null) {
+            current.setCode(user.getCode());
+        }
+
+        if (user.getFails() != null) {
+            current.setFails(user.getFails());
+        }
+
+        if (user.getBlocked() != null) {
+            current.setBlocked(user.getBlocked());
+        }
+
+        if (user.getBanned() != null) {
+            current.setBanned(user.getBanned());
+        }
+
+        if (user.getRole() != null) {
+            current.setRole(user.getRole());
+        }
+
+        return userRepo.save(current);
     }
     //Delete
     public Boolean delete(Integer id)

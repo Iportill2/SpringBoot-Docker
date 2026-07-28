@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-
 @Entity
 @Table(name = "roles")
 public class Roles {
@@ -29,41 +28,33 @@ public class Roles {
     @JsonIgnore
     private List<Users> users = new ArrayList<>();
 
-
     public Roles() {
     }
-
 
     public Roles(Integer id, String name) {
         this.id = id;
         this.name = name;
     }
 
-
     public Integer getId() {
         return id;
     }
-
 
     public void setId(Integer id) {
         this.id = id;
     }
 
-
     public String getName() {
         return name;
     }
-
 
     public void setName(String name) {
         this.name = name;
     }
 
-
     public List<Users> getUsers() {
         return users;
     }
-
 
     public void setUsers(List<Users> users) {
         this.users = users;
