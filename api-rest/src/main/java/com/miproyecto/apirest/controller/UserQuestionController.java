@@ -3,6 +3,7 @@ package com.miproyecto.apirest.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.miproyecto.apirest.dto.CheckAnswerRequest;
+import com.miproyecto.apirest.dto.UserQuestionDTO;
 import com.miproyecto.apirest.model.UserQuestion;
 
 import com.miproyecto.apirest.service.UserQuestionService;
@@ -32,6 +34,15 @@ public class UserQuestionController {
 		if(temp == null)
 			return ResponseEntity.badRequest().build();
 		return ResponseEntity.ok(temp);
+	}
+	//Create from DTO
+	@PostMapping("/from-dto")
+	public ResponseEntity<UserQuestion> createFromDTO(@RequestBody UserQuestionDTO dto)
+	{
+		UserQuestion temp = userQuestionServ.createFromDTO(dto);
+		if(temp == null)
+			return ResponseEntity.badRequest().build();
+		return ResponseEntity.status(HttpStatus.CREATED).body(temp);
 	}
 	//Read
 	@GetMapping

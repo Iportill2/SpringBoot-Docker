@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,14 +44,34 @@ public class QuestionsController {
 
 	    return ResponseEntity.ok(temp);
 	}
+	@PutMapping("/{id}")
+	public ResponseEntity<Questions> update(@PathVariable Integer id,
+	                                        @RequestBody Questions question) {
+
+	    if (id == null || id < 1 || question == null) {
+	        return ResponseEntity.badRequest().build();
+	    }
+
+	    Questions temp = questionsServ.update(id, question);
+
+	    if (temp == null) {
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    return ResponseEntity.ok(temp);
+	}
+	
+	
 	@PostMapping
-	public ResponseEntity<Questions>create(@PathVariable String question)
-	{
-		
-		Questions temp = questionsServ.findByText(question);
-		if(temp == null )
-			return ResponseEntity.badRequest().build();
-		return ResponseEntity.ok(temp);
+	public ResponseEntity<Questions> create(@RequestBody Questions question) {
+
+	    if (question == null) {
+	        return ResponseEntity.badRequest().build();
+	    }
+
+	    Questions temp = questionsServ.create(question);
+
+	    return ResponseEntity.ok(temp);
 	}
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Boolean> delete(@PathVariable Integer id)

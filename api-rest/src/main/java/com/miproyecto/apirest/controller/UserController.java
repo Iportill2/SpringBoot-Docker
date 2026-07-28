@@ -4,6 +4,7 @@ package com.miproyecto.apirest.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,14 +34,17 @@ public class UserController {
     }
     //Create
     @PostMapping
-    public ResponseEntity<Users> create(@RequestBody UserCreateDTO userDTO)
-    {
+    public ResponseEntity<Users> create(@RequestBody UserCreateDTO userDTO) {
+
         Users createdUser = userService.create(userDTO);
 
-        if (createdUser == null)
+        if (createdUser == null) {
             return ResponseEntity.badRequest().build();
+        }
 
-        return ResponseEntity.ok(createdUser);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdUser);
     }
     //Read
     @GetMapping
@@ -62,6 +66,16 @@ public class UserController {
     		return ResponseEntity.notFound().build();
         return ResponseEntity.ok(temp.get());
     }
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Users>findByEmail(@PathVariable String email)
+    {
+    	if(email == null || email.isBlank())
+    		return ResponseEntity.badRequest().build();
+    	Optional<Users> temp = userService.findByEmail(email);
+    	if(temp.isEmpty())
+    		return ResponseEntity.notFound().build();
+    	return ResponseEntity.ok(temp.get());
+    }
     @GetMapping("/name/{username}")
     public ResponseEntity<Users>findByUsername(@PathVariable String username)
     {
@@ -72,6 +86,27 @@ public class UserController {
     		return ResponseEntity.notFound().build();
     	return ResponseEntity.ok(temp);
     }
+    @GetMapping("/name/exist/{username}")
+    public ResponseEntity<Boolean> existsByUsername(@PathVariable String username)
+    {
+    	if(username == null || username.isBlank())
+    		return ResponseEntity.badRequest().build();
+    	Boolean temp = userService.existsByUsername(username);
+    	
+    	return ResponseEntity.ok(temp);
+    }
+    @GetMapping("/email/exist/{email}")
+    public ResponseEntity<Boolean> existsByEmail(@PathVariable String email)
+    {
+    	if(email == null || email.isBlank())
+    		return ResponseEntity.badRequest().build();
+    	Boolean temp = userService.existsByEmail(email);
+    	
+    	return ResponseEntity.ok(temp);
+    }
+
+    
+    
     @GetMapping("/blocked/{username}")
     public ResponseEntity<Boolean> isBlocked(@PathVariable String username)
     {

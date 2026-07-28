@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.miproyecto.apirest.model.Users;
+import java.util.List;
+
 
 
 @Repository
@@ -19,4 +21,7 @@ public interface UsersRepository extends JpaRepository<Users, Integer>{
 //	existsById()
     @Query("SELECT u FROM Users u WHERE u.username = :username")
     Optional<Users> findByUser(String username);
+    Optional<Users> findByEmail(String email);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 }
