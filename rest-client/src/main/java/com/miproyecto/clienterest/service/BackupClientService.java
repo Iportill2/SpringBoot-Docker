@@ -40,4 +40,11 @@ public class BackupClientService {
                 .retrieve()
                 .body(String.class);
     }
+    public Boolean restoreBackup(String fileName) {
+
+        return restClient.post()
+                .uri("/backups/restore/{file}", fileName)
+                .retrieve()
+                .body(Boolean.class);
+    }
 }

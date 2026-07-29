@@ -21,11 +21,6 @@
                 </button>
             </form>
 
-
-            <button type="button" class="btn-db-download">
-                Restaurar base de datos
-            </button>
-
         </div>
 
 
@@ -38,7 +33,7 @@
                         <th>Archivo</th>
                         <th>Tamaño</th>
                         <th>Fecha de creación</th>
-                        <th>Acción</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
 
@@ -62,11 +57,28 @@
                         </td>
 
 
-                        <td>
+                        <td class="backup-actions-table">
+
+
                             <a class="btn-approve"
                                th:href="@{/backups/download/{file}(file=${backup.fileName})}">
                                 Descargar
                             </a>
+
+
+                            <form th:action="@{/backups/restore/{file}(file=${backup.fileName})}"
+                                  method="post"
+                                  style="display:inline;">
+
+                                <button type="submit"
+                                        class="btn-db-download"
+                                        onclick="return confirm('¿Seguro que quieres restaurar esta copia? Se reemplazarán los datos actuales.')">
+                                    Restaurar
+                                </button>
+
+                            </form>
+
+
                         </td>
 
                     </tr>
