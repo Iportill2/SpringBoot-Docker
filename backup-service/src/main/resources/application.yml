@@ -1,11 +1,18 @@
 server:
   port: 8082
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
 backup:
   directory: /backup
 
 mysql:
-  host: mysql
-  database: aplicacion
-  user: backup_user
-  password: backup_password
+  host: ${MYSQL_HOST:mysql}
+  port: ${MYSQL_PORT:3306}
+  database: ${MYSQL_DATABASE:aplicacion}
+  user: ${MYSQL_USER:backup_user}
+  password: ${MYSQL_PASSWORD:backup_password}
