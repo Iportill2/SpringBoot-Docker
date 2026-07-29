@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.miproyecto.clienterest.dto.LoginDTO;
 import com.miproyecto.clienterest.dto.QuestionAnswerDTO;
+import com.miproyecto.clienterest.dto.QuestionDTO;
 import com.miproyecto.clienterest.dto.UserQuestionsDTO;
 import com.miproyecto.clienterest.dto.UsersDTO;
 import com.miproyecto.clienterest.service.UserService;
@@ -218,23 +219,19 @@ public class AuthController {
             @RequestParam Integer id,
             Model model) {
 
+        List<QuestionDTO> questions = userService.findAllQuestions().getBody();
 
         UserQuestionsDTO userQuestionsDTO = new UserQuestionsDTO();
-
         userQuestionsDTO.setUserId(id);
 
         List<QuestionAnswerDTO> answers = new ArrayList<>();
-        answers.add(new QuestionAnswerDTO(1, ""));
-        answers.add(new QuestionAnswerDTO(2, ""));
-        answers.add(new QuestionAnswerDTO(3, ""));
+        for (int i = 0; i < 3; i++) {
+            answers.add(new QuestionAnswerDTO(null, ""));
+        }
         userQuestionsDTO.setAnswers(answers);
 
-
-        model.addAttribute(
-                "userQuestionsDTO",
-                userQuestionsDTO
-        );
-
+        model.addAttribute("userQuestionsDTO", userQuestionsDTO);
+        model.addAttribute("questions", questions);
 
         return "auth/register-2";
     }
@@ -249,30 +246,37 @@ public class AuthController {
             BindingResult result,
             Model model) {
 
+        System.out.println("=== POST REGISTER QUESTIONS ===");
+        System.out.println("UserId: " + userQuestionsDTO.getUserId());
+        System.out.println("Answers: " + userQuestionsDTO.getAnswers());
 
         if (result.hasErrors()) {
+            System.out.println("ERROR: Fallan validaciones");
+            System.out.println(result.getAllErrors());
             return "auth/register-2";
         }
 
-
         boolean allSaved = true;
         for (QuestionAnswerDTO answer : userQuestionsDTO.getAnswers()) {
+            System.out.println("Guardando: questionId=" + answer.getQuestionId() + " answer=" + answer.getAnswer());
+
             ResponseEntity<?> response = userService.saveQuestion(
                     userQuestionsDTO.getUserId(),
                     answer.getQuestionId(),
                     answer.getAnswer()
             );
+
+            System.out.println("Respuesta: " + response.getStatusCode());
+
             if (response.getStatusCode() != HttpStatus.CREATED) {
                 allSaved = false;
                 break;
             }
         }
 
-
         if (allSaved) {
             return "redirect:/login";
         }
-
 
         model.addAttribute("error", "No se pudieron guardar las respuestas");
         return "auth/register-2";

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import com.miproyecto.clienterest.dto.QuestionDTO;
 import com.miproyecto.clienterest.dto.SendQuestionDTO;
 import com.miproyecto.clienterest.dto.UsersDTO;
 
@@ -140,4 +141,13 @@ public class UserService {
                 .retrieve()
                 .toEntity(Object.class);
     }
+    
+    public ResponseEntity<List<QuestionDTO>> findAllQuestions() {
+        return restClient.get()
+                .uri("/api/questions")
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<List<QuestionDTO>>() {});
+    }
+    
+    
 }
