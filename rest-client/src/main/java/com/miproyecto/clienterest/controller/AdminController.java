@@ -1,7 +1,6 @@
 package com.miproyecto.clienterest.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.client.RestClient;
 
 import com.miproyecto.clienterest.dto.AdminUserDTO;
 import com.miproyecto.clienterest.service.AdminService;
@@ -18,11 +16,9 @@ import com.miproyecto.clienterest.service.AdminService;
 @RequestMapping("/menu-admin")
 public class AdminController {
 
-    private final RestClient restClient;
     private final AdminService adminServ;
 
-    public AdminController(RestClient restClient, AdminService adminServ) {
-        this.restClient = restClient;
+    public AdminController(AdminService adminServ) {
         this.adminServ = adminServ;
     }
 
@@ -35,33 +31,25 @@ public class AdminController {
 
     @PostMapping("/approve/{id}")
     public String approve(@PathVariable Integer id) {
-        restClient.patch()
-                .uri("/api/user/{id}", id)
-                .body(Map.of("role", Map.of("id", 2)))
-                .retrieve()
-                .toBodilessEntity();
+        
+    	adminServ.approve(id);
 
         return "redirect:/menu-admin";
     }
 
     @PostMapping("/block/{id}")
     public String block(@PathVariable Integer id) {
-        restClient.put()
-                .uri("/api/user/{id}", id)
-                .body(Map.of("blocked", true))
-                .retrieve()
-                .toBodilessEntity();
-
+        
+    	adminServ.block(id);
+    	
         return "redirect:/menu-admin";
     }
 
 	@PostMapping("/delete/{id}")
 	public String delete(@PathVariable Integer id) {
-    restClient.delete()
-            .uri("/api/user/{id}", id)
-            .retrieve()
-            .toBodilessEntity();
+    
+		adminServ.delete(id);
 
     return "redirect:/menu-admin";
-}
+	}
 }
