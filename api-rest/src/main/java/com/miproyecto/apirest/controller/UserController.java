@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -18,6 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.miproyecto.apirest.dto.UserCreateDTO;
 import com.miproyecto.apirest.model.Users;
 import com.miproyecto.apirest.service.UserService;
+
+
+
+
 
 @RestController
 @RequestMapping("/api/user")
@@ -134,9 +139,14 @@ public class UserController {
     	return ResponseEntity.ok(temp);
     }
     //Update
-    @PutMapping("/{id}")
-    public ResponseEntity<Users> update(@PathVariable Integer id, @RequestBody Users user)
-    {
+    @PatchMapping("/{id}")
+    public ResponseEntity<Users> patchUpdate(
+            @PathVariable Integer id,
+            @RequestBody Users user) {
+
+        System.out.println("ID: " + id);
+        System.out.println("ROLE: " + user.getRole());
+
         Users updatedUser = userService.update(id, user);
 
         if (updatedUser == null)
@@ -155,6 +165,4 @@ public class UserController {
 
         return ResponseEntity.ok(deleted);
     }
-    
-    
 }
