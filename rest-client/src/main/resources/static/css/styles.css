@@ -296,17 +296,19 @@ body {
 	color: #1e293b;
 	font-size: 1.4rem;
 	margin-bottom: 1.5rem;
+	text-align: center;
 }
 
 .admin-layout {
 	display: flex;
+	justify-content: center;
 	gap: 1.5rem;
 	align-items: flex-start;
 }
 
 .admin-table {
-	flex: 1;
 	max-width: 850px;
+	width: 100%;
 	table-layout: fixed;
 	border-collapse: collapse;
 	background-color: white;
@@ -321,12 +323,11 @@ body {
 
 .admin-table th {
 	color: white;
-	text-align: left;
+	text-align: center;
 	padding: 0.6rem 0.9rem;
 	font-size: 0.75rem;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
-	text-align: center;
 }
 
 .admin-table td {
@@ -340,12 +341,37 @@ body {
 	background-color: #f8fafc;
 }
 
+.admin-table th:nth-child(1),
+.admin-table td:nth-child(1) {
+	width: 18%;
+}
+
+.admin-table th:nth-child(2),
+.admin-table td:nth-child(2) {
+	width: 25%;
+}
+
+.admin-table th:nth-child(3),
+.admin-table td:nth-child(3) {
+	width: 12%;
+}
+
+.admin-table th:nth-child(4),
+.admin-table td:nth-child(4) {
+	width: 12%;
+}
+
+.admin-table th:nth-child(5),
+.admin-table td:nth-child(5) {
+	width: 33%;
+}
+
 .admin-actions {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	gap: 0.4rem;
 	align-items: center;
-	justify-content: center;
+	justify-content: start;
 }
 
 .admin-actions form {
@@ -359,33 +385,6 @@ body {
 	width: 200px;
 	flex-shrink: 0;
 	margin-left: 3rem;
-}
-
-.btn-db-upload,
-.btn-db-download {
-	padding: 0.7rem 1rem;
-	border: none;
-	border-radius: 8px;
-	font-size: 0.9rem;
-	font-weight: 600;
-	cursor: pointer;
-	color: white;
-}
-
-.btn-db-upload {
-	background-color: #2563eb;
-}
-
-.btn-db-upload:hover {
-	background-color: #1d4ed8;
-}
-
-.btn-db-download {
-	background-color: #64748b;
-}
-
-.btn-db-download:hover {
-	background-color: #475569;
 }
 
 .badge {
@@ -605,4 +604,109 @@ body {
 
 .error-page {
 	flex: 1;
+}
+
+/* ===== CALENDAR ===== */
+.calendar-page {
+	padding: 2rem;
+	max-width: 900px;
+	margin: 0 auto;
+	width: 100%;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+}
+
+
+.calendar-header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.calendar-nav-btn {
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 0.4rem 0.8rem;
+	color: #2563eb;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.calendar-nav-btn:hover {
+	background-color: #eff6ff;
+}
+
+.calendar-header h2 {
+	color: #1e293b;
+	font-size: 1.5rem;
+	margin: 0;
+}
+
+.calendar-grid-wrapper {
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+	padding: 1.5rem;
+}
+
+.weekday-row {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	margin-bottom: 0.5rem;
+}
+
+.weekday-row span {
+	text-align: center;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: #64748b;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.days-grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 0.4rem;
+}
+
+.day-cell {
+	aspect-ratio: 1;
+	border-radius: 10px;
+	border: 1px solid #e2e8f0;
+	padding: 0.4rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.day-cell.empty {
+	border: none;
+	visibility: hidden;
+}
+
+.day-number {
+	font-size: 0.8rem;
+	color: #94a3b8;
+	font-weight: 600;
+}
+
+.day-cell.worked {
+	background: linear-gradient(135deg, #eff6ff, #dbeafe);
+	border-color: #bfdbfe;
+}
+
+.day-cell.worked .day-number {
+	color: #1e40af;
+}
+
+.day-hours {
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: #1e40af;
+	align-self: flex-end;
 }

@@ -20,13 +20,15 @@ public class TimeEntryService {
     private final TimeEntryRepository timeEntryRepository;
     private final BreakRepository breakRepository;
     private final UsersRepository userRepository;
+    private final BreakService breakServ;
 
     public TimeEntryService(TimeEntryRepository timeEntryRepository,
                             BreakRepository breakRepository,
-                            UsersRepository userRepository) {
+                            UsersRepository userRepository, BreakService breakServ) {
         this.timeEntryRepository = timeEntryRepository;
         this.breakRepository = breakRepository;
         this.userRepository = userRepository;
+        this.breakServ = breakServ;
     }
 
     public TimeEntry startEntry(Integer userId) {
@@ -61,11 +63,13 @@ public class TimeEntryService {
         return breakRepository.save(existingBreak);
     }
 
-    public TimeEntry stopEntry(Integer timeEntryId, List<Break> breaks) {
+    public TimeEntry stopEntry(Integer timeEntryId) {
         TimeEntry entry = timeEntryRepository.findById(timeEntryId)
                 .orElseThrow(() -> new RuntimeException("Fichaje no encontrado"));
 
         entry.setEndTime(LocalDateTime.now());
+
+        List<Break> breaks = breakServ.findByTimeEntryId(timeEntryId);
 
         long totalBreakMinutes = 0;
         for (Break b : breaks) {

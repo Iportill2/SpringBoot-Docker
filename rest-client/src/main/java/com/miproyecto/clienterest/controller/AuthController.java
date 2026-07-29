@@ -21,6 +21,7 @@ import com.miproyecto.clienterest.dto.UserQuestionsDTO;
 import com.miproyecto.clienterest.dto.UsersDTO;
 import com.miproyecto.clienterest.service.UserService;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 
@@ -50,16 +51,12 @@ public class AuthController {
             @Valid @ModelAttribute LoginDTO loginDTO,
             BindingResult result) {
 
-
         if (result.hasErrors()) {
             return "auth/login";
         }
 
         return "/layout/base-app";
     }
-
-
-
     /*
      * PRIMER PASO REGISTRO
      */
