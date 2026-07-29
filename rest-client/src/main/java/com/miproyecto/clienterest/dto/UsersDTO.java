@@ -4,7 +4,7 @@ public class UsersDTO {
 
     private Integer id;
     private String username;
-    private String password;
+    private String pass;
     private String email;
 
     public Integer getId() {
@@ -23,13 +23,14 @@ public class UsersDTO {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPass() {
+        return pass;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPass(String pass) {
+        this.pass = pass;
     }
+
     public String getEmail() {
         return email;
     }
@@ -37,12 +38,13 @@ public class UsersDTO {
     public void setEmail(String email) {
         this.email = email;
     }
+
     @Override
     public String toString() {
         return "UsersDTO{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
+                ", pass='" + pass + '\'' +
                 ", email='" + email + '\'' +
                 '}';
     }

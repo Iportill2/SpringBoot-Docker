@@ -18,11 +18,11 @@
 			<div class="auth-form">
 				<form th:action="@{/login}" th:object="${loginDTO}" method="post">
 
-					<input type="text" th:field="*{email}" placeholder="Introduce tu email">
-					<span class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+					<input type="text" th:field="*{username}" placeholder="Introduce tu nombre">
+					<span class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
 
-					<input type="password" th:field="*{password}" placeholder="contraseña">
-					<span class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+					<input type="password" th:field="*{pass}" placeholder="contraseña">
+					<span class="error" th:if="${#fields.hasErrors('pass')}" th:errors="*{pass}"></span>
 
 					<a th:href="@{/register}">¿No tienes cuenta? Registrate</a>
 					<a>¿Olvidaste tu contraseña?</a>

@@ -24,20 +24,17 @@ import com.miproyecto.clienterest.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
-
 @Controller
 @RequestMapping("/")
 public class AuthController {
 
     private final UserService userService;
 
-
     public AuthController(UserService userService) {
         this.userService = userService;
     }
 
-
-    @GetMapping({"/", "/login"})
+    @GetMapping({ "/", "/login" })
     public String loginGet(Model model) {
 
         model.addAttribute("loginDTO", new LoginDTO());
@@ -45,17 +42,49 @@ public class AuthController {
         return "auth/login";
     }
 
-
     @PostMapping("/login")
     public String loginPost(
             @Valid @ModelAttribute LoginDTO loginDTO,
-            BindingResult result) {
+            BindingResult result,
+            Model model,
+            HttpSession session) {
+
+        System.out.println("=== LOGIN INTENTO ===");
+        System.out.println("Username: " + loginDTO.getUsername());
 
         if (result.hasErrors()) {
+            System.out.println("ERROR: validación falló");
             return "auth/login";
         }
 
-        return "/layout/base-app";
+        ResponseEntity<UsersDTO> response = userService.findByUsername(loginDTO.getUsername());
+
+        System.out.println("Status: " + response.getStatusCode());
+        System.out.println("Body: " + response.getBody());
+
+        if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
+            System.out.println("SALIDA: usuario no encontrado");
+            model.addAttribute("error", "Usuario o contraseña incorrectos");
+            return "auth/login";
+        }
+
+        UsersDTO user = response.getBody();
+
+        System.out.println("Password BD: " + user.getPass());
+        System.out.println("Password form: " + loginDTO.getPass());
+
+        if (user.getPass() == null || !user.getPass().equals(loginDTO.getPass())) {
+            System.out.println("SALIDA: password no coincide");
+            model.addAttribute("error", "Usuario o contraseña incorrectos");
+            return "auth/login";
+        }
+
+        session.setAttribute("userId", user.getId());
+        session.setAttribute("username", user.getUsername());
+
+        System.out.println("LOGIN OK, redirigiendo a /clock-in");
+
+        return "redirect:/clock-in";
     }
     /*
      * PRIMER PASO REGISTRO
@@ -69,19 +98,15 @@ public class AuthController {
         return "auth/register";
     }
 
-
-
     @PostMapping("/register")
     public String registerPost(
             @Valid @ModelAttribute UsersDTO usersDTO,
             BindingResult result,
             Model model) {
 
-
         System.out.println("=== INICIO REGISTRO ===");
         System.out.println("Usuario recibido: " + usersDTO.getUsername());
         System.out.println("Email recibido: " + usersDTO.getEmail());
-
 
         if (result.hasErrors()) {
 
@@ -91,121 +116,80 @@ public class AuthController {
             return "auth/register";
         }
 
-
-
         // Comprobar usuario existente
         System.out.println("Comprobando si existe username...");
 
-        ResponseEntity<Boolean> userResponse =
-                userService.existsByUsername(usersDTO.getUsername());
+        ResponseEntity<Boolean> userResponse = userService.existsByUsername(usersDTO.getUsername());
 
-
-        System.out.println("Respuesta username: " 
+        System.out.println("Respuesta username: "
                 + userResponse.getStatusCode()
                 + " - "
                 + userResponse.getBody());
 
-
         if (userResponse.getStatusCode() == HttpStatus.BAD_REQUEST
                 || Boolean.TRUE.equals(userResponse.getBody())) {
 
-
             System.out.println("SALIDA: Usuario ya existe o petición incorrecta");
-
 
             model.addAttribute(
                     "error",
-                    "No se ha podido completar el registro"
-            );
-
+                    "No se ha podido completar el registro");
 
             return "auth/register";
         }
 
-
-
         // Comprobar email existente
         System.out.println("Comprobando si existe email...");
 
-
-        ResponseEntity<Boolean> emailResponse =
-                userService.existsByEmail(usersDTO.getEmail());
-
+        ResponseEntity<Boolean> emailResponse = userService.existsByEmail(usersDTO.getEmail());
 
         System.out.println("Respuesta email: "
                 + emailResponse.getStatusCode()
                 + " - "
                 + emailResponse.getBody());
 
-
-
         if (emailResponse.getStatusCode() == HttpStatus.BAD_REQUEST
                 || Boolean.TRUE.equals(emailResponse.getBody())) {
 
-
             System.out.println("SALIDA: Email ya existe o petición incorrecta");
-
 
             model.addAttribute(
                     "error",
-                    "No se ha podido completar el registro"
-            );
-
+                    "No se ha podido completar el registro");
 
             return "auth/register";
         }
 
-
-
         // Crear usuario
         System.out.println("Creando usuario en API...");
 
-
-        ResponseEntity<UsersDTO> response =
-                userService.create(usersDTO);
-
-
+        ResponseEntity<UsersDTO> response = userService.create(usersDTO);
 
         System.out.println("Respuesta creación usuario: "
                 + response.getStatusCode());
 
-
-
         if (response.getStatusCode() == HttpStatus.CREATED) {
 
-
             UsersDTO createdUser = response.getBody();
-
 
             System.out.println("USUARIO CREADO CORRECTAMENTE");
             System.out.println("ID generado: " + createdUser.getId());
 
-
             System.out.println("REDIRECCIONANDO A QUESTIONS");
-
 
             return "redirect:/register/questions?id="
                     + createdUser.getId();
         }
 
-
-
         System.out.println("SALIDA: Error creando usuario");
         System.out.println("Código recibido: " + response.getStatusCode());
 
-
-
         model.addAttribute(
                 "error",
-                "No se ha podido completar el registro"
-        );
-
+                "No se ha podido completar el registro");
 
         return "auth/register";
     }
-
-
-
 
     /*
      * SEGUNDO PASO REGISTRO
@@ -233,10 +217,6 @@ public class AuthController {
         return "auth/register-2";
     }
 
-
-
-
-
     @PostMapping("/register/questions")
     public String registerQuestionsPost(
             @Valid @ModelAttribute UserQuestionsDTO userQuestionsDTO,
@@ -260,8 +240,7 @@ public class AuthController {
             ResponseEntity<?> response = userService.saveQuestion(
                     userQuestionsDTO.getUserId(),
                     answer.getQuestionId(),
-                    answer.getAnswer()
-            );
+                    answer.getAnswer());
 
             System.out.println("Respuesta: " + response.getStatusCode());
 
