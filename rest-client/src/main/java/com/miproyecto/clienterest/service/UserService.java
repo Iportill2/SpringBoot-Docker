@@ -2,6 +2,7 @@ package com.miproyecto.clienterest.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -14,11 +15,15 @@ import com.miproyecto.clienterest.dto.UsersDTO;
 @Service
 public class UserService {
 
-    private final RestClient restClient;
 
-    public UserService(RestClient restClient) {
-        this.restClient = restClient;
-    }
+
+	    private final RestClient restClient;
+
+	    public UserService(
+	            @Qualifier("apiRestClient") RestClient restClient) {
+
+	        this.restClient = restClient;
+	    }
 
     public ResponseEntity<UsersDTO> create(UsersDTO user) {
 

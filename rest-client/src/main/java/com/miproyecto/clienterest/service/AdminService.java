@@ -3,6 +3,7 @@ package com.miproyecto.clienterest.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,10 +14,14 @@ import com.miproyecto.clienterest.dto.UserQuestionReadDTO;
 
 @Service
 public class AdminService {
-	
+
     private final RestClient restClient;
 
-    public AdminService(RestClient restClient) {
+
+
+    public AdminService(
+            @Qualifier("apiRestClient") RestClient restClient) {
+
         this.restClient = restClient;
     }
 

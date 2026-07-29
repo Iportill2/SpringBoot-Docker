@@ -1,0 +1,88 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base-app}">
+
+<body>
+
+<div layout:fragment="content">
+
+    <div class="admin-page">
+
+        <h2 class="admin-title">
+            Gestión de copias de seguridad
+        </h2>
+
+
+        <div class="backup-actions">
+
+            <form th:action="@{/backups/create}" method="post">
+                <button type="submit" class="btn-db-upload">
+                    Crear backup
+                </button>
+            </form>
+
+
+            <button type="button" class="btn-db-download">
+                Restaurar base de datos
+            </button>
+
+        </div>
+
+
+        <div class="backup-container">
+
+            <table class="admin-table">
+
+                <thead>
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Tamaño</th>
+                        <th>Fecha de creación</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    <tr th:each="backup : ${backups}">
+
+                        <td th:text="${backup.fileName}">
+                            archivo.sql.gz
+                        </td>
+
+
+                        <td th:text="${backup.size + ' bytes'}">
+                            0 bytes
+                        </td>
+
+
+                        <td th:text="${backup.created}">
+                            fecha
+                        </td>
+
+
+                        <td>
+                            <a class="btn-approve"
+                               th:href="@{/backups/download/{file}(file=${backup.fileName})}">
+                                Descargar
+                            </a>
+                        </td>
+
+                    </tr>
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

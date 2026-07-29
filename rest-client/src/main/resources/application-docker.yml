@@ -1,6 +1,9 @@
 api:
   base-url: http://api-rest:8080
 
+backup:
+  base-url: http://backup-service:8082
+
 management:
   endpoints:
     web:

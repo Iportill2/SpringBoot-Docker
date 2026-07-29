@@ -3,10 +3,16 @@
       layout:decorate="~{layout/base-app}">
 <body>
     <div layout:fragment="content">
+
         <div class="admin-page">
+
             <h2 class="admin-title">Gestión de usuarios</h2>
+
+
             <div class="admin-layout">
+
                 <table class="admin-table">
+
                     <thead>
                         <tr>
                             <th>Usuario</th>
@@ -16,40 +22,171 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-					<tbody>
-					    <tr th:each="u : ${users}">
-					        <td th:text="${u.username}"></td>
-					        <td th:text="${u.email}"></td>
-					        <td>
-					            <span class="badge" th:if="${u.role != null}"
-					                th:classappend="${u.role.name == 'ADMIN'} ? 'badge-admin' : 'badge-user'"
-					                th:text="${u.role.name}"></span>
-					            <span class="badge badge-user" th:if="${u.role == null}" th:text="'Sin rol'"></span>
-					        </td>
-					        <td>
-					            <span class="badge" th:classappend="${u.blocked} ? 'badge-blocked' : 'badge-active'"
-					                th:text="${u.blocked}"></span>
-					        </td>
-					        <td class="admin-actions">
-					            <form th:action="@{/menu-admin/approve/{id}(id=${u.id})}" method="post">
-					                <button type="submit" class="btn-approve">Aprobar</button>
-					            </form>
-					            <form th:action="@{/menu-admin/block/{id}(id=${u.id})}" method="post">
-					                <button type="submit" class="btn-block">Bloquear</button>
-					            </form>
-					            <form th:action="@{/menu-admin/delete/{id}(id=${u.id})}" method="post">
-					                <button type="submit" class="btn-delete">Eliminar</button>
-					            </form>
-					        </td>
-					    </tr>
-					</tbody>
+
+
+                    <tbody>
+
+                        <tr th:each="u : ${users}">
+
+                            <td th:text="${u.username}"></td>
+
+                            <td th:text="${u.email}"></td>
+
+
+                            <td>
+
+                                <span class="badge"
+                                      th:if="${u.role != null}"
+                                      th:classappend="${u.role.name == 'ADMIN'} ? 'badge-admin' : 'badge-user'"
+                                      th:text="${u.role.name}">
+                                </span>
+
+
+                                <span class="badge badge-user"
+                                      th:if="${u.role == null}"
+                                      th:text="'Sin rol'">
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="badge"
+                                      th:classappend="${u.blocked} ? 'badge-blocked' : 'badge-active'"
+                                      th:text="${u.blocked}">
+                                </span>
+
+                            </td>
+
+
+                            <td class="admin-actions">
+
+                                <form th:action="@{/menu-admin/approve/{id}(id=${u.id})}"
+                                      method="post">
+
+                                    <button type="submit"
+                                            class="btn-approve">
+                                        Aprobar
+                                    </button>
+
+                                </form>
+
+
+                                <form th:action="@{/menu-admin/block/{id}(id=${u.id})}"
+                                      method="post">
+
+                                    <button type="submit"
+                                            class="btn-block">
+                                        Bloquear
+                                    </button>
+
+                                </form>
+
+
+                                <form th:action="@{/menu-admin/delete/{id}(id=${u.id})}"
+                                      method="post">
+
+                                    <button type="submit"
+                                            class="btn-delete">
+                                        Eliminar
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
                 </table>
+
+
+
                 <div class="admin-sidebar-actions">
-                    <button class="btn-db-upload">Subir copia de DB</button>
-                    <button class="btn-db-download">Bajar copia de DB</button>
+
+                    <form th:action="@{/menu-admin/backup}"
+                          method="post">
+
+                        <button type="submit"
+                                class="btn-db-download">
+                            Crear backup
+                        </button>
+
+                    </form>
+
+
+                    <button class="btn-db-upload">
+                        Restaurar DB
+                    </button>
+
                 </div>
+
+
             </div>
+
+
+
+            <div class="admin-backups">
+
+                <h2 class="admin-title">
+                    Backups de base de datos
+                </h2>
+
+
+                <table class="admin-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Archivo</th>
+                            <th>Tamaño</th>
+                            <th>Fecha creación</th>
+                            <th>Acción</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr th:each="backup : ${backups}">
+
+                            <td th:text="${backup.fileName}">
+                            </td>
+
+
+                            <td th:text="${backup.size + ' bytes'}">
+                            </td>
+
+
+                            <td th:text="${backup.created}">
+                            </td>
+
+
+                            <td>
+
+                                <a class="btn-db-download"
+                                   th:href="@{/menu-admin/download/{file}(file=${backup.fileName})}">
+                                    Descargar
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+
+                    </tbody>
+
+                </table>
+
+
+            </div>
+
+
         </div>
+
     </div>
 </body>
 </html>
