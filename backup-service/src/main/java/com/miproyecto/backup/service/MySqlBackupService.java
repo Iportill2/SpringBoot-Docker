@@ -198,4 +198,92 @@ public class MySqlBackupService implements BackupService {
 
         return new FileSystemResource(file);
     }
+    
+
+
+    @Override
+    public Boolean restoreBackup(String fileName) {
+
+        Path file = Path.of(
+                backupProperties.getDirectory(),
+                fileName
+        );
+
+        if (!Files.exists(file)) {
+            return false;
+        }
+
+        String createDatabaseCommand = String.format(
+                "mysql -h %s -P %d -u %s -p%s -e \"CREATE DATABASE IF NOT EXISTS %s\"",
+                mySqlProperties.getHost(),
+                mySqlProperties.getPort(),
+                mySqlProperties.getUser(),
+                mySqlProperties.getPassword(),
+                mySqlProperties.getDatabase()
+        );
+
+        String restoreCommand = String.format(
+                "gunzip -c %s | mysql -h %s -P %d -u %s -p%s %s",
+                file.toAbsolutePath(),
+                mySqlProperties.getHost(),
+                mySqlProperties.getPort(),
+                mySqlProperties.getUser(),
+                mySqlProperties.getPassword(),
+                mySqlProperties.getDatabase()
+        );
+
+        try {
+
+            Process createDatabase = new ProcessBuilder(
+                    "sh",
+                    "-c",
+                    createDatabaseCommand
+            ).start();
+
+            int createExitCode = createDatabase.waitFor();
+
+            if (createExitCode != 0) {
+                return false;
+            }
+
+            Process restore = new ProcessBuilder(
+                    "sh",
+                    "-c",
+                    restoreCommand
+            ).start();
+
+            StringBuilder error = new StringBuilder();
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(restore.getErrorStream()))) {
+
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    error.append(line).append("\n");
+                }
+            }
+
+            int exitCode = restore.waitFor();
+
+            if (exitCode != 0) {
+                System.err.println("Error restaurando backup:\n" + error);
+                return false;
+            }
+
+            return true;
+
+        } catch (IOException e) {
+
+            System.err.println("No se pudo ejecutar mysql: " + e.getMessage());
+            return false;
+
+        } catch (InterruptedException e) {
+
+            Thread.currentThread().interrupt();
+
+            System.err.println("La restauración fue interrumpida: " + e.getMessage());
+            return false;
+        }
+    }
 }

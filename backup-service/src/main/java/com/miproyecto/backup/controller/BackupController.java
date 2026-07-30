@@ -36,4 +36,10 @@ public class BackupController {
     {
         return ResponseEntity.ok(service.downloadBackup(fileName));
     }
+    @PostMapping("/restore/{fileName}")
+    public Boolean restoreBackup(@PathVariable String fileName) {
+
+        return service.restoreBackup(fileName);
+
+    }
 }

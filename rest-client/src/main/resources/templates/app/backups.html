@@ -13,12 +13,24 @@
         </h2>
 
 
+        <!-- Mensajes de restauración -->
+        <div th:if="${message}" class="alert alert-success">
+            <span th:text="${message}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger">
+            <span th:text="${error}"></span>
+        </div>
+
+
         <div class="backup-actions">
 
             <form th:action="@{/backups/create}" method="post">
+
                 <button type="submit" class="btn-db-upload">
                     Crear backup
                 </button>
+
             </form>
 
         </div>
@@ -29,18 +41,21 @@
             <table class="admin-table">
 
                 <thead>
+
                     <tr>
                         <th>Archivo</th>
                         <th>Tamaño</th>
                         <th>Fecha de creación</th>
                         <th>Acciones</th>
                     </tr>
+
                 </thead>
 
 
                 <tbody>
 
                     <tr th:each="backup : ${backups}">
+
 
                         <td th:text="${backup.fileName}">
                             archivo.sql.gz
@@ -68,11 +83,10 @@
 
                             <form th:action="@{/backups/restore/{file}(file=${backup.fileName})}"
                                   method="post"
-                                  style="display:inline;">
+                                  onsubmit="return confirm('¿Seguro que quieres restaurar esta copia? Se reemplazarán los datos actuales.');">
 
                                 <button type="submit"
-                                        class="btn-db-download"
-                                        onclick="return confirm('¿Seguro que quieres restaurar esta copia? Se reemplazarán los datos actuales.')">
+                                        class="btn-db-download">
                                     Restaurar
                                 </button>
 

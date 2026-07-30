@@ -127,6 +127,16 @@ body {
 .auth-form a:hover {
 	text-decoration: underline;
 }
+.backup-actions-table {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.backup-actions-table form {
+    margin: 0;
+}
 
 /* ===== APP-BASE-HEADER ===== */
 
@@ -305,14 +315,13 @@ body {
 }
 
 .admin-table {
-	flex: 1;
-	max-width: 850px;
-	table-layout: fixed;
-	border-collapse: collapse;
-	background-color: white;
-	border-radius: 12px;
-	box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-	font-size: 0.85rem;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    font-size: 0.85rem;
 }
 
 .admin-table thead {

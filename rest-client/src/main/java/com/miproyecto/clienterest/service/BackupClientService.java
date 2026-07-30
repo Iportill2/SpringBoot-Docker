@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -43,8 +44,15 @@ public class BackupClientService {
     public Boolean restoreBackup(String fileName) {
 
         return restClient.post()
-                .uri("/backups/restore/{file}", fileName)
+                .uri("/backups/restore/{fileName}", fileName)
                 .retrieve()
                 .body(Boolean.class);
+    }
+    public Resource downloadBackup(String fileName) {
+
+        return restClient.get()
+                .uri("/backups/{fileName}", fileName)
+                .retrieve()
+                .body(Resource.class);
     }
 }
