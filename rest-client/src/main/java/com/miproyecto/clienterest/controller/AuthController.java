@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.miproyecto.clienterest.dto.LoginDTO;
 import com.miproyecto.clienterest.dto.QuestionAnswerDTO;
 import com.miproyecto.clienterest.dto.QuestionDTO;
+import com.miproyecto.clienterest.dto.RoleDTO;
 import com.miproyecto.clienterest.dto.UserQuestionsDTO;
 import com.miproyecto.clienterest.dto.UsersDTO;
 import com.miproyecto.clienterest.service.UserService;
@@ -65,6 +66,7 @@ public class AuthController {
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
             System.out.println("SALIDA: usuario no encontrado");
             model.addAttribute("error", "Usuario o contraseña incorrectos");
+            
             return "auth/login";
         }
 
@@ -72,6 +74,13 @@ public class AuthController {
 
         System.out.println("Password BD: " + user.getPass());
         System.out.println("Password form: " + loginDTO.getPass());
+        
+        RoleDTO role = user.getRole();
+        
+        if (role == null || (role.getId() != 1 && role.getId() != 2)) {
+            model.addAttribute("error", "Tu cuenta aún no ha sido aprobada");
+            return "auth/login";
+        }
 
         if (user.getPass() == null || !user.getPass().equals(loginDTO.getPass())) {
             System.out.println("SALIDA: password no coincide");
@@ -258,4 +267,9 @@ public class AuthController {
         return "auth/register-2";
     }
 
+    @PostMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
+    }
 }

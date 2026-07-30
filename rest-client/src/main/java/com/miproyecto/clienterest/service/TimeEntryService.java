@@ -1,5 +1,8 @@
 package com.miproyecto.clienterest.service;
 
+import java.util.List;
+
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -26,5 +29,12 @@ public class TimeEntryService {
                 .uri("/api/time-entry/stop/{timeEntryId}", timeEntryId)
                 .retrieve()
                 .body(TimeEntryDTO.class);
+    }
+    
+    public List<TimeEntryDTO> findByMonth(Integer userId, int year, int month) {
+        return restClient.get()
+                .uri("/api/time-entry/user/{userId}?year={year}&month={month}", userId, year, month)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<TimeEntryDTO>>() {});
     }
 }

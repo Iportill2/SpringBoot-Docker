@@ -6,6 +6,7 @@ public class UsersDTO {
     private String username;
     private String pass;
     private String email;
+    private RoleDTO role;
 
     public Integer getId() {
         return id;
@@ -39,6 +40,14 @@ public class UsersDTO {
         this.email = email;
     }
 
+    public RoleDTO getRole() {
+        return role;
+    }
+
+    public void setRole(RoleDTO role) {
+        this.role = role;
+    }
+
     @Override
     public String toString() {
         return "UsersDTO{" +
@@ -46,6 +55,7 @@ public class UsersDTO {
                 ", username='" + username + '\'' +
                 ", pass='" + pass + '\'' +
                 ", email='" + email + '\'' +
+                ", role=" + role +
                 '}';
     }
 }

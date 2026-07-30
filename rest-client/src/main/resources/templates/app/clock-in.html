@@ -4,25 +4,35 @@
 <body>
 	<div layout:fragment="content">
 		<div class="clockin-page">
-			<h2>Hola, <span th:text="${username}"></span> 👋</h2>
+			<h2>Hola, <span th:text="${username}"></span></h2>
 			<p>¿Comenzamos jornada?</p>
 
 			<div class="clockin-times">
-				<p th:if="${horaInicio}">Inicio: <span th:text="${horaInicio}"></span></p>
-				<p th:if="${horaPausa}">Pausa: <span th:text="${horaPausa}"></span></p>
-				<p th:if="${horaFin}">Fin: <span th:text="${horaFin}"></span></p>
+				<p th:if="${startTime}">Inicio: <span th:text="${startTime}"></span></p>
+				<p th:if="${pauseTime}">Pausa: <span th:text="${pauseTime}"></span></p>
+				<p th:if="${resumeTime}">Reanudado: <span th:text="${resumeTime}"></span></p>
+				<p th:if="${endTime}">Fin: <span th:text="${endTime}"></span></p>
 			</div>
 
 			<div class="clockin-actions">
-				<form th:action="@{/clock-in/start}" method="post">
-					<button type="submit" class="btn-start">Iniciar jornada</button>
-				</form>
-				<form th:action="@{/clock-in/pause}" method="post">
-					<button type="submit" class="btn-pause">Pausar</button>
-				</form>
-				<form th:action="@{/clock-in/stop}" method="post">
-					<button type="submit" class="btn-stop">Parar jornada</button>
-				</form>
+
+			    <form th:if="${startTime == null or endTime != null}" th:action="@{/clock-in/start}" method="post">
+			        <button type="submit" class="btn-start">Iniciar jornada</button>
+			    </form>
+
+			    <form th:if="${startTime != null and endTime == null and breakOpen != true}"
+			          th:action="@{/clock-in/pause}" method="post">
+			        <button type="submit" class="btn-pause">Pausar</button>
+			    </form>
+
+			    <form th:if="${breakOpen == true}" th:action="@{/clock-in/resume}" method="post">
+			        <button type="submit" class="btn-pause">Reanudar</button>
+			    </form>
+
+			    <form th:if="${startTime != null and endTime == null}" th:action="@{/clock-in/stop}" method="post">
+			        <button type="submit" class="btn-stop">Parar jornada</button>
+			    </form>
+
 			</div>
 			<form th:action="@{/clock-in/reset}" method="post">
 			    <button type="submit" class="btn-reset">Resetear horas</button>

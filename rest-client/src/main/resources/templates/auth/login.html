@@ -18,6 +18,8 @@
 			<div class="auth-form">
 				<form th:action="@{/login}" th:object="${loginDTO}" method="post">
 
+					<p th:if="${error}" class="error-message" th:text="${error}"></p>
+					
 					<input type="text" th:field="*{username}" placeholder="Introduce tu nombre">
 					<span class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
 
