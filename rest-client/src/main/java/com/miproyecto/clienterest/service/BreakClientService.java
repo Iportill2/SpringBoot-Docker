@@ -1,5 +1,6 @@
 package com.miproyecto.clienterest.service;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -10,7 +11,7 @@ public class BreakClientService {
 
     private final RestClient restClient;
 
-    public BreakClientService(RestClient restClient) {
+    public BreakClientService(@Qualifier("apiRestClient") RestClient restClient) {
         this.restClient = restClient;
     }
 

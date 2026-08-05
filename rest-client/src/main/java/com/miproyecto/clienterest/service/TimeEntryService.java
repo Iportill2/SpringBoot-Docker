@@ -2,6 +2,7 @@ package com.miproyecto.clienterest.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -13,7 +14,7 @@ public class TimeEntryService {
 
     private final RestClient restClient;
 
-    public TimeEntryService(RestClient restClient) {
+    public TimeEntryService(@Qualifier("apiRestClient") RestClient restClient) {
         this.restClient = restClient;
     }
 
