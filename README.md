@@ -25,22 +25,22 @@ cp .env.example .env
 # edita .env y cambia las contraseñas
 ```
 
-> `mysql` y `backup-service` se levantan SIEMPRE en Docker (el backup necesita `mysqldump`, que no existe en Windows). `api-rest`, `rest-client` y `nginx` están marcados con el perfil `full` de docker-compose.
+> `mysql` y `backup-service` se levantan SIEMPRE en Docker (el backup necesita `mysqldump`, que no existe en Windows). `api-rest`, `rest-client` y `nginx` están marcados con el perfil `full` de docker-compose, activado por defecto con `COMPOSE_PROFILES=full` en el `.env`.
 
 ## Modo A: Todo en Docker
 
 ```bash
 # Construir imágenes y levantar todo
-docker compose --profile full up -d --build
+docker compose up -d --build
 
 # Comprobar estado (todos deben estar healthy)
-docker compose --profile full ps
+docker compose ps
 
 # Parar todo
-docker compose --profile full down
+docker compose down
 
 # Ver logs de un servicio
-docker compose --profile full logs -f rest-client
+docker compose logs -f rest-client
 ```
 
 Acceso:
@@ -56,8 +56,10 @@ Idea: `mysql` y `backup-service` siguen en Docker; `api-rest` y `rest-client` co
 1. Levantar solo los servicios de infraestructura:
 
    ```bash
-   docker compose up -d
+   docker compose up -d mysql backup-service
    ```
+
+   > Con `COMPOSE_PROFILES=full` en el `.env`, un `docker compose up -d` simple levantaría también las apps. Para correrlas en local indica los servicios explícitamente, o páralos tras levantarlos (paso 2).
 
 2. **IMPORTANTE:** si algún contenedor de `api-rest`, `rest-client` o `nginx` sigue arriba, páralo para liberar puertos:
 
@@ -88,7 +90,7 @@ cd backup-service && ./mvnw.cmd clean package -DskipTests
 ```
 
 > Si cambias código y quieres verlo en Docker, hay que reconstruir el jar Y la imagen:
-> `docker compose --profile full up -d --build`
+> `docker compose up -d --build`
 
 ## Backups
 
