@@ -8,13 +8,16 @@ services:
       - "3307:3306"
 
     environment:
-      MYSQL_DATABASE: aplicacion
-      MYSQL_USER: api_user
-      MYSQL_PASSWORD: api_password
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      BACKUP_USER: ${BACKUP_USER}
+      BACKUP_PASSWORD: ${BACKUP_PASSWORD}
 
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
 
     restart: unless-stopped
 
@@ -23,34 +26,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-    networks:
-      - backend
-
-
-  api-rest:
-    build:
-      context: ./api-rest
-
-    container_name: api-rest
-
-    ports:
-      - "8080:8080"
-
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-
-    depends_on:
-      mysql:
-        condition: service_healthy
-
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-    restart: unless-stopped
 
     networks:
       - backend
@@ -67,12 +42,9 @@ services:
 
     environment:
       SPRING_PROFILES_ACTIVE: docker
-
-      MYSQL_HOST: mysql
-      MYSQL_DATABASE: aplicacion
-      MYSQL_USER: backup_user
-      MYSQL_PASSWORD: backup_password
-
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${BACKUP_USER}
+      MYSQL_PASSWORD: ${BACKUP_PASSWORD}
       BACKUP_DIRECTORY: /backup
 
     depends_on:
@@ -94,11 +66,48 @@ services:
       - backend
 
 
+  api-rest:
+    build:
+      context: ./api-rest
+
+    container_name: api-rest
+
+    profiles:
+      - full
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart: unless-stopped
+
+    networks:
+      - backend
+
+
   rest-client:
     build:
       context: ./rest-client
 
     container_name: rest-client
+
+    profiles:
+      - full
 
     ports:
       - "8081:8081"
@@ -118,6 +127,9 @@ services:
 
     restart: unless-stopped
 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
     networks:
       - backend
 
@@ -128,6 +140,9 @@ services:
 
     container_name: nginx
 
+    profiles:
+      - full
+
     ports:
       - "80:80"
       - "443:443"
@@ -137,6 +152,9 @@ services:
         condition: service_healthy
 
     restart: unless-stopped
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
     networks:
       - backend

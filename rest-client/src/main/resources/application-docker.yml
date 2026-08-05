@@ -1,8 +1,8 @@
 api:
-  base-url: http://api-rest:8080
+  base-url: http://host.docker.internal:8080
 
 backup:
-  base-url: http://backup-service:8082
+  base-url: http://host.docker.internal:8082
 
 management:
   endpoints:

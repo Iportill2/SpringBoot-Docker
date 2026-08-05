@@ -1,3 +1,9 @@
+spring:
+  config:
+    import: optional:file:./.env[.properties],optional:file:../.env[.properties]
+  profiles:
+    active: local
+
 server:
   port: 8082
 

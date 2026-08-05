@@ -1,8 +1,8 @@
+spring:
+  config:
+    import: optional:file:./.env[.properties],optional:file:../.env[.properties]
+  profiles:
+    active: local
+
 server:
   port: 8081
-
-api:
-  base-url: http://api-rest:8080
-
-backup:
-  base-url: http://backup-service:8082
