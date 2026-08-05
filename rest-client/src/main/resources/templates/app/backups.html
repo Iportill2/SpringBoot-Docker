@@ -1,0 +1,114 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base-app}">
+
+<body>
+
+<div layout:fragment="content">
+
+    <div class="admin-page">
+
+        <h2 class="admin-title">
+            Gestión de copias de seguridad
+        </h2>
+
+
+        <!-- Mensajes de restauración -->
+        <div th:if="${message}" class="alert alert-success">
+            <span th:text="${message}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger">
+            <span th:text="${error}"></span>
+        </div>
+
+
+        <div class="backup-actions">
+
+            <form th:action="@{/backups/create}" method="post">
+
+                <button type="submit" class="btn-db-upload">
+                    Crear backup
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <div class="backup-container">
+
+            <table class="admin-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Tamaño</th>
+                        <th>Fecha de creación</th>
+                        <th>Acciones</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr th:each="backup : ${backups}">
+
+
+                        <td th:text="${backup.fileName}">
+                            archivo.sql.gz
+                        </td>
+
+
+                        <td th:text="${backup.size + ' bytes'}">
+                            0 bytes
+                        </td>
+
+
+                        <td th:text="${backup.created}">
+                            fecha
+                        </td>
+
+
+                        <td class="backup-actions-table">
+
+
+                            <a class="btn-approve"
+                               th:href="@{/backups/download/{file}(file=${backup.fileName})}">
+                                Descargar
+                            </a>
+
+
+                            <form th:action="@{/backups/restore/{file}(file=${backup.fileName})}"
+                                  method="post"
+                                  onsubmit="return confirm('¿Seguro que quieres restaurar esta copia? Se reemplazarán los datos actuales.');">
+
+                                <button type="submit"
+                                        class="btn-db-download">
+                                    Restaurar
+                                </button>
+
+                            </form>
+
+
+                        </td>
+
+                    </tr>
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

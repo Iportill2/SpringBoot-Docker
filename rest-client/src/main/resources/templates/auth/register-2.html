@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base-auth}">
+
+<head>
+	<title>Registro preguntas</title>
+</head>
+
+<body>
+
+	<div layout:fragment="content">
+
+		<div class="auth-container">
+
+			<div class="auth-branding">
+				<h1>Empresa Empresa</h1>
+				<p>¡¡¡Bienvenido!!!</p>
+				<p>Completa las preguntas de seguridad</p>
+			</div>
+
+
+			<div class="auth-form">
+
+				<form class="register-form"
+				      th:action="@{/register/questions}"
+				      th:object="${userQuestionsDTO}"
+				      method="post">
+
+				    <!-- ID del usuario creado en el paso 1 -->
+				    <input type="hidden" th:field="*{userId}">
+
+				    <div th:each="answer, stat : *{answers}">
+
+				        <select th:field="*{answers[__${stat.index}__].questionId}">
+				            <option value="">-- Selecciona una pregunta --</option>
+				            <option th:each="q : ${questions}"
+				                    th:value="${q.id}"
+				                    th:text="${q.text}">
+				            </option>
+				        </select>
+
+				        <input type="text"
+				               th:field="*{answers[__${stat.index}__].answer}"
+				               placeholder="Introduce tu respuesta">
+
+				        <span class="error"
+				              th:if="${#fields.hasErrors('answers[' + stat.index + '].answer')}"
+				              th:errors="*{answers[__${stat.index}__].answer}">
+				        </span>
+
+				    </div>
+
+				    <button type="submit">
+				        Registrarse
+				    </button>
+
+				    <a th:href="@{/login}">
+				        ¿Ya tienes cuenta? Inicia sesión
+				    </a>
+
+				</form>
+
+			</div>
+
+		</div>
+
+	</div>
+
+</body>
+
+</html>

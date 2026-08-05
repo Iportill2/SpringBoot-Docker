@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base-auth}">
+
+<head>
+	<title>Inicia Sesion</title>
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<div class="auth-container">
+			<div class="auth-branding">
+				<h1>Empresa Empresa</h1>
+				<p>Bienvenido de nuevo</p>
+				<p>Gracias por formar parte de este equipo</p>
+			</div>
+
+			<div class="auth-form">
+				<form th:action="@{/login}" th:object="${loginDTO}" method="post">
+
+					<input type="text" th:field="*{email}" placeholder="Introduce tu email">
+					<span class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+
+					<input type="password" th:field="*{password}" placeholder="contraseña">
+					<span class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+
+					<a th:href="@{/register}">¿No tienes cuenta? Registrate</a>
+					<a>¿Olvidaste tu contraseña?</a>
+
+					<button type="submit">Entrar</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

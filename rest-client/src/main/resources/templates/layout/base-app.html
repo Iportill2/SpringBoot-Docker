@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+	<meta charset="UTF-8">
+	<title layout:title-pattern="$CONTENT_TITLE - Sistema de Fichajes">Sistema de Fichajes</title>
+	<link rel="icon" type="image/png" href="/favicon-32.png">
+	<link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body class="base-app">
+
+	<header class="app-header">
+		<div class="app-header-company">
+			<img th:src="@{/img/logo.png}" alt="Logo" class="logo-header">
+			<h1>Nombre Empresa</h1>
+		</div>
+		<div class="app-header-user">Usuario y foto</div>
+	</header>
+
+	<div class="app-layout">
+
+		<aside class="sidebar">
+			<nav>
+				<h3 class="sidebar-title">Menú</h3>
+				<a th:href="@{/clock-in}">Fichar</a>
+				<a th:href="@{/calendar}">Calendario</a>
+				<a th:href="@{/history}">Mi historial</a>
+				<a th:href="@{/menu-admin}">( Menu solo admin )</a>
+				<a th:href="@{/profile}">Mi perfil</a>
+				<a th:href="@{/backups}">Backup</a>
+				
+			</nav>
+		</aside>
+
+		<div class="app-main">
+			<main class="app-content" layout:fragment="content">
+				<!-- aquí cada página mete su contenido -->
+			</main>
+
+			<footer class="app-footer">
+				<p>&copy; <span th:text="${#dates.year(#dates.createNow())}"></span> Tu Empresa - Sistema de Fichajes
+				</p>
+			</footer>
+		</div>
+
+	</div>
+
+</body>
+
+</html>

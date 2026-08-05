@@ -1,0 +1,14 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base-error}">
+<body>
+    <div layout:fragment="content">
+        <div class="error-page">
+            <div class="error-code" th:text="${status} ?: '???'">500</div>
+            <h2 class="error-title">Algo ha salido mal</h2>
+            <p class="error-message">La página que buscas no existe o ha ocurrido un error inesperado.</p>
+            <a th:href="@{/}" class="btn-error-home">Volver al inicio</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -13,6 +13,13 @@ target/
 # Logs
 *.log
 
+# Entorno / credenciales
+.env
+*.key
+
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Snippets generados por el IDE
+**/snippet/

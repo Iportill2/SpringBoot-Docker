@@ -1,0 +1,24 @@
+spring:
+  config:
+    import: optional:file:./.env[.properties],optional:file:../.env[.properties]
+  profiles:
+    active: local
+
+server:
+  port: 8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+backup:
+  directory: /backup
+
+mysql:
+  host: ${MYSQL_HOST:mysql}
+  port: ${MYSQL_PORT:3306}
+  database: ${MYSQL_DATABASE:aplicacion}
+  user: ${MYSQL_USER:backup_user}
+  password: ${MYSQL_PASSWORD:backup_password}
