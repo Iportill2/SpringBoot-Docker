@@ -2,14 +2,14 @@
 
 
 
-| Servicio         | Descripción                                  | Puerto                              |
----------------------------------------------------------------------------------------------------------
-| `api-rest`       |       API REST + JPA/MySQL                   | 8080                                |
-| `rest-client`    | Cliente Thymeleaf (interfaz)                 | 8081                                |
-| `backup-service` | Backups/restauración MySQL (solo Docker)     | 8082                                |
-| `mysql`          | Base de datos MySQL                          | 3307 (host) / 3306 (red interna)    |
-| `nginx`          | Proxy HTTPS hacia `api-rest` y `rest-client` | 80 / 443                            |
----------------------------------------------------------------------------------------------------------
+| Servicio         | Descripción                              | Puerto                       |
+| ---------------- | ---------------------------------------- | ---------------------------- |
+| `api-rest`       | API REST + JPA/MySQL                     | 8080                         |
+| `rest-client`    | Cliente Thymeleaf (interfaz)             | 8081                         |
+| `backup-service` | Backups/restauración MySQL (solo Docker) | 8082                         |
+| `mysql`          | Base de datos MySQL                      | 3307 (host) / 3306 (interna) |
+| `nginx`          | Proxy HTTPS hacia `api-rest` y `rest-client` | 80 / 443                 |
+
 ## Requisitos
 
 - Docker Desktop (con WSL2 o backend de Windows)
