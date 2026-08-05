@@ -51,7 +51,7 @@ public class MySqlBackupService implements BackupService {
 
 
         String command = String.format(
-                "mysqldump -h %s -P %d -u %s -p%s %s | gzip > %s",
+                "set -o pipefail; mysqldump -h %s -P %d -u %s -p%s %s | gzip > %s",
                 mySqlProperties.getHost(),
                 mySqlProperties.getPort(),
                 mySqlProperties.getUser(),
@@ -234,56 +234,72 @@ public class MySqlBackupService implements BackupService {
 
         try {
 
-            Process createDatabase = new ProcessBuilder(
-                    "sh",
-                    "-c",
-                    createDatabaseCommand
-            ).start();
+            String createError = ejecutarComando(createDatabaseCommand);
 
-            int createExitCode = createDatabase.waitFor();
-
-            if (createExitCode != 0) {
-                return false;
+            if (createError != null) {
+                throw new RuntimeException(
+                        "Error verificando la base de datos:\n"
+                        + createError
+                );
             }
 
-            Process restore = new ProcessBuilder(
-                    "sh",
-                    "-c",
-                    restoreCommand
-            ).start();
+            String restoreError = ejecutarComando(restoreCommand);
 
-            StringBuilder error = new StringBuilder();
-
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(restore.getErrorStream()))) {
-
-                String line;
-
-                while ((line = reader.readLine()) != null) {
-                    error.append(line).append("\n");
-                }
-            }
-
-            int exitCode = restore.waitFor();
-
-            if (exitCode != 0) {
-                System.err.println("Error restaurando backup:\n" + error);
-                return false;
+            if (restoreError != null) {
+                throw new RuntimeException(
+                        "Error restaurando el backup "
+                        + fileName + ":\n"
+                        + restoreError
+                );
             }
 
             return true;
 
         } catch (IOException e) {
 
-            System.err.println("No se pudo ejecutar mysql: " + e.getMessage());
-            return false;
+            throw new RuntimeException(
+                    "No se pudo ejecutar mysql",
+                    e
+            );
 
         } catch (InterruptedException e) {
 
             Thread.currentThread().interrupt();
 
-            System.err.println("La restauración fue interrumpida: " + e.getMessage());
-            return false;
+            throw new RuntimeException(
+                    "La restauración fue interrumpida",
+                    e
+            );
         }
+    }
+
+    private String ejecutarComando(String command)
+            throws IOException, InterruptedException {
+
+        Process process = new ProcessBuilder(
+                "sh",
+                "-c",
+                command
+        ).start();
+
+        StringBuilder error = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(process.getErrorStream()))) {
+
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                error.append(line).append("\n");
+            }
+        }
+
+        int exitCode = process.waitFor();
+
+        if (exitCode != 0) {
+            return error.toString();
+        }
+
+        return null;
     }
 }
