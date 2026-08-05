@@ -15,7 +15,12 @@
 			<img th:src="@{/img/logo.png}" alt="Logo" class="logo-header">
 			<h1>Nombre Empresa</h1>
 		</div>
-		<div class="app-header-user">Usuario y foto</div>
+		<div class="app-header-user">
+		    <span th:text="${username}"></span>
+		    <form th:action="@{/logout}" method="post" class="logout-form">
+		        <button type="submit" class="btn-logout">Cerrar sesión</button>
+		    </form>
+		</div>
 	</header>
 
 	<div class="app-layout">

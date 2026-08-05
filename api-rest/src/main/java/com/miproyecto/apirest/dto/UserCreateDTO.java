@@ -1,5 +1,5 @@
 package com.miproyecto.apirest.dto;
 
-public record UserCreateDTO(String username,String password,String email) {
+public record UserCreateDTO(String username,String pass,String email) {
 
 }

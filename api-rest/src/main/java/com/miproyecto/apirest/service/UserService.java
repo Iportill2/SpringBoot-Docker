@@ -32,7 +32,7 @@ public class UserService {
         Users user = new Users();
 
         user.setUsername(userDTO.username());
-        user.setPass(userDTO.password());
+        user.setPass(userDTO.pass());
         user.setEmail(userDTO.email());
 
         user.setFails(0);

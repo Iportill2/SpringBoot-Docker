@@ -3,9 +3,25 @@
       layout:decorate="~{layout/base-app}">
 <body>
     <div layout:fragment="content">
-		<div class="profile-page">
-			<div>PREFIL DE USUARIO</div>
-		</div>
+        <div class="profile-page">
+            <div class="profile-card">
+                <h2>Mi perfil</h2>
+
+                <div class="profile-field">
+                    <span class="profile-label">Usuario</span>
+                    <span class="profile-value" th:text="${user.username}"></span>
+                </div>
+
+                <div class="profile-field">
+                    <span class="profile-label">Email</span>
+                    <span class="profile-value" th:text="${user.email}"></span>
+                </div>
+
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn-logout-profile">Cerrar sesión</button>
+                </form>
+            </div>
+        </div>
     </div>
 </body>
 </html>

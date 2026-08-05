@@ -3,6 +3,7 @@ package com.miproyecto.apirest.service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -20,13 +21,15 @@ public class TimeEntryService {
     private final TimeEntryRepository timeEntryRepository;
     private final BreakRepository breakRepository;
     private final UsersRepository userRepository;
+    private final BreakService breakServ;
 
     public TimeEntryService(TimeEntryRepository timeEntryRepository,
                             BreakRepository breakRepository,
-                            UsersRepository userRepository) {
+                            UsersRepository userRepository, BreakService breakServ) {
         this.timeEntryRepository = timeEntryRepository;
         this.breakRepository = breakRepository;
         this.userRepository = userRepository;
+        this.breakServ = breakServ;
     }
 
     public TimeEntry startEntry(Integer userId) {
@@ -36,7 +39,7 @@ public class TimeEntryService {
         TimeEntry entry = new TimeEntry();
         entry.setUser(user);
         entry.setDate(LocalDate.now());
-        entry.setStartTime(LocalDateTime.now());
+        entry.setStartTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
         return timeEntryRepository.save(entry);
     }
@@ -47,7 +50,7 @@ public class TimeEntryService {
 
         Break newBreak = new Break();
         newBreak.setTimeEntry(entry);
-        newBreak.setStartTime(LocalDateTime.now());
+        newBreak.setStartTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
         return breakRepository.save(newBreak);
     }
@@ -56,16 +59,18 @@ public class TimeEntryService {
         Break existingBreak = breakRepository.findById(breakId)
                 .orElseThrow(() -> new RuntimeException("Pausa no encontrada"));
 
-        existingBreak.setEndTime(LocalDateTime.now());
+        existingBreak.setEndTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
         return breakRepository.save(existingBreak);
     }
 
-    public TimeEntry stopEntry(Integer timeEntryId, List<Break> breaks) {
+    public TimeEntry stopEntry(Integer timeEntryId) {
         TimeEntry entry = timeEntryRepository.findById(timeEntryId)
                 .orElseThrow(() -> new RuntimeException("Fichaje no encontrado"));
 
-        entry.setEndTime(LocalDateTime.now());
+        entry.setEndTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+
+        List<Break> breaks = breakServ.findByTimeEntryId(timeEntryId);
 
         long totalBreakMinutes = 0;
         for (Break b : breaks) {
@@ -78,5 +83,11 @@ public class TimeEntryService {
         entry.setTotalMinutesWorked((int) (totalMinutes - totalBreakMinutes));
 
         return timeEntryRepository.save(entry);
+    }
+    
+    public List<TimeEntry> findByUserAndMonth(Integer userId, int year, int month) {
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+        return timeEntryRepository.findByUserIdAndDateBetween(userId, start, end);
     }
 }

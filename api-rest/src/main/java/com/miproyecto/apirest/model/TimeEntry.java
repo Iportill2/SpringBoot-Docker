@@ -27,10 +27,10 @@ public class TimeEntry {
     @Column(nullable = false)
     private LocalDate date;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime startTime;
 
-    @Column
+    @Column(columnDefinition = "DATETIME")
     private LocalDateTime endTime;
 
     @Column
