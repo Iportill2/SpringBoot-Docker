@@ -1,12 +1,36 @@
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layout/base-app}">
-
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base-app}">
 <body>
-	<div layout:fragment="content">
-		<div class="calendar-page">
-			<img class="calendar-img" th:src="@{/img/calendario-junio-2026.webp}" alt="Calendar" />
-		</div>
-	</div>
-</body>
+    <div layout:fragment="content">
+        <div class="calendar-page">
 
+			<div class="calendar-header">
+			    <a th:href="@{/calendar(year=${prevYear}, month=${prevMonth})}" class="calendar-nav-btn">&larr;</a>
+			    <h2 th:text="${monthLabel}">Mes</h2>
+			    <a th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}" class="calendar-nav-btn">&rarr;</a>
+			</div>
+
+            <div class="calendar-grid-wrapper">
+                <div class="weekday-row">
+                    <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span>
+                    <span>Vie</span><span>Sáb</span><span>Dom</span>
+                </div>
+
+                <div class="days-grid">
+                    <div class="day-cell empty" th:each="i : ${#numbers.sequence(1, startOffset)}"></div>
+
+                    <div class="day-cell"
+                         th:each="day : ${#numbers.sequence(1, daysInMonth)}"
+                         th:classappend="${hoursByDay.containsKey(day)} ? 'worked' : ''">
+                        <span class="day-number" th:text="${day}"></span>
+                        <span class="day-hours" th:if="${hoursByDay.containsKey(day)}"
+                              th:text="${hoursByDay.get(day)}"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
 </html>

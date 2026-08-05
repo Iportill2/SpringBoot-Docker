@@ -23,10 +23,10 @@ public class Break {
     @JoinColumn(name = "time_entry_id")
     private TimeEntry timeEntry;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime startTime;
 
-    @Column
+    @Column(columnDefinition = "DATETIME")
     private LocalDateTime endTime;
 
     public Break() {
