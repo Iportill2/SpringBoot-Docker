@@ -55,7 +55,7 @@ public class AuthController {
             return "auth/login";
         }
 
-        return "/layout/base-app";
+        return "layout/base-app";
     }
 
 
