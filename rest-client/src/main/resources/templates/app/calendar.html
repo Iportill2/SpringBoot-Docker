@@ -6,9 +6,9 @@
         <div class="calendar-page">
 
 			<div class="calendar-header">
-			    <a th:href="@{/calendar(year=${prevYear}, month=${prevMonth})}" class="calendar-nav-btn">&larr;</a>
+			    <a th:href="@{/menu/calendar(year=${prevYear}, month=${prevMonth})}" class="calendar-nav-btn">&larr;</a>
 			    <h2 th:text="${monthLabel}">Mes</h2>
-			    <a th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}" class="calendar-nav-btn">&rarr;</a>
+			    <a th:href="@{/menu/calendar(year=${nextYear}, month=${nextMonth})}" class="calendar-nav-btn">&rarr;</a>
 			</div>
 
             <div class="calendar-grid-wrapper">

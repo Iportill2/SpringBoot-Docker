@@ -12,5 +12,9 @@ public class GlobalModelAttributes {
     @ModelAttribute
     public void addGlobalAttributes(Model model, HttpSession session) {
         model.addAttribute("username", session.getAttribute("username"));
+
+        Integer roleId = (Integer) session.getAttribute("roleId");
+        boolean isAdmin = roleId != null && roleId == 1;
+        model.addAttribute("isAdmin", isAdmin);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.miproyecto.clienterest.dto.BreakDTO;
 import com.miproyecto.clienterest.dto.TimeEntryDTO;
@@ -16,6 +17,7 @@ import com.miproyecto.clienterest.service.TimeEntryService;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
+@RequestMapping("/menu/clock-in")
 public class WorkClockController {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -28,7 +30,7 @@ public class WorkClockController {
         this.breakClientService = breakClientService;
     }
 
-    @GetMapping("/clock-in")
+    @GetMapping
     public String clockInGet(Model model, HttpSession session) {
         model.addAttribute("username", session.getAttribute("username"));
         model.addAttribute("startTime", session.getAttribute("startTime"));
@@ -36,10 +38,16 @@ public class WorkClockController {
         model.addAttribute("resumeTime", session.getAttribute("resumeTime"));
         model.addAttribute("endTime", session.getAttribute("endTime"));
         model.addAttribute("breakOpen", session.getAttribute("breakOpen"));
+
+        String lastEntryDate = (String) session.getAttribute("lastEntryDate");
+        boolean finishedToday = lastEntryDate != null
+                && lastEntryDate.equals(java.time.LocalDate.now().toString());
+        model.addAttribute("finishedToday", finishedToday);
+
         return "app/clock-in";
     }
 
-    @PostMapping("/clock-in/start")
+    @PostMapping("/start")
     public String start(HttpSession session) {
         Integer userId = (Integer) session.getAttribute("userId");
         TimeEntryDTO entry = timeEntryService.start(userId);
@@ -50,12 +58,11 @@ public class WorkClockController {
         session.removeAttribute("endTime");
         session.removeAttribute("pauseTime");
         session.removeAttribute("resumeTime");
-        
 
-        return "redirect:/clock-in";
+        return "redirect:/menu/clock-in";
     }
 
-    @PostMapping("/clock-in/pause")
+    @PostMapping("/pause")
     public String pause(HttpSession session) {
         Integer timeEntryId = (Integer) session.getAttribute("timeEntryId");
 
@@ -65,10 +72,10 @@ public class WorkClockController {
         session.setAttribute("pauseTime", formatDate(newBreak.getStartTime()));
         session.setAttribute("breakOpen", true);
 
-        return "redirect:/clock-in";
+        return "redirect:/menu/clock-in";
     }
 
-    @PostMapping("/clock-in/resume")
+    @PostMapping("/resume")
     public String resume(HttpSession session) {
         Integer breakId = (Integer) session.getAttribute("breakId");
         if (breakId != null) {
@@ -79,10 +86,10 @@ public class WorkClockController {
         session.removeAttribute("breakId");
         session.setAttribute("breakOpen", false);
 
-        return "redirect:/clock-in";
+        return "redirect:/menu/clock-in";
     }
 
-    @PostMapping("/clock-in/stop")
+    @PostMapping("/stop")
     public String stop(HttpSession session) {
         Integer breakId = (Integer) session.getAttribute("breakId");
 
@@ -91,15 +98,18 @@ public class WorkClockController {
             session.removeAttribute("breakId");
         }
 
+        session.setAttribute("breakOpen", false);
+
         Integer timeEntryId = (Integer) session.getAttribute("timeEntryId");
         TimeEntryDTO entry = timeEntryService.stop(timeEntryId);
 
         session.setAttribute("endTime", formatDate(entry.getEndTime()));
+        session.setAttribute("lastEntryDate", entry.getDate());
 
-        return "redirect:/clock-in";
+        return "redirect:/menu/clock-in";
     }
 
-    @PostMapping("/clock-in/reset")
+    @PostMapping("/reset")
     public String reset(HttpSession session) {
         session.removeAttribute("timeEntryId");
         session.removeAttribute("breakId");
@@ -108,7 +118,7 @@ public class WorkClockController {
         session.removeAttribute("resumeTime");
         session.removeAttribute("endTime");
         session.removeAttribute("breakOpen");
-        return "redirect:/clock-in";
+        return "redirect:/menu/clock-in";
     }
 
     private String formatDate(String rawDateTime) {

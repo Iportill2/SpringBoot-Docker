@@ -13,15 +13,11 @@ import com.miproyecto.clienterest.model.BackupInfo;
 
 
 @Controller
-@RequestMapping("/menu-admin")
+@RequestMapping("/menu/admin")
 public class AdminController {
 
-
     private final AdminService adminServ;
-
     private final BackupApiClient backupClient;
-
-
 
     public AdminController(
             AdminService adminServ,
@@ -31,74 +27,39 @@ public class AdminController {
         this.backupClient = backupClient;
     }
 
-
-
     @GetMapping
     public String listUsers(Model model) {
 
+        List<AdminUserDTO> users = adminServ.findPendingUsers();
+        List<BackupInfo> backups = backupClient.listBackups();
 
-        List<AdminUserDTO> users =
-                adminServ.findPendingUsers();
-
-
-        List<BackupInfo> backups =
-                backupClient.listBackups();
-
-
-        model.addAttribute(
-                "users",
-                users
-        );
-
-
-        model.addAttribute(
-                "backups",
-                backups
-        );
-
+        model.addAttribute("users", users);
+        model.addAttribute("backups", backups);
 
         return "app/menu-admin";
     }
 
-
-
     @PostMapping("/backup")
     public String createBackup() {
-
-
         backupClient.createBackup();
-
-
-        return "redirect:/menu-admin";
+        return "redirect:/menu/admin";
     }
-
-
 
     @PostMapping("/approve/{id}")
     public String approve(@PathVariable Integer id) {
-
         adminServ.approve(id);
-
-        return "redirect:/menu-admin";
+        return "redirect:/menu/admin";
     }
-
-
 
     @PostMapping("/block/{id}")
     public String block(@PathVariable Integer id) {
-
         adminServ.block(id);
-
-        return "redirect:/menu-admin";
+        return "redirect:/menu/admin";
     }
-
-
 
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Integer id) {
-
         adminServ.delete(id);
-
-        return "redirect:/menu-admin";
+        return "redirect:/menu/admin";
     }
 }
