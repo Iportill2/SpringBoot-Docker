@@ -4,6 +4,12 @@ spring:
     username: ${MYSQL_USER:api_user}
     password: ${MYSQL_PASSWORD:api_password}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+  jpa:
+    defer-datasource-initialization: true
 
 management:
   endpoints:
