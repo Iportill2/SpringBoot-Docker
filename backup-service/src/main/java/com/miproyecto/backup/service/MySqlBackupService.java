@@ -24,7 +24,6 @@ public class MySqlBackupService implements BackupService {
     private final BackupProperties backupProperties;
     private final MySqlProperties mySqlProperties;
 
-
     public MySqlBackupService(
             BackupProperties backupProperties,
             MySqlProperties mySqlProperties) {
@@ -33,9 +32,19 @@ public class MySqlBackupService implements BackupService {
         this.mySqlProperties = mySqlProperties;
     }
 
-
     @Override
     public String createBackup() {
+
+        Path directory = Path.of(backupProperties.getDirectory());
+
+        try {
+            Files.createDirectories(directory);
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "No se pudo crear el directorio de backups: " + directory,
+                    e
+            );
+        }
 
         String fileName =
                 "aplicacion_"
@@ -43,99 +52,41 @@ public class MySqlBackupService implements BackupService {
                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
                 + ".sql.gz";
 
-
-        String path =
-                backupProperties.getDirectory()
-                + "/"
-                + fileName;
-
+        Path file = directory.resolve(fileName);
 
         String command = String.format(
-                "set -o pipefail; mysqldump -h %s -P %d -u %s -p%s %s | gzip > %s",
+                "set -o pipefail; "
+                + "mysqldump --single-transaction --routines --triggers --no-tablespaces "
+                + "-h %s -P %d -u %s %s | gzip > %s",
                 mySqlProperties.getHost(),
                 mySqlProperties.getPort(),
                 mySqlProperties.getUser(),
-                mySqlProperties.getPassword(),
                 mySqlProperties.getDatabase(),
-                path
+                file.toAbsolutePath()
         );
 
+        String error = ejecutarComando(command);
 
-        ProcessBuilder builder =
-                new ProcessBuilder(
-                        "sh",
-                        "-c",
-                        command
-                );
-
-
-        try {
-
-            Process process = builder.start();
-
-
-            StringBuilder error = new StringBuilder();
-
-
-            try (BufferedReader reader =
-                    new BufferedReader(
-                            new InputStreamReader(
-                                    process.getErrorStream()))) {
-
-
-                String line;
-
-                while ((line = reader.readLine()) != null) {
-
-                    error.append(line)
-                         .append("\n");
-                }
-            }
-
-
-            int exitCode = process.waitFor();
-
-
-            if (exitCode != 0) {
-
-                throw new RuntimeException(
-                        "Error creando backup:\n"
-                        + error
-                );
-            }
-
-
-            return path;
-
-
-        } catch (IOException e) {
-
+        if (error != null) {
             throw new RuntimeException(
-                    "No se pudo ejecutar mysqldump",
-                    e
-            );
-
-
-        } catch (InterruptedException e) {
-
-            Thread.currentThread().interrupt();
-
-            throw new RuntimeException(
-                    "El proceso de backup fue interrumpido",
-                    e
+                    "Error creando backup:\n"
+                    + error
             );
         }
+
+        return file.toString();
     }
+
     @Override
     public List<BackupInfo> listBackups() {
 
         List<BackupInfo> backups = new ArrayList<>();
 
-        Path directory = Path.of(
-                backupProperties.getDirectory()
-        );
+        Path directory = Path.of(backupProperties.getDirectory());
 
         try {
+
+            Files.createDirectories(directory);
 
             Files.list(directory)
                     .filter(Files::isRegularFile)
@@ -157,7 +108,7 @@ public class MySqlBackupService implements BackupService {
                                 )
                             );
 
-                        } catch (Exception e) {
+                        } catch (IOException e) {
                             throw new RuntimeException(
                                 "Error leyendo backup: "
                                 + path.getFileName(),
@@ -167,7 +118,6 @@ public class MySqlBackupService implements BackupService {
 
                     });
 
-
         } catch (IOException e) {
 
             throw new RuntimeException(
@@ -176,17 +126,13 @@ public class MySqlBackupService implements BackupService {
             );
         }
 
-
         return backups;
     }
+
     @Override
     public Resource downloadBackup(String fileName) {
 
-        Path file = Path.of(
-                backupProperties.getDirectory(),
-                fileName
-        );
-
+        Path file = resolverArchivoBackup(fileName);
 
         if (!Files.exists(file)) {
 
@@ -195,70 +141,117 @@ public class MySqlBackupService implements BackupService {
             );
         }
 
-
         return new FileSystemResource(file);
     }
-    
-
 
     @Override
     public Boolean restoreBackup(String fileName) {
 
-        Path file = Path.of(
-                backupProperties.getDirectory(),
-                fileName
-        );
+        Path file = resolverArchivoBackup(fileName);
 
         if (!Files.exists(file)) {
             return false;
         }
 
-        String createDatabaseCommand = String.format(
-                "mysql -h %s -P %d -u %s -p%s -e \"CREATE DATABASE IF NOT EXISTS %s\"",
-                mySqlProperties.getHost(),
-                mySqlProperties.getPort(),
-                mySqlProperties.getUser(),
-                mySqlProperties.getPassword(),
-                mySqlProperties.getDatabase()
-        );
-
-        String restoreCommand = String.format(
-                "gunzip -c %s | mysql -h %s -P %d -u %s -p%s %s",
+        String command = String.format(
+                "set -o pipefail; "
+                + "gunzip -c %s | mysql -h %s -P %d -u %s %s",
                 file.toAbsolutePath(),
                 mySqlProperties.getHost(),
                 mySqlProperties.getPort(),
                 mySqlProperties.getUser(),
-                mySqlProperties.getPassword(),
                 mySqlProperties.getDatabase()
+        );
+
+        String error = ejecutarComando(command);
+
+        if (error != null) {
+            throw new RuntimeException(
+                    "Error restaurando el backup "
+                    + fileName + ":\n"
+                    + error
+            );
+        }
+
+        return true;
+    }
+
+    private Path resolverArchivoBackup(String fileName) {
+
+        Path directory = Path.of(backupProperties.getDirectory())
+                .toAbsolutePath()
+                .normalize();
+
+        if (fileName == null
+                || fileName.isEmpty()
+                || fileName.contains("/")
+                || fileName.contains("\\")
+                || fileName.contains("..")
+                || !fileName.endsWith(".sql.gz")) {
+
+            throw new IllegalArgumentException(
+                    "Nombre de backup no válido: " + fileName
+            );
+        }
+
+        Path file = directory.resolve(fileName).normalize();
+
+        if (!file.startsWith(directory)) {
+
+            throw new IllegalArgumentException(
+                    "Nombre de backup no válido: " + fileName
+            );
+        }
+
+        return file;
+    }
+
+    private String ejecutarComando(String command) {
+
+        ProcessBuilder builder =
+                new ProcessBuilder(
+                        "bash",
+                        "-c",
+                        command
+                );
+
+        builder.environment().put(
+                "MYSQL_PWD",
+                mySqlProperties.getPassword()
         );
 
         try {
 
-            String createError = ejecutarComando(createDatabaseCommand);
+            Process process = builder.start();
 
-            if (createError != null) {
-                throw new RuntimeException(
-                        "Error verificando la base de datos:\n"
-                        + createError
-                );
+            StringBuilder error = new StringBuilder();
+
+            try (BufferedReader reader =
+                    new BufferedReader(
+                            new InputStreamReader(
+                                    process.getErrorStream()))) {
+
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+
+                    error.append(line)
+                         .append("\n");
+                }
             }
 
-            String restoreError = ejecutarComando(restoreCommand);
+            int exitCode = process.waitFor();
 
-            if (restoreError != null) {
-                throw new RuntimeException(
-                        "Error restaurando el backup "
-                        + fileName + ":\n"
-                        + restoreError
-                );
+            if (exitCode != 0) {
+                return error.toString();
             }
 
-            return true;
+            return null;
 
         } catch (IOException e) {
 
             throw new RuntimeException(
-                    "No se pudo ejecutar mysql",
+                    "No se pudo ejecutar el comando",
                     e
             );
 
@@ -267,39 +260,9 @@ public class MySqlBackupService implements BackupService {
             Thread.currentThread().interrupt();
 
             throw new RuntimeException(
-                    "La restauración fue interrumpida",
+                    "El comando fue interrumpido",
                     e
             );
         }
-    }
-
-    private String ejecutarComando(String command)
-            throws IOException, InterruptedException {
-
-        Process process = new ProcessBuilder(
-                "sh",
-                "-c",
-                command
-        ).start();
-
-        StringBuilder error = new StringBuilder();
-
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getErrorStream()))) {
-
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                error.append(line).append("\n");
-            }
-        }
-
-        int exitCode = process.waitFor();
-
-        if (exitCode != 0) {
-            return error.toString();
-        }
-
-        return null;
     }
 }

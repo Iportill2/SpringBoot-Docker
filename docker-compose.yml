@@ -12,8 +12,6 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      BACKUP_USER: ${BACKUP_USER}
-      BACKUP_PASSWORD: ${BACKUP_PASSWORD}
 
     volumes:
       - mysql-data:/var/lib/mysql
@@ -38,13 +36,12 @@ services:
     container_name: backup-service
 
     ports:
-      - "8082:8082"
+      - "127.0.0.1:8082:8082"
 
     environment:
-      SPRING_PROFILES_ACTIVE: docker
       MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${BACKUP_USER}
-      MYSQL_PASSWORD: ${BACKUP_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       BACKUP_DIRECTORY: /backup
 
     depends_on:

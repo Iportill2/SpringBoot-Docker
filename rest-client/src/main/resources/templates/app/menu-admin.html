@@ -117,11 +117,6 @@
 
                     </form>
 
-
-                    <button class="btn-db-upload">
-                        Restaurar DB
-                    </button>
-
                 </div>
 
 
@@ -172,6 +167,17 @@
                                    th:href="@{/menu-admin/download/{file}(file=${backup.fileName})}">
                                     Descargar
                                 </a>
+
+                                <form th:action="@{/menu-admin/restore/{file}(file=${backup.fileName})}"
+                                      method="post"
+                                      onsubmit="return confirm('¿Seguro que quieres restaurar esta copia? Se reemplazarán los datos actuales.');">
+
+                                    <button type="submit"
+                                            class="btn-db-upload">
+                                        Restaurar
+                                    </button>
+
+                                </form>
 
                             </td>
 
