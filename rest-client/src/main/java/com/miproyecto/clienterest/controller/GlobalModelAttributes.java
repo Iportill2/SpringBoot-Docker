@@ -13,8 +13,8 @@ public class GlobalModelAttributes {
     public void addGlobalAttributes(Model model, HttpSession session) {
         model.addAttribute("username", session.getAttribute("username"));
 
-        Integer roleId = (Integer) session.getAttribute("roleId");
-        boolean isAdmin = roleId != null && roleId == 1;
+        String role = (String) session.getAttribute("role");
+        boolean isAdmin = "ADMIN".equalsIgnoreCase(role);
         model.addAttribute("isAdmin", isAdmin);
     }
 }

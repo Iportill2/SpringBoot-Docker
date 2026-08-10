@@ -68,8 +68,9 @@ public class AuthController {
             session.setAttribute("jwt", body.getToken());
             session.setAttribute("userId", body.getUserId());
             session.setAttribute("username", body.getUsername());
+            session.setAttribute("role", body.getRole());
 
-            return "redirect:/clock-in";
+            return "redirect:/menu/clock-in";
 
         } catch (RestClientResponseException e) {
             model.addAttribute("error", extractError(e));
