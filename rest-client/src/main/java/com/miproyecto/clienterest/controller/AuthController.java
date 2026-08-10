@@ -52,10 +52,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String loginPost(
-            @Valid @ModelAttribute LoginDTO loginDTO,
-            BindingResult result,
-            Model model,
+    public String loginPost(@Valid @ModelAttribute LoginDTO loginDTO, BindingResult result, Model model,
             HttpSession session) {
 
         if (result.hasErrors()) {

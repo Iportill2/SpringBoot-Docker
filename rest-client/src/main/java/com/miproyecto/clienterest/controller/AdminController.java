@@ -18,15 +18,12 @@ import com.miproyecto.clienterest.service.BackupClientService;
 
 
 @Controller
-@RequestMapping("/menu-admin")
+@RequestMapping("/menu/admin")
 public class AdminController {
-
 
     private final AdminService adminServ;
 
     private final BackupClientService backupService;
-
-
 
     public AdminController(
             AdminService adminServ,
@@ -36,11 +33,8 @@ public class AdminController {
         this.backupService = backupService;
     }
 
-
-
     @GetMapping
     public String listUsers(Model model) {
-
 
         List<AdminUserDTO> users =
                 adminServ.findPendingUsers();
@@ -61,11 +55,8 @@ public class AdminController {
                 backups
         );
 
-
         return "app/menu-admin";
     }
-
-
 
     @PostMapping("/backup")
     public String createBackup() {
@@ -129,32 +120,21 @@ public class AdminController {
     }
 
 
-
     @PostMapping("/approve/{id}")
     public String approve(@PathVariable Integer id) {
-
         adminServ.approve(id);
-
-        return "redirect:/menu-admin";
+        return "redirect:/menu/admin";
     }
-
-
 
     @PostMapping("/block/{id}")
     public String block(@PathVariable Integer id) {
-
         adminServ.block(id);
-
-        return "redirect:/menu-admin";
+        return "redirect:/menu/admin";
     }
-
-
 
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Integer id) {
-
         adminServ.delete(id);
-
-        return "redirect:/menu-admin";
+        return "redirect:/menu/admin";
     }
 }

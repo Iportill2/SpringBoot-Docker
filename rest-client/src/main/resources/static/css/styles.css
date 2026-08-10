@@ -790,6 +790,8 @@ body {
 .btn-logout-profile:hover {
 	background-color: #b91c1c;
 }
+
+
 .error-message {
 	color: #dc2626;
 	background-color: #fee2e2;

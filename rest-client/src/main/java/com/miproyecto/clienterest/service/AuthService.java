@@ -18,9 +18,7 @@ public class AuthService {
     }
 
     public ResponseEntity<AuthResponseDTO> login(String username, String pass) {
-
         LoginDTO body = new LoginDTO(username, pass);
-
         return restClient.post()
                 .uri("/api/auth/login")
                 .body(body)
