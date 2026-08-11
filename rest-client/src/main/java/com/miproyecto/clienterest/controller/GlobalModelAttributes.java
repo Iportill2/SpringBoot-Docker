@@ -15,8 +15,6 @@ public class GlobalModelAttributes {
 
         String role = (String) session.getAttribute("role");
         boolean isAdmin = "ADMIN".equalsIgnoreCase(role);
-        boolean isUser = "EMPLEADO".equalsIgnoreCase(role);
         model.addAttribute("isAdmin", isAdmin);
-        model.addAttribute("isUser", isUser);
     }
 }

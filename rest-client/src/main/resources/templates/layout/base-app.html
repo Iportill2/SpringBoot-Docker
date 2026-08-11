@@ -30,8 +30,8 @@
       <aside class="sidebar">
         <nav>
           <h3 class="sidebar-title">Menú</h3>
-          <a th:if="${isUser}" th:href="@{/menu/clock-in}">Fichar</a>
-          <a th:if="${isUser}" th:href="@{/menu/calendar}">Calendario</a>
+          <a th:if="${!isAdmin}" th:href="@{/menu/clock-in}">Fichar</a>
+          <a th:if="${!isAdmin}" th:href="@{/menu/calendar}">Calendario</a>
           <a th:href="@{/menu/crm}">CRM Tareas</a>
           <a th:href="@{/menu/profile}">Mi perfil</a>
           <a th:if="${isAdmin}" th:href="@{/menu/admin}">Menu Admin</a>
