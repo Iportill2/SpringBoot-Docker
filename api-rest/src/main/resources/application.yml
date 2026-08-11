@@ -10,3 +10,7 @@ spring:
 
 server:
   port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:cambia_esta_clave_secreta_por_una_larga_de_al_menos_32_bytes_para_hs256}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}

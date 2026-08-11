@@ -2,86 +2,96 @@
 
 
 
-| Servicio         | Descripción                              | Puerto                       |
-| ---------------- | ---------------------------------------- | ---------------------------- |
-| `api-rest`       | API REST + JPA/MySQL                     | 8080                         |
-| `rest-client`    | Cliente Thymeleaf (interfaz)             | 8081                         |
-| `backup-service` | Backups/restauración MySQL (solo Docker) | 8082                         |
-| `mysql`          | Base de datos MySQL                      | 3307 (host) / 3306 (interna) |
-| `nginx`          | Proxy HTTPS hacia `api-rest` y `rest-client` | 80 / 443                 |
+| Service            | Description                           | Port                            |
+| ------------------ | ------------------------------------- | ------------------------------- |
+| `api-rest`         | REST API + JPA/MySQL                  | 8080                            |
+| `rest-client`      | Thymeleaf client (UI)                 | 8081                            |
+| `backup-service`   | MySQL backups/restore (Docker only)   | 8082                            |
+| `mysql`            | MySQL database                        | 3307 (host) / 3306 (internal)   |
+| `nginx`            | HTTPS proxy to `api-rest` and `rest-client` | 80 / 443                  |
 
-## Requisitos
+## Requirements
 
-- Docker Desktop (con WSL2 o backend de Windows)
-- JDK 21 (solo para modo local)
-- No hace falta Maven instalado: cada módulo incluye `mvnw.cmd` (Windows) / `mvnw` (Linux/macOS)
+- Docker Desktop (with WSL2 or Windows backend)
+- JDK 21 (local mode only)
+- No Maven installation needed: each module includes `mvnw.cmd` (Windows) / `mvnw` (Linux/macOS)
 
-## Configuración (obligatorio)
+## Configuration (required)
 
-Las credenciales se centralizan en el archivo `.env` de la raíz :
+Credentials are centralized in the root `.env` file:
 
 ```bash
 cp .env.example .env
-# edita .env y cambia las contraseñas
+# edit .env and change the passwords
 ```
 
-> `mysql` y `backup-service` se levantan SIEMPRE en Docker (el backup necesita `mysqldump`, que no existe en Windows). `api-rest`, `rest-client` y `nginx` están marcados con el perfil `full` de docker-compose, activado por defecto con `COMPOSE_PROFILES=full` en el `.env`.
+> `mysql` and `backup-service` always run in Docker (backups need `mysqldump`, which is not available on Windows). `api-rest`, `rest-client` and `nginx` are marked with the `full` docker-compose profile, enabled by default with `COMPOSE_PROFILES=full` in `.env`.
 
-## Modo A: Todo en Docker
+## Mode A: Everything in Docker
 
 ```bash
-# Construir imágenes y levantar todo
+# Build images and start everything
 docker compose up -d --build
 
-# Comprobar estado (todos deben estar healthy)
+# Check status (all should be healthy)
 docker compose ps
 
-# Parar todo
+# Stop everything
 docker compose down
 
-# Ver logs de un servicio
+# View logs of a service
 docker compose logs -f rest-client
 ```
 
-Acceso:
+Access:
 
-- Web: `https://127.0.0.1` (nginx, HTTPS con certificado autofirmado)
-- API directa: `http://localhost:8080`
+- Web: `https://127.0.0.1` (nginx, HTTPS with self-signed certificate)
+- Direct API: `http://localhost:8080`
 - Swagger API: `http://localhost:8080/swagger-ui.html`
 
-## Modo B: Local (híbrido)
+## JWT Authentication
 
-Idea: `mysql` y `backup-service` siguen en Docker; `api-rest` y `rest-client` corren desde el IDE o desde los jars. Las apps locales leen el `.env` y usan `localhost:3307`, `localhost:8080` y `localhost:8082`.
+The API (`api-rest`) is protected with Spring Security + JWT (stateless, CSRF disabled):
 
-1. Levantar solo los servicios de infraestructura:
+- `POST /api/auth/login` with `{"username": "...", "pass": "..."}` returns a `token` (and user data). The token expires after 24h by default.
+- All other endpoints require the `Authorization: Bearer <token>` header.
+- Public endpoints (2-step registration): `POST /api/user`, `GET /api/user/name/exist/{username}`, `GET /api/user/email/exist/{email}`, `GET /api/questions`, `POST /api/userquestion/from-dto`.
+- Configuration in `.env`: `JWT_SECRET` (signing key, at least 32 bytes) and `JWT_EXPIRATION_MS`.
+- The client (`rest-client`) stores the token in the web session after login and automatically forwards it on every API call through an interceptor.
+
+## Mode B: Local (hybrid)
+
+Idea: `mysql` and `backup-service` stay in Docker; `api-rest` and `rest-client` run from the IDE or from the jars. The local apps read `.env` and use `localhost:3307`, `localhost:8080` and `localhost:8082`.
+
+1. Start only the infrastructure services:
 
    ```bash
    docker compose up -d mysql backup-service
    ```
 
-   > Con `COMPOSE_PROFILES=full` en el `.env`, un `docker compose up -d` simple levantaría también las apps. Para correrlas en local indica los servicios explícitamente, o páralos tras levantarlos (paso 2).
+   > With `COMPOSE_PROFILES=full` in `.env`, a plain `docker compose up -d` would also start the apps. To run them locally, name the services explicitly, or stop them after starting them (step 2).
 
-2. **IMPORTANTE:** si algún contenedor de `api-rest`, `rest-client` o `nginx` sigue arriba, páralo para liberar puertos:
+2. **IMPORTANT:** if any `api-rest`, `rest-client` or `nginx` container is still running, stop it to free the ports:
 
    ```bash
    docker compose stop api-rest rest-client nginx
    ```
 
-3. Arrancar las apps desde el IDE (STS/IntelliJ) con el perfil `local` (es el perfil por defecto), o desde jars:
+3. Start the apps from the IDE (STS/IntelliJ) with the `local` profile (the default profile), or from jars:
 
    ```bash
-   # api-rest (puerto 8080)
+   # api-rest (port 8080)
    cd api-rest && ./mvnw.cmd spring-boot:run
 
-   # rest-client (puerto 8081) - en otra terminal
+   # rest-client (port 8081) - in another terminal
    cd rest-client && ./mvnw.cmd spring-boot:run
    ```
 
-   Acceso local: `http://localhost:8081` (rest-client) y `http://localhost:8080` (api-rest).
+   Local access: `http://localhost:8081` (rest-client) and `http://localhost:8080` (api-rest).
 
-> **Modo híbrido:** también puedes mezclar. Por ejemplo, levantar todo en Docker y luego ejecutar solo `api-rest` en local: los contenedores usan `host.docker.internal`, así que las llamadas entre contenedores y apps locales funcionan sin tocar configuración.
+> **Hybrid mode:** you can also mix. For example, start everything in Docker and then run only `api-rest` locally: the containers use `host.docker.internal`, so calls between containers and local apps work without touching configuration.
 
-## Build de los jars
+## Building the jars
 
 ```bash
 cd api-rest && ./mvnw.cmd clean package -DskipTests
@@ -89,12 +99,21 @@ cd rest-client && ./mvnw.cmd clean package -DskipTests
 cd backup-service && ./mvnw.cmd clean package -DskipTests
 ```
 
-> Si cambias código y quieres verlo en Docker, hay que reconstruir el jar Y la imagen:
+> If you change code and want to see it in Docker, you must rebuild the jar AND the image:
 > `docker compose up -d --build`
 
 ## Backups
 
-- Crear/restaurar backups desde la web: `https://127.0.0.1/backups`
-- Los archivos `.sql.gz` se guardan en el volumen Docker `backups` (`/backup` dentro del contenedor).
-- API directa del backup-service: `http://localhost:8082`
+- Create/restore backups from the web: `https://127.0.0.1/backups`
+- The `.sql.gz` files are stored in the Docker volume `backups` (`/backup` inside the container).
+- Direct backup-service API: `http://localhost:8082`
 
+## Initial data (seed)
+
+The database is created automatically the first time `api-rest` starts (`createDatabaseIfNotExist` + `ddl-auto: update`) and some minimal data is inserted through `api-rest/src/main/resources/data.sql`, which runs on every startup idempotently (`INSERT IGNORE`):
+
+- **Roles:** `EMPLEADO` (1), `ADMIN` (2) and `PENDIENTE` (3).
+- **Security questions:** 3 default questions for the 2-step registration.
+- **Initial administrator user:** `admin` / `admin123` (role `ADMIN`).
+
+> If you drop the database (e.g. `DROP DATABASE aplicacion` from MySQL Workbench), simply restart `api-rest`: the DB, the tables and the minimal data are recreated on their own. To change the default admin credentials, edit `data.sql`.

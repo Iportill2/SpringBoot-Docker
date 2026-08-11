@@ -21,10 +21,11 @@ public class RestClientConfig {
 
     @Bean
     @Qualifier("apiRestClient")
-    public RestClient apiRestClient() {
+    public RestClient apiRestClient(JwtRequestInterceptor jwtRequestInterceptor) {
 
         return RestClient.builder()
                 .baseUrl(apiUrl)
+                .requestInterceptor(jwtRequestInterceptor)
                 .build();
     }
 

@@ -16,7 +16,7 @@ import com.miproyecto.clienterest.service.BackupClientService;
 
 
 @Controller
-@RequestMapping("/backups")
+@RequestMapping("menu/backups")
 public class BackupController {
 
 

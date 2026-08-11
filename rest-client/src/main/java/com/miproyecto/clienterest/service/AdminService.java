@@ -15,71 +15,71 @@ import com.miproyecto.clienterest.dto.UserQuestionReadDTO;
 @Service
 public class AdminService {
 
-    private final RestClient restClient;
+	private final RestClient restClient;
 
+	public AdminService(
+			@Qualifier("apiRestClient") RestClient restClient) {
 
-
-    public AdminService(
-            @Qualifier("apiRestClient") RestClient restClient) {
-
-        this.restClient = restClient;
-    }
+		this.restClient = restClient;
+	}
 
 	public List<AdminUserDTO> findPendingUsers() {
-	    ResponseEntity<List<AdminUserDTO>> response = restClient.get()
-	            .uri("/api/user")
-	            .retrieve()
-	            .toEntity(new ParameterizedTypeReference<List<AdminUserDTO>>() {});
+		ResponseEntity<List<AdminUserDTO>> response = restClient.get()
+				.uri("/api/user")
+				.retrieve()
+				.toEntity(new ParameterizedTypeReference<List<AdminUserDTO>>() {
+				});
 
-	    List<AdminUserDTO> allUsers = response.getBody();
+		List<AdminUserDTO> allUsers = response.getBody();
 
-	    return allUsers.stream()
-	            .filter(u -> u.getRole() == null || u.getRole().getId() == 3)
-	            .toList();
+		return allUsers.stream()
+				.filter(u -> u.getRole() == null || u.getRole().getId() == 3)
+				.toList();
 	}
-	
-	public Boolean approve(Integer id) {
-	    Boolean result = restClient.patch()
-	            .uri("/api/user/{id}", id)
-	            .body(Map.of("role", Map.of("id", 2)))
-	            .retrieve()
-	            .body(Boolean.class);
 
-	    return Boolean.TRUE.equals(result);
+	public Boolean approve(Integer id) {
+		AdminUserDTO result = restClient.patch()
+				.uri("/api/user/{id}", id)
+				.body(Map.of("role", Map.of("id", 2)))
+				.retrieve()
+				.body(AdminUserDTO.class);
+
+		return result != null;
 	}
 
 	public Boolean block(Integer id) {
-	    Boolean result = restClient.patch()
-	            .uri("/api/user/{id}", id)
-	            .body(Map.of("blocked", true))
-	            .retrieve()
-	            .body(Boolean.class);
+		AdminUserDTO result = restClient.patch()
+				.uri("/api/user/{id}", id)
+				.body(Map.of("blocked", true))
+				.retrieve()
+				.body(AdminUserDTO.class);
 
-	    return Boolean.TRUE.equals(result);
+		return result != null;
 	}
-    
-    public Boolean delete(Integer id) {
 
-        List<UserQuestionReadDTO> userQuestions = restClient.get()
-                .uri("/api/userquestion/user/{id}", id)
-                .retrieve()
-                .body(new ParameterizedTypeReference<List<UserQuestionReadDTO>>() {});
+	public Boolean delete(Integer id) {
 
-        if (userQuestions != null) {
-            for (UserQuestionReadDTO uq : userQuestions) {
-                Integer questionRecordId = (Integer) uq.getId();
-                restClient.delete()
-                        .uri("/api/userquestion/{id}", questionRecordId)
-                        .retrieve()
-                        .body(Boolean.class);
-            }
-        }
+		List<UserQuestionReadDTO> userQuestions = restClient.get()
+				.uri("/api/userquestion/user/{id}", id)
+				.retrieve()
+				.body(new ParameterizedTypeReference<List<UserQuestionReadDTO>>() {
+				});
 
-        Boolean deleted = restClient.delete()
-                .uri("/api/user/{id}", id)
-                .retrieve()
-                .body(Boolean.class);
+		if (userQuestions != null) {
+			for (UserQuestionReadDTO uq : userQuestions) {
+				Integer questionRecordId = (Integer) uq.getId();
+				restClient.delete()
+						.uri("/api/userquestion/{id}", questionRecordId)
+						.retrieve()
+						.body(Boolean.class);
+			}
+		}
 
-        return Boolean.TRUE.equals(deleted);
-    }
+		Boolean deleted = restClient.delete()
+				.uri("/api/user/{id}", id)
+				.retrieve()
+				.body(Boolean.class);
+
+		return Boolean.TRUE.equals(deleted);
+	}
 }

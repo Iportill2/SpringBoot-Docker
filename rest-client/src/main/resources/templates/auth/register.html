@@ -18,35 +18,20 @@
 			<div class="auth-form">
 				<form class="register-form" th:action="@{/register}" th:object="${usersDTO}" method="post">
 
+					<h2 style="text-align:center; margin-bottom:1rem;">Paso 1 de 2</h2>
+
 					<input type="text" th:field="*{username}" placeholder="Nombre usuario">
 					<span class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
 
-
-					<!--					<label for="answerOne">¿Cuál es tu color favorito?</label>-->
-					<!--					<input type="text" th:field="*{answerOne}" placeholder="">-->
-					<!--					<span class="error" th:if="${#fields.hasErrors('answerOne')}" th:errors="*{answerOne}"></span>-->
-
-					<!--					<label for="answerTwo">¿Cuál es el nombre de tu primera mascota?</label>-->
-					<!--					<input type="text" th:field="*{answerTwo}" placeholder="">-->
-					<!--					<span class="error" th:if="${#fields.hasErrors('answerTwo')}" th:errors="*{answerTwo}"></span>-->
-
-					<!--					<label for="answerThree">¿En qué ciudad vives?</label>-->
-					<!--					<input type="text" th:field="*{answerThree}" placeholder="">-->
-					<!--					<span class="error" th:if="${#fields.hasErrors('answerThree')}" th:errors="*{answerThree}"></span>-->
-
-				<input type="password" th:field="*{pass}" placeholder="contraseña">
-				<span class="error" th:if="${#fields.hasErrors('pass')}" th:errors="*{pass}"></span>
-
-<!--					<input type="password" th:field="*{confirmPassword}" placeholder="Confirmar contraseña">-->
-<!--					<span class="error" th:if="${#fields.hasErrors('confirmPassword')}"-->
-<!--						th:errors="*{confirmPassword}"></span>-->
-
+					<input type="password" th:field="*{pass}" placeholder="contraseña">
+					<span class="error" th:if="${#fields.hasErrors('pass')}" th:errors="*{pass}"></span>
 
 					<input type="text" th:field="*{email}" placeholder="Introduce tu email">
 					<span class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
 
-					<button type="submit">Registrarse</button>
-					<a th:href="@{/login}">¿Ya tienes cuenta? Inicia sesión</a>
+					<p th:if="${error}" class="error-message" th:text="${error}"></p>
+
+					<button type="submit">Siguiente</button>
 				</form>
 			</div>
 		</div>
