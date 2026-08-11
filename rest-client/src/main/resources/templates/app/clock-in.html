@@ -35,7 +35,7 @@
 				</form>
 
 				<form th:if="${startTime != null and endTime == null}" th:action="@{/menu/clock-in/stop}" method="post">
-					<button type="submit" class="btn-stop">Parar jornada</button>
+					<button type="submit" class="btn-stop">Terminar jornada</button>
 				</form>
 				<p th:if="${finishedToday == true}" class="worked-summary">
 					Ya has finalizado tu jornada de hoy. ¡Hasta mañana!
