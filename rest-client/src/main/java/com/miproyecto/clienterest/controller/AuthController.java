@@ -103,6 +103,11 @@ public class AuthController {
             return "auth/register";
         }
 
+        if (!usersDTO.getConfirmPass().equals(usersDTO.getPass())) {
+            model.addAttribute("error", "Las contraseñas no son iguales");
+            return "auth/register";
+        }
+
         ResponseEntity<Boolean> userResponse = userService.existsByUsername(usersDTO.getUsername());
 
         if (userResponse.getStatusCode() == HttpStatus.BAD_REQUEST
