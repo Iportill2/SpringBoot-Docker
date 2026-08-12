@@ -20,6 +20,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.miproyecto.backup.config.BackupProperties;
+import com.miproyecto.backup.config.BackupActorContext;
 import com.miproyecto.backup.config.MySqlProperties;
 import com.miproyecto.backup.model.BackupInfo;
 
@@ -28,16 +29,22 @@ public class MySqlBackupService implements BackupService {
 
     private final BackupProperties backupProperties;
     private final MySqlProperties mySqlProperties;
+    private final BackupAuditLog auditLog;
+    private final BackupActorContext actorContext;
 
     private static final DateTimeFormatter FILE_DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
     public MySqlBackupService(
             BackupProperties backupProperties,
-            MySqlProperties mySqlProperties) {
+            MySqlProperties mySqlProperties,
+            BackupAuditLog auditLog,
+            BackupActorContext actorContext) {
 
         this.backupProperties = backupProperties;
         this.mySqlProperties = mySqlProperties;
+        this.auditLog = auditLog;
+        this.actorContext = actorContext;
     }
 
     @Override
@@ -76,11 +83,22 @@ public class MySqlBackupService implements BackupService {
         String error = ejecutarComando(command);
 
         if (error != null) {
+            auditLog.log(
+                    actorContext.getActor(),
+                    BackupAuditLog.ACTION_CREATE,
+                    "FALLO al crear backup"
+            );
             throw new RuntimeException(
                     "Error creando backup:\n"
                     + error
             );
         }
+
+        auditLog.log(
+                actorContext.getActor(),
+                BackupAuditLog.ACTION_CREATE,
+                "Backup creado: " + fileName
+        );
 
         return file.toString();
     }
@@ -149,6 +167,12 @@ public class MySqlBackupService implements BackupService {
             );
         }
 
+        auditLog.log(
+                actorContext.getActor(),
+                BackupAuditLog.ACTION_DOWNLOAD,
+                "Backup descargado: " + fileName
+        );
+
         return new FileSystemResource(file);
     }
 
@@ -174,12 +198,23 @@ public class MySqlBackupService implements BackupService {
         String error = ejecutarComando(command);
 
         if (error != null) {
+            auditLog.log(
+                    actorContext.getActor(),
+                    BackupAuditLog.ACTION_RESTORE,
+                    "FALLO al restaurar backup: " + fileName
+            );
             throw new RuntimeException(
                     "Error restaurando el backup "
                     + fileName + ":\n"
                     + error
             );
         }
+
+        auditLog.log(
+                actorContext.getActor(),
+                BackupAuditLog.ACTION_RESTORE,
+                "Backup restaurado: " + fileName
+        );
 
         return true;
     }
@@ -206,6 +241,12 @@ public class MySqlBackupService implements BackupService {
                     e
             );
         }
+
+        auditLog.log(
+                actorContext.getActor(),
+                BackupAuditLog.ACTION_DELETE,
+                "Backup eliminado: " + fileName
+        );
 
         return true;
     }
@@ -306,6 +347,20 @@ public class MySqlBackupService implements BackupService {
                 }
             }
         }
+
+        auditLog.log(
+                actorContext.getActor(),
+                BackupAuditLog.ACTION_CLEANUP,
+                "Retención aplicada: "
+                + deleted
+                + " archivos eliminados (dias="
+                + retention.getDaily()
+                + ", semanas="
+                + retention.getWeekly()
+                + ", meses="
+                + retention.getMonthly()
+                + ")"
+        );
 
         return deleted;
     }

@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class BackupProperties {
 
     private String directory;
+    private String logFile;
     private String cron = "0 0 2 * * *";
     private boolean enabled = true;
     private Retention retention = new Retention();
@@ -16,6 +17,16 @@ public class BackupProperties {
 
     public void setDirectory(String directory) {
         this.directory = directory;
+    }
+
+    public String getLogFile() {
+        return logFile != null && !logFile.isBlank()
+                ? logFile
+                : (directory != null ? directory : ".") + "/backup-audit.log";
+    }
+
+    public void setLogFile(String logFile) {
+        this.logFile = logFile;
     }
 
     public String getCron() {

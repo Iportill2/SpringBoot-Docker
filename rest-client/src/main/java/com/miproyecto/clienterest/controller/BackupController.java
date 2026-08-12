@@ -3,6 +3,7 @@ package com.miproyecto.clienterest.controller;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,7 +42,7 @@ public class BackupController {
             return "redirect:/login";
         }
 
-        backupService.createBackup();
+        backupService.createBackup(actorOf(session));
 
         redirectAttributes.addFlashAttribute(
                 "popup",
@@ -80,7 +81,7 @@ public class BackupController {
 
         try {
 
-            Boolean restored = backupService.restoreBackup(file);
+            Boolean restored = backupService.restoreBackup(file, actorOf(session));
 
             if (Boolean.TRUE.equals(restored)) {
 
@@ -119,7 +120,7 @@ public class BackupController {
                     .build();
         }
 
-        Resource resource = backupService.downloadBackup(file);
+        Resource resource = backupService.downloadBackup(file, actorOf(session));
 
         return ResponseEntity.ok()
                 .header(
@@ -142,7 +143,7 @@ public class BackupController {
 
         try {
 
-            Boolean deleted = backupService.deleteBackup(file);
+            Boolean deleted = backupService.deleteBackup(file, actorOf(session));
 
             if (Boolean.TRUE.equals(deleted)) {
 
@@ -170,7 +171,29 @@ public class BackupController {
         return "redirect:/menu/backups";
     }
 
+    @GetMapping("/log")
+    public ResponseEntity<String> viewLog(HttpSession session) {
+
+        if (!esAdmin(session)) {
+            session.invalidate();
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(java.net.URI.create("/login"))
+                    .build();
+        }
+
+        String log = backupService.getLog();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(log != null ? log : "");
+    }
+
     private boolean esAdmin(HttpSession session) {
         return "ADMIN".equals(session.getAttribute("role"));
+    }
+
+    private String actorOf(HttpSession session) {
+        Object username = session.getAttribute("username");
+        return username != null ? String.valueOf(username) : "DESCONOCIDO";
     }
 }

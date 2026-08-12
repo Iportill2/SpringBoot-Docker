@@ -1,5 +1,7 @@
 package com.miproyecto.clienterest;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -60,14 +62,14 @@ class AdminControllerTests {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/menu/admin"));
 
-        verify(backupService).createBackup();
+        verify(backupService).createBackup(anyString());
     }
 
     @Test
     void downloadBackupReturnsAttachmentHeader() throws Exception {
         ByteArrayResource resource = new ByteArrayResource("contenido".getBytes());
 
-        when(backupService.downloadBackup("backup-2026-08-07.zip")).thenReturn(resource);
+        when(backupService.downloadBackup(eq("backup-2026-08-07.zip"), anyString())).thenReturn(resource);
 
         mockMvc.perform(get("/menu/admin/download/backup-2026-08-07.zip")
                         .sessionAttr("userId", 1))
@@ -79,7 +81,7 @@ class AdminControllerTests {
 
     @Test
     void restoreBackupSuccessShowsMessage() throws Exception {
-        when(backupService.restoreBackup("backup-2026-08-07.zip")).thenReturn(true);
+        when(backupService.restoreBackup(eq("backup-2026-08-07.zip"), anyString())).thenReturn(true);
 
         mockMvc.perform(post("/menu/admin/restore/backup-2026-08-07.zip")
                         .sessionAttr("userId", 1))
@@ -90,7 +92,7 @@ class AdminControllerTests {
 
     @Test
     void restoreBackupFailureShowsError() throws Exception {
-        when(backupService.restoreBackup("backup-2026-08-07.zip")).thenReturn(false);
+        when(backupService.restoreBackup(eq("backup-2026-08-07.zip"), anyString())).thenReturn(false);
 
         mockMvc.perform(post("/menu/admin/restore/backup-2026-08-07.zip")
                         .sessionAttr("userId", 1))

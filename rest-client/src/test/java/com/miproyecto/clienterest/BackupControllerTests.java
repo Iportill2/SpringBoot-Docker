@@ -1,5 +1,7 @@
 package com.miproyecto.clienterest;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,7 +38,7 @@ class BackupControllerTests {
 
     @Test
     void createBackupRedirectsToList() throws Exception {
-        when(backupService.createBackup()).thenReturn("ok");
+        when(backupService.createBackup(anyString())).thenReturn("ok");
 
         mockMvc.perform(post("/menu/backups/create")
                         .sessionAttr("userId", 1)
@@ -108,7 +110,7 @@ class BackupControllerTests {
 
     @Test
     void restoreBackupSuccessShowsPopup() throws Exception {
-        when(backupService.restoreBackup("backup-2026-08-07.zip")).thenReturn(true);
+        when(backupService.restoreBackup(eq("backup-2026-08-07.zip"), anyString())).thenReturn(true);
 
         mockMvc.perform(post("/menu/backups/restore/backup-2026-08-07.zip")
                         .sessionAttr("userId", 1)
@@ -120,7 +122,7 @@ class BackupControllerTests {
 
     @Test
     void restoreBackupFailureShowsError() throws Exception {
-        when(backupService.restoreBackup("backup-2026-08-07.zip")).thenReturn(false);
+        when(backupService.restoreBackup(eq("backup-2026-08-07.zip"), anyString())).thenReturn(false);
 
         mockMvc.perform(post("/menu/backups/restore/backup-2026-08-07.zip")
                         .sessionAttr("userId", 1)
@@ -132,7 +134,7 @@ class BackupControllerTests {
 
     @Test
     void restoreBackupWithApiErrorShowsDetailedError() throws Exception {
-        when(backupService.restoreBackup("backup-2026-08-07.zip"))
+        when(backupService.restoreBackup(eq("backup-2026-08-07.zip"), anyString()))
                 .thenThrow(new RestClientException("conexión rechazada"));
 
         mockMvc.perform(post("/menu/backups/restore/backup-2026-08-07.zip")
@@ -148,7 +150,7 @@ class BackupControllerTests {
     void downloadBackupReturnsAttachmentHeader() throws Exception {
         ByteArrayResource resource = new ByteArrayResource("contenido".getBytes());
 
-        when(backupService.downloadBackup("backup-2026-08-07.zip")).thenReturn(resource);
+        when(backupService.downloadBackup(eq("backup-2026-08-07.zip"), anyString())).thenReturn(resource);
 
         mockMvc.perform(get("/menu/backups/download/backup-2026-08-07.zip")
                         .sessionAttr("userId", 1)
@@ -161,7 +163,7 @@ class BackupControllerTests {
 
     @Test
     void deleteBackupSuccessShowsPopup() throws Exception {
-        when(backupService.deleteBackup("backup-2026-08-07.zip")).thenReturn(true);
+        when(backupService.deleteBackup(eq("backup-2026-08-07.zip"), anyString())).thenReturn(true);
 
         mockMvc.perform(post("/menu/backups/delete/backup-2026-08-07.zip")
                         .sessionAttr("userId", 1)
@@ -173,7 +175,7 @@ class BackupControllerTests {
 
     @Test
     void deleteBackupFailureShowsError() throws Exception {
-        when(backupService.deleteBackup("backup-2026-08-07.zip")).thenReturn(false);
+        when(backupService.deleteBackup(eq("backup-2026-08-07.zip"), anyString())).thenReturn(false);
 
         mockMvc.perform(post("/menu/backups/delete/backup-2026-08-07.zip")
                         .sessionAttr("userId", 1)
@@ -185,7 +187,7 @@ class BackupControllerTests {
 
     @Test
     void deleteBackupWithApiErrorShowsDetailedError() throws Exception {
-        when(backupService.deleteBackup("backup-2026-08-07.zip"))
+        when(backupService.deleteBackup(eq("backup-2026-08-07.zip"), anyString()))
                 .thenThrow(new RestClientException("conexión rechazada"));
 
         mockMvc.perform(post("/menu/backups/delete/backup-2026-08-07.zip")

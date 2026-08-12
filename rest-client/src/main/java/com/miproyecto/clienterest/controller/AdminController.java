@@ -15,6 +15,8 @@ import com.miproyecto.clienterest.dto.AdminUserDTO;
 import com.miproyecto.clienterest.service.AdminService;
 import com.miproyecto.clienterest.service.BackupClientService;
 
+import jakarta.servlet.http.HttpSession;
+
 
 @Controller
 @RequestMapping("/menu/admin")
@@ -48,10 +50,10 @@ public class AdminController {
     }
 
     @PostMapping("/backup")
-    public String createBackup() {
+    public String createBackup(HttpSession session) {
 
 
-        backupService.createBackup();
+        backupService.createBackup(actorOf(session));
 
 
         return "redirect:/menu/admin";
@@ -61,11 +63,12 @@ public class AdminController {
     @PostMapping("/restore/{file}")
     public String restoreBackup(
             @PathVariable String file,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
 
         try {
 
-            Boolean restored = backupService.restoreBackup(file);
+            Boolean restored = backupService.restoreBackup(file, actorOf(session));
 
             if (Boolean.TRUE.equals(restored)) {
 
@@ -96,9 +99,10 @@ public class AdminController {
 
     @GetMapping("/download/{file}")
     public ResponseEntity<Resource> downloadBackup(
-            @PathVariable String file) {
+            @PathVariable String file,
+            HttpSession session) {
 
-        Resource resource = backupService.downloadBackup(file);
+        Resource resource = backupService.downloadBackup(file, actorOf(session));
 
         return ResponseEntity.ok()
                 .header(
@@ -125,5 +129,10 @@ public class AdminController {
     public String delete(@PathVariable Integer id) {
         adminServ.delete(id);
         return "redirect:/menu/admin";
+    }
+
+    private String actorOf(HttpSession session) {
+        Object username = session.getAttribute("username");
+        return username != null ? String.valueOf(username) : "DESCONOCIDO";
     }
 }

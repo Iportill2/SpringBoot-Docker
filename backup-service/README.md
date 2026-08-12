@@ -128,3 +128,36 @@ El nombre del archivo debe seguir el patrón `aplicacion_yyyy-MM-dd_HH-mm-ss.sql
 - `POST /backups/cleanup` — ejecuta la retención ahora y devuelve el número de archivos eliminados.
 - La creación manual (`POST /backups`) también dispara la retención automáticamente.
 - El backup programado (`BackupScheduler`) crea un backup y luego aplica la retención según `backup.cron`.
+
+## Log de auditoría (texto plano)
+
+Cada operación de backup se registra en un **log de texto plano** con formato:
+
+```
+yyyy-MM-dd HH:mm:ss | ACTOR | ACCION | detalle
+```
+
+Ejemplo:
+
+```
+2026-08-12 17:25:13 | admin@empresa.com | CREATE  | Backup creado: aplicacion_2026-08-12_17-25-13.sql.gz
+2026-08-12 17:30:00 | SYSTEM (programado) | CLEANUP | Retención aplicada: 3 archivos eliminados (dias=7, semanas=4, meses=12)
+2026-08-12 18:00:00 | admin@empresa.com | RESTORE | Backup restaurado: aplicacion_2026-08-10_12-00-00.sql.gz
+```
+
+- **Qué** (`ACCION`): `CREATE`, `RESTORE`, `DELETE`, `CLEANUP`, `DOWNLOAD` (y `FALLO` en errores).
+- **Quién** (`ACTOR`): usuario que ejecutó la acción (su `username` de sesión, enviado por el rest-client vía cabecera `X-Actor`); o `SYSTEM (programado)` para el backup automático; o `DESCONOCIDO` si no se identifica.
+- **Cuándo**: timestamp `yyyy-MM-dd HH:mm:ss`.
+
+El archivo se guarda en `backup.log-file` (por defecto `<backup.directory>/backup-audit.log`, dentro del volumen `/backup`).
+
+### Configuración
+
+| Propiedad        | Env var             | Defecto                      | Descripción |
+|------------------|---------------------|------------------------------|-------------|
+| `backup.log-file`| `BACKUP_LOG_FILE`   | `<backup.directory>/backup-audit.log` | Ruta del archivo de log. |
+
+### Endpoints
+
+- `GET /backups/log` — devuelve el contenido del log en texto plano (`text/plain`).
+- En el rest-client, `GET /menu/backups/log` (solo ADMIN) muestra el mismo log.

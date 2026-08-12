@@ -34,32 +34,44 @@ public class BackupClientService {
     }
 
 
-    public String createBackup() {
+    public String createBackup(String actor) {
 
         return restClient.post()
                 .uri("/backups")
+                .header("X-Actor", actor)
                 .retrieve()
                 .body(String.class);
     }
-    public Boolean restoreBackup(String fileName) {
+    public Boolean restoreBackup(String fileName, String actor) {
 
         return restClient.post()
                 .uri("/backups/restore/{fileName}", fileName)
+                .header("X-Actor", actor)
                 .retrieve()
                 .body(Boolean.class);
     }
-    public Boolean deleteBackup(String fileName) {
+    public Boolean deleteBackup(String fileName, String actor) {
 
         return restClient.delete()
                 .uri("/backups/{fileName}", fileName)
+                .header("X-Actor", actor)
                 .retrieve()
                 .body(Boolean.class);
     }
-    public Resource downloadBackup(String fileName) {
+    public Resource downloadBackup(String fileName, String actor) {
 
         return restClient.get()
                 .uri("/backups/{fileName}", fileName)
+                .header("X-Actor", actor)
                 .retrieve()
                 .body(Resource.class);
+    }
+
+    public String getLog() {
+
+        return restClient.get()
+                .uri("/backups/log")
+                .retrieve()
+                .body(String.class);
     }
 }
