@@ -26,7 +26,9 @@ public class BackupController {
 
     @PostMapping
     public String createBackup() {
-        return service.createBackup();
+        String file = service.createBackup();
+        service.cleanupOldBackups();
+        return file;
     }
     @GetMapping
     public List<BackupInfo> listBackups()
@@ -48,5 +50,9 @@ public class BackupController {
 
         return service.deleteBackup(fileName);
 
+    }
+    @PostMapping("/cleanup")
+    public int cleanupBackups() {
+        return service.cleanupOldBackups();
     }
 }

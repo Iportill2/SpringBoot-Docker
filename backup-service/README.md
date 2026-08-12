@@ -98,3 +98,33 @@ docker compose up -d mysql backup-service
 - Uses the `MYSQL_USER` / `MYSQL_PASSWORD` credentials (the same ones as the API, defined in `.env`): the user has `ALL PRIVILEGES` on the database, enough for `mysqldump` and restore.
 
 **Security:** the backup-service port is published only on `127.0.0.1` (host loopback), so it is not accessible from the local network. The rest-client reaches it via `host.docker.internal:8082`.
+
+## Retención automática y programación (cron)
+
+El servicio aplica una **política de retención** tras cada backup (manual o programado) y expone un endpoint para ejecutarla bajo demanda.
+
+### Configuración (`application.yml` / variables de entorno)
+
+| Propiedad                          | Env var                        | Defecto       | Descripción |
+|------------------------------------|--------------------------------|---------------|-------------|
+| `backup.cron`                      | `BACKUP_CRON`                  | `0 0 2 * * *` | Expresión cron (diario 02:00) del backup automático. |
+| `backup.enabled`                   | `BACKUP_ENABLED`               | `true`        | Activa el scheduler de backup automático. |
+| `backup.retention.enabled`         | `BACKUP_RETENTION_ENABLED`     | `true`        | Activa la eliminación de backups antiguos. |
+| `backup.retention.daily`           | `BACKUP_RETENTION_DAILY`       | `7`           | Días que se conservan íntegramente. |
+| `backup.retention.weekly`          | `BACKUP_RETENTION_WEEKLY`      | `4`           | Semanas (ISO) de las que se guarda el más reciente. |
+| `backup.retention.monthly`         | `BACKUP_RETENTION_MONTHLY`     | `12`          | Meses de los que se guarda el más reciente. |
+
+### Algoritmo de retención
+
+1. **Diario:** se conservan todos los backups de los últimos `daily` días.
+2. **Semanal:** para las semanas más antiguas que la ventana diaria (hasta `weekly` semanas atrás), se conserva el backup más reciente de cada semana ISO.
+3. **Mensual:** para los meses más antiguos que la ventana semanal (hasta `monthly` meses atrás), se conserva el backup más reciente de cada mes.
+4. El resto se elimina.
+
+El nombre del archivo debe seguir el patrón `aplicacion_yyyy-MM-dd_HH-mm-ss.sql.gz` para que la fecha se infiera correctamente.
+
+### Endpoints
+
+- `POST /backups/cleanup` — ejecuta la retención ahora y devuelve el número de archivos eliminados.
+- La creación manual (`POST /backups`) también dispara la retención automáticamente.
+- El backup programado (`BackupScheduler`) crea un backup y luego aplica la retención según `backup.cron`.

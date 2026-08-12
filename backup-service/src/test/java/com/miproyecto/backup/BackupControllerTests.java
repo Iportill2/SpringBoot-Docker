@@ -108,4 +108,13 @@ class BackupControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(content().string("false"));
     }
+
+    @Test
+    void cleanupBackupsReturnsDeletedCount() throws Exception {
+        when(backupService.cleanupOldBackups()).thenReturn(3);
+
+        mockMvc.perform(post("/backups/cleanup"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("3"));
+    }
 }

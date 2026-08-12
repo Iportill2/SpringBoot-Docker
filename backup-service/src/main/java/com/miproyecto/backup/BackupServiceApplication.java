@@ -3,11 +3,13 @@ package com.miproyecto.backup;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.miproyecto.backup.config.BackupProperties;
 import com.miproyecto.backup.config.MySqlProperties;
 
 @SpringBootApplication
+@EnableScheduling
 @EnableConfigurationProperties({
     BackupProperties.class,
     MySqlProperties.class

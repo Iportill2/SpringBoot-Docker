@@ -13,4 +13,5 @@ public interface BackupService {
     Resource downloadBackup(String fileName);
     Boolean restoreBackup(String fileName);
     Boolean deleteBackup(String fileName);
+    int cleanupOldBackups();
 }

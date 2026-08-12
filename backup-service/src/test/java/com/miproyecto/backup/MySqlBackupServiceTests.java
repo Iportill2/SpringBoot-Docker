@@ -161,4 +161,70 @@ class MySqlBackupServiceTests {
                 () -> service.deleteBackup("../fuera.sql.gz")
         );
     }
+
+    @Test
+    void cleanupOldBackupsKeepsDailyWindowAndNewestPerWeekAndMonth() throws IOException {
+
+        BackupProperties props = new BackupProperties();
+        props.setDirectory(tempDir.toString());
+        BackupProperties.Retention retention = new BackupProperties.Retention();
+        retention.setDaily(7);
+        retention.setWeekly(4);
+        retention.setMonthly(12);
+        props.setRetention(retention);
+
+        MySqlBackupService cleanupService = new MySqlBackupService(props, new MySqlProperties());
+
+        Path dir = tempDir;
+        writeBackup(dir, "aplicacion_2024-01-10_10-00-00.sql.gz");
+        writeBackup(dir, "aplicacion_2024-06-10_10-00-00.sql.gz");
+        writeBackup(dir, "aplicacion_2024-12-10_10-00-00.sql.gz");
+        writeBackup(dir, "aplicacion_2026-01-15_10-00-00.sql.gz");
+        writeBackup(dir, "aplicacion_2026-08-01_10-00-00.sql.gz");
+        writeBackup(dir, "aplicacion_2026-08-10_10-00-00.sql.gz");
+
+        int deleted = cleanupService.cleanupOldBackups();
+
+        Path oldJan = dir.resolve("aplicacion_2024-01-10_10-00-00.sql.gz");
+        Path oldJun = dir.resolve("aplicacion_2024-06-10_10-00-00.sql.gz");
+        Path oldDec = dir.resolve("aplicacion_2024-12-10_10-00-00.sql.gz");
+        Path recentJan = dir.resolve("aplicacion_2026-01-15_10-00-00.sql.gz");
+        Path aug1 = dir.resolve("aplicacion_2026-08-01_10-00-00.sql.gz");
+        Path aug10 = dir.resolve("aplicacion_2026-08-10_10-00-00.sql.gz");
+
+        assertEquals(3, deleted);
+
+        assertFalse(Files.exists(oldJan));
+        assertFalse(Files.exists(oldJun));
+        assertFalse(Files.exists(oldDec));
+        assertTrue(Files.exists(recentJan));
+        assertTrue(Files.exists(aug1));
+        assertTrue(Files.exists(aug10));
+    }
+
+    @Test
+    void cleanupOldBackupsReturnsZeroWhenDisabled() throws IOException {
+
+        BackupProperties props = new BackupProperties();
+        props.setDirectory(tempDir.toString());
+        BackupProperties.Retention retention = new BackupProperties.Retention();
+        retention.setEnabled(false);
+        props.setRetention(retention);
+
+        MySqlBackupService cleanupService = new MySqlBackupService(props, new MySqlProperties());
+
+        Path dir = tempDir;
+        writeBackup(dir, "aplicacion_2026-01-15_10-00-00.sql.gz");
+        writeBackup(dir, "aplicacion_2026-08-10_10-00-00.sql.gz");
+
+        int deleted = cleanupService.cleanupOldBackups();
+
+        assertEquals(0, deleted);
+        assertTrue(Files.exists(dir.resolve("aplicacion_2026-01-15_10-00-00.sql.gz")));
+        assertTrue(Files.exists(dir.resolve("aplicacion_2026-08-10_10-00-00.sql.gz")));
+    }
+
+    private void writeBackup(Path dir, String fileName) throws IOException {
+        Files.writeString(dir.resolve(fileName), "datos");
+    }
 }

@@ -7,8 +7,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -23,6 +28,9 @@ public class MySqlBackupService implements BackupService {
 
     private final BackupProperties backupProperties;
     private final MySqlProperties mySqlProperties;
+
+    private static final DateTimeFormatter FILE_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
     public MySqlBackupService(
             BackupProperties backupProperties,
@@ -200,6 +208,119 @@ public class MySqlBackupService implements BackupService {
         }
 
         return true;
+    }
+
+    @Override
+    public int cleanupOldBackups() {
+
+        BackupProperties.Retention retention = backupProperties.getRetention();
+
+        if (retention == null || !retention.isEnabled()) {
+            return 0;
+        }
+
+        Path directory = Path.of(backupProperties.getDirectory());
+
+        try {
+            Files.createDirectories(directory);
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "No se pudo crear el directorio de backups: " + directory,
+                    e
+            );
+        }
+
+        Map<Path, LocalDateTime> backups = new HashMap<>();
+
+        try (var stream = Files.list(directory)) {
+            stream
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".sql.gz"))
+                    .forEach(path -> {
+                        LocalDateTime created = parseFileNameDate(path.getFileName().toString());
+                        if (created != null) {
+                            backups.put(path, created);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "No se pudo leer el directorio de backups",
+                    e
+            );
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime dailyCutoff = now.minusDays(retention.getDaily());
+        LocalDateTime weeklyCutoff = now.minusWeeks(retention.getWeekly());
+        LocalDateTime monthlyCutoff = now.minusMonths(retention.getMonthly());
+
+        Set<Path> keep = new HashSet<>();
+
+        backups.forEach((path, created) -> {
+            if (!created.isBefore(dailyCutoff)) {
+                keep.add(path);
+            }
+        });
+
+        WeekFields weekFields = WeekFields.ISO;
+        Map<String, Path> newestOfWeek = new HashMap<>();
+        Map<String, Path> newestOfMonth = new HashMap<>();
+
+        backups.entrySet().stream()
+                .sorted(Map.Entry.<Path, LocalDateTime>comparingByValue().reversed())
+                .forEach(entry -> {
+                    Path path = entry.getKey();
+                    LocalDateTime created = entry.getValue();
+
+                    if (!created.isBefore(weeklyCutoff)) {
+                        String weekKey = created.get(weekFields.weekBasedYear())
+                                + "-"
+                                + created.get(weekFields.weekOfWeekBasedYear());
+                        newestOfWeek.putIfAbsent(weekKey, path);
+                    }
+
+                    if (!created.isBefore(monthlyCutoff)) {
+                        String monthKey = created.getYear()
+                                + "-"
+                                + created.getMonthValue();
+                        newestOfMonth.putIfAbsent(monthKey, path);
+                    }
+                });
+
+        keep.addAll(newestOfWeek.values());
+        keep.addAll(newestOfMonth.values());
+
+        int deleted = 0;
+
+        for (Path path : backups.keySet()) {
+            if (!keep.contains(path)) {
+                try {
+                    Files.deleteIfExists(path);
+                    deleted++;
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                            "Error eliminando el backup " + path.getFileName(),
+                            e
+                    );
+                }
+            }
+        }
+
+        return deleted;
+    }
+
+    private LocalDateTime parseFileNameDate(String fileName) {
+        try {
+            String datePart = fileName
+                    .substring(
+                            "aplicacion_".length(),
+                            fileName.length() - ".sql.gz".length()
+                    );
+            return LocalDateTime.parse(datePart, FILE_DATE_FORMATTER);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private Path resolverArchivoBackup(String fileName) {
