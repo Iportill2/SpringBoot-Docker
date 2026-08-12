@@ -37,9 +37,16 @@
 
             </form>
 
-            <a th:href="@{/menu/backups/log}" class="btn-db-upload" target="_blank" rel="noopener">
+            <a th:href="@{/menu/backups/log/view}" class="btn-db-upload">
                 Ver log de auditoría
             </a>
+
+            <form th:action="@{/menu/backups/cleanup}" method="post"
+                  data-confirm="¿Aplicar la retención y eliminar los backups antiguos según la configuración?">
+                <button type="submit" class="btn-db-upload">
+                    Aplicar retención
+                </button>
+            </form>
 
         </div>
 

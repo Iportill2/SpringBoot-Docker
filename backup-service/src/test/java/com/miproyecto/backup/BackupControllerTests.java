@@ -129,12 +129,12 @@ class BackupControllerTests {
     @Test
     void getLogReturnsPlainText() throws Exception {
         when(auditLog.readLog()).thenReturn(
-                "2026-08-12 17:25:13 | admin | CREATE | Backup creado: aplicacion_2026-08-12_17-25-13.sql.gz");
+                "2026-08-12 17:25:13 | admin | CREATE | Backup created: aplicacion_2026-08-12_17-25-13.sql.gz");
 
         mockMvc.perform(get("/backups/log"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("text/plain"))
                 .andExpect(content().string(
-                        "2026-08-12 17:25:13 | admin | CREATE | Backup creado: aplicacion_2026-08-12_17-25-13.sql.gz"));
+                        "2026-08-12 17:25:13 | admin | CREATE | Backup created: aplicacion_2026-08-12_17-25-13.sql.gz"));
     }
 }

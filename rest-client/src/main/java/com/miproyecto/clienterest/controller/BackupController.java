@@ -68,6 +68,38 @@ public class BackupController {
 
         return "app/backups";
     }
+
+    @PostMapping("/cleanup")
+    public String cleanupBackups(
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        if (!esAdmin(session)) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+
+        try {
+
+            Integer deleted = backupService.cleanup(actorOf(session));
+
+            redirectAttributes.addFlashAttribute(
+                    "popup",
+                    "Retención aplicada: "
+                            + (deleted != null ? deleted : 0)
+                            + " archivos eliminados"
+            );
+
+        } catch (RestClientException e) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "No se pudo aplicar la retención: " + e.getMessage()
+            );
+        }
+
+        return "redirect:/menu/backups";
+    }
     @PostMapping("/restore/{file}")
     public String restoreBackup(
             @PathVariable String file,
@@ -171,6 +203,19 @@ public class BackupController {
         return "redirect:/menu/backups";
     }
 
+    @GetMapping("/log/view")
+    public String viewLogPage(HttpSession session, Model model) {
+
+        if (!esAdmin(session)) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+
+        model.addAttribute("log", backupService.getLog());
+
+        return "app/backups-log";
+    }
+
     @GetMapping("/log")
     public ResponseEntity<String> viewLog(HttpSession session) {
 
@@ -194,6 +239,6 @@ public class BackupController {
 
     private String actorOf(HttpSession session) {
         Object username = session.getAttribute("username");
-        return username != null ? String.valueOf(username) : "DESCONOCIDO";
+        return username != null ? String.valueOf(username) : "UNKNOWN";
     }
 }

@@ -58,6 +58,15 @@ public class BackupClientService {
                 .retrieve()
                 .body(Boolean.class);
     }
+
+    public Integer cleanup(String actor) {
+        return restClient.post()
+                .uri("/backups/cleanup")
+                .header("X-Actor", actor)
+                .retrieve()
+                .body(Integer.class);
+    }
+
     public Resource downloadBackup(String fileName, String actor) {
 
         return restClient.get()

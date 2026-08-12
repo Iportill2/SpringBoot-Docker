@@ -51,7 +51,7 @@ public class BackupAuditLog {
             return Files.readString(file, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(
-                    "No se pudo leer el log de backups: " + file,
+                    "Could not read the backup log: " + file,
                     e
             );
         }
@@ -64,7 +64,7 @@ public class BackupAuditLog {
             Files.createDirectories(file.getParent());
         } catch (IOException e) {
             throw new RuntimeException(
-                    "No se pudo crear el directorio del log: "
+                    "Could not create the log directory: "
                     + file.getParent(),
                     e
             );
@@ -80,7 +80,7 @@ public class BackupAuditLog {
             );
         } catch (IOException e) {
             throw new RuntimeException(
-                    "No se pudo escribir en el log de backups: " + file,
+                    "Could not write to the backup log: " + file,
                     e
             );
         }

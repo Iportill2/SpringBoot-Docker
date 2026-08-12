@@ -32,16 +32,16 @@ public class BackupScheduler {
     @Scheduled(cron = "${backup.cron}")
     public void scheduledBackup() {
         try {
-            actorContext.setActor("SYSTEM (programado)");
+            actorContext.setActor("SYSTEM (scheduled)");
             String file = backupService.createBackup();
             int deleted = backupService.cleanupOldBackups();
             log.info(
-                    "Backup automático creado: {} (retención eliminó {} archivos)",
+                    "Scheduled backup created: {} (retention deleted {} files)",
                     file,
                     deleted
             );
         } catch (Exception e) {
-            log.error("Error en el backup automático", e);
+            log.error("Error in scheduled backup", e);
         } finally {
             actorContext.clear();
         }

@@ -40,9 +40,7 @@ public class BackupController {
             @RequestHeader(value = "X-Actor", required = false) String actor) {
         try {
             actorContext.setActor(actor);
-            String file = service.createBackup();
-            service.cleanupOldBackups();
-            return file;
+            return service.createBackup();
         } finally {
             actorContext.clear();
         }

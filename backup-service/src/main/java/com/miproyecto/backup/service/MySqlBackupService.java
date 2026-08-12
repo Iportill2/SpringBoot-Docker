@@ -56,7 +56,7 @@ public class MySqlBackupService implements BackupService {
             Files.createDirectories(directory);
         } catch (IOException e) {
             throw new RuntimeException(
-                    "No se pudo crear el directorio de backups: " + directory,
+                    "Could not create backups directory: " + directory,
                     e
             );
         }
@@ -86,7 +86,7 @@ public class MySqlBackupService implements BackupService {
             auditLog.log(
                     actorContext.getActor(),
                     BackupAuditLog.ACTION_CREATE,
-                    "FALLO al crear backup"
+                    "FAILED: backup creation"
             );
             throw new RuntimeException(
                     "Error creando backup:\n"
@@ -97,7 +97,7 @@ public class MySqlBackupService implements BackupService {
         auditLog.log(
                 actorContext.getActor(),
                 BackupAuditLog.ACTION_CREATE,
-                "Backup creado: " + fileName
+                "Backup created: " + fileName
         );
 
         return file.toString();
@@ -136,7 +136,7 @@ public class MySqlBackupService implements BackupService {
 
                         } catch (IOException e) {
                             throw new RuntimeException(
-                                "Error leyendo backup: "
+                                "Error reading backup: "
                                 + path.getFileName(),
                                 e
                             );
@@ -147,7 +147,7 @@ public class MySqlBackupService implements BackupService {
         } catch (IOException e) {
 
             throw new RuntimeException(
-                    "No se pudo leer el directorio de backups",
+                    "Could not read the backups directory",
                     e
             );
         }
@@ -163,7 +163,7 @@ public class MySqlBackupService implements BackupService {
         if (!Files.exists(file)) {
 
             throw new RuntimeException(
-                    "El backup no existe: " + fileName
+                    "Backup does not exist: " + fileName
             );
         }
 
@@ -201,10 +201,10 @@ public class MySqlBackupService implements BackupService {
             auditLog.log(
                     actorContext.getActor(),
                     BackupAuditLog.ACTION_RESTORE,
-                    "FALLO al restaurar backup: " + fileName
+                    "FAILED: restore backup: " + fileName
             );
             throw new RuntimeException(
-                    "Error restaurando el backup "
+                    "Error restoring backup "
                     + fileName + ":\n"
                     + error
             );
@@ -235,7 +235,7 @@ public class MySqlBackupService implements BackupService {
         } catch (IOException e) {
 
             throw new RuntimeException(
-                    "Error eliminando el backup "
+                    "Error deleting backup "
                     + fileName + ":\n"
                     + e.getMessage(),
                     e
@@ -266,7 +266,7 @@ public class MySqlBackupService implements BackupService {
             Files.createDirectories(directory);
         } catch (IOException e) {
             throw new RuntimeException(
-                    "No se pudo crear el directorio de backups: " + directory,
+                    "Could not create backups directory: " + directory,
                     e
             );
         }
@@ -285,7 +285,7 @@ public class MySqlBackupService implements BackupService {
                     });
         } catch (IOException e) {
             throw new RuntimeException(
-                    "No se pudo leer el directorio de backups",
+                    "Could not read the backups directory",
                     e
             );
         }
@@ -341,7 +341,7 @@ public class MySqlBackupService implements BackupService {
                     deleted++;
                 } catch (IOException e) {
                     throw new RuntimeException(
-                            "Error eliminando el backup " + path.getFileName(),
+                            "Error deleting backup " + path.getFileName(),
                             e
                     );
                 }
@@ -351,13 +351,13 @@ public class MySqlBackupService implements BackupService {
         auditLog.log(
                 actorContext.getActor(),
                 BackupAuditLog.ACTION_CLEANUP,
-                "Retención aplicada: "
+                "Retention applied: "
                 + deleted
-                + " archivos eliminados (dias="
+                + " file(s) deleted (days="
                 + retention.getDaily()
-                + ", semanas="
+                + ", weeks="
                 + retention.getWeekly()
-                + ", meses="
+                + ", months="
                 + retention.getMonthly()
                 + ")"
         );
@@ -392,7 +392,7 @@ public class MySqlBackupService implements BackupService {
                 || !fileName.endsWith(".sql.gz")) {
 
             throw new IllegalArgumentException(
-                    "Nombre de backup no válido: " + fileName
+                    "Invalid backup name: " + fileName
             );
         }
 
@@ -401,7 +401,7 @@ public class MySqlBackupService implements BackupService {
         if (!file.startsWith(directory)) {
 
             throw new IllegalArgumentException(
-                    "Nombre de backup no válido: " + fileName
+                    "Invalid backup name: " + fileName
             );
         }
 
@@ -453,7 +453,7 @@ public class MySqlBackupService implements BackupService {
         } catch (IOException e) {
 
             throw new RuntimeException(
-                    "No se pudo ejecutar el comando",
+                    "Could not execute the command",
                     e
             );
 

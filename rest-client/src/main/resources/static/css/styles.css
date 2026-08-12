@@ -995,3 +995,67 @@ body {
 	opacity: 1;
 	transform: translateY(0);
 }
+
+/* ===== BACKUP LOG (auto-refresco) ===== */
+
+.backup-log-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+	margin-bottom: 1.25rem;
+}
+
+.backup-log-header .admin-title {
+	margin-bottom: 0;
+	text-align: left;
+}
+
+.backup-log-status {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.85rem;
+	color: #64748b;
+}
+
+.backup-log-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background-color: #94a3b8;
+	display: inline-block;
+}
+
+.backup-log-dot.online {
+	background-color: #16a34a;
+	box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+}
+
+.backup-log-dot.offline {
+	background-color: #dc2626;
+	box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+.backup-log-updated {
+	color: #94a3b8;
+	font-size: 0.75rem;
+}
+
+.backup-log-content {
+	background-color: #0f172a;
+	color: #e2e8f0;
+	font-family: 'Consolas', 'Monaco', monospace;
+	font-size: 0.8rem;
+	line-height: 1.5;
+	padding: 1.25rem;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	white-space: pre-wrap;
+	word-break: break-word;
+	overflow-y: auto;
+	max-height: 65vh;
+	min-height: 300px;
+	margin: 0;
+}

@@ -99,65 +99,78 @@ docker compose up -d mysql backup-service
 
 **Security:** the backup-service port is published only on `127.0.0.1` (host loopback), so it is not accessible from the local network. The rest-client reaches it via `host.docker.internal:8082`.
 
-## Retención automática y programación (cron)
+## Automatic retention and scheduling (cron)
 
-El servicio aplica una **política de retención** tras cada backup (manual o programado) y expone un endpoint para ejecutarla bajo demanda.
+The service applies a **retention policy** after the scheduled (cron) backup and exposes an endpoint to run it on demand. Manual backup creation does **not** trigger retention automatically: it must be run explicitly (rest-client button or the `POST /backups/cleanup` endpoint).
 
-### Configuración (`application.yml` / variables de entorno)
+### Configuration (`application.yml` / environment variables)
 
-| Propiedad                          | Env var                        | Defecto       | Descripción |
+| Property                           | Env var                        | Default       | Description |
 |------------------------------------|--------------------------------|---------------|-------------|
-| `backup.cron`                      | `BACKUP_CRON`                  | `0 0 2 * * *` | Expresión cron (diario 02:00) del backup automático. |
-| `backup.enabled`                   | `BACKUP_ENABLED`               | `true`        | Activa el scheduler de backup automático. |
-| `backup.retention.enabled`         | `BACKUP_RETENTION_ENABLED`     | `true`        | Activa la eliminación de backups antiguos. |
-| `backup.retention.daily`           | `BACKUP_RETENTION_DAILY`       | `7`           | Días que se conservan íntegramente. |
-| `backup.retention.weekly`          | `BACKUP_RETENTION_WEEKLY`      | `4`           | Semanas (ISO) de las que se guarda el más reciente. |
-| `backup.retention.monthly`         | `BACKUP_RETENTION_MONTHLY`     | `12`          | Meses de los que se guarda el más reciente. |
+| `backup.cron`                      | `BACKUP_CRON`                  | `0 0 2 * * *` | Cron expression (daily 02:00) for the automatic backup. |
+| `backup.enabled`                   | `BACKUP_ENABLED`               | `true`        | Enables the automatic backup scheduler. |
+| `backup.retention.enabled`         | `BACKUP_RETENTION_ENABLED`     | `true`        | Enables deletion of old backups. |
+| `backup.retention.daily`           | `BACKUP_RETENTION_DAILY`       | `7`           | Days kept fully. |
+| `backup.retention.weekly`          | `BACKUP_RETENTION_WEEKLY`      | `4`           | ISO weeks for which the most recent backup is kept. |
+| `backup.retention.monthly`         | `BACKUP_RETENTION_MONTHLY`     | `12`          | Months for which the most recent backup is kept. |
 
-### Algoritmo de retención
+### Retention algorithm
 
-1. **Diario:** se conservan todos los backups de los últimos `daily` días.
-2. **Semanal:** para las semanas más antiguas que la ventana diaria (hasta `weekly` semanas atrás), se conserva el backup más reciente de cada semana ISO.
-3. **Mensual:** para los meses más antiguos que la ventana semanal (hasta `monthly` meses atrás), se conserva el backup más reciente de cada mes.
-4. El resto se elimina.
+1. **Daily:** all backups from the last `daily` days are kept.
+2. **Weekly:** for weeks older than the daily window (up to `weekly` weeks back), the most recent backup of each ISO week is kept.
+3. **Monthly:** for months older than the weekly window (up to `monthly` months back), the most recent backup of each month is kept.
+4. The rest are deleted.
 
-El nombre del archivo debe seguir el patrón `aplicacion_yyyy-MM-dd_HH-mm-ss.sql.gz` para que la fecha se infiera correctamente.
-
-### Endpoints
-
-- `POST /backups/cleanup` — ejecuta la retención ahora y devuelve el número de archivos eliminados.
-- La creación manual (`POST /backups`) también dispara la retención automáticamente.
-- El backup programado (`BackupScheduler`) crea un backup y luego aplica la retención según `backup.cron`.
-
-## Log de auditoría (texto plano)
-
-Cada operación de backup se registra en un **log de texto plano** con formato:
-
-```
-yyyy-MM-dd HH:mm:ss | ACTOR | ACCION | detalle
-```
-
-Ejemplo:
-
-```
-2026-08-12 17:25:13 | admin@empresa.com | CREATE  | Backup creado: aplicacion_2026-08-12_17-25-13.sql.gz
-2026-08-12 17:30:00 | SYSTEM (programado) | CLEANUP | Retención aplicada: 3 archivos eliminados (dias=7, semanas=4, meses=12)
-2026-08-12 18:00:00 | admin@empresa.com | RESTORE | Backup restaurado: aplicacion_2026-08-10_12-00-00.sql.gz
-```
-
-- **Qué** (`ACCION`): `CREATE`, `RESTORE`, `DELETE`, `CLEANUP`, `DOWNLOAD` (y `FALLO` en errores).
-- **Quién** (`ACTOR`): usuario que ejecutó la acción (su `username` de sesión, enviado por el rest-client vía cabecera `X-Actor`); o `SYSTEM (programado)` para el backup automático; o `DESCONOCIDO` si no se identifica.
-- **Cuándo**: timestamp `yyyy-MM-dd HH:mm:ss`.
-
-El archivo se guarda en `backup.log-file` (por defecto `<backup.directory>/backup-audit.log`, dentro del volumen `/backup`).
-
-### Configuración
-
-| Propiedad        | Env var             | Defecto                      | Descripción |
-|------------------|---------------------|------------------------------|-------------|
-| `backup.log-file`| `BACKUP_LOG_FILE`   | `<backup.directory>/backup-audit.log` | Ruta del archivo de log. |
+The file name must follow the pattern `aplicacion_yyyy-MM-dd_HH-mm-ss.sql.gz` so the date is inferred correctly.
 
 ### Endpoints
 
-- `GET /backups/log` — devuelve el contenido del log en texto plano (`text/plain`).
-- En el rest-client, `GET /menu/backups/log` (solo ADMIN) muestra el mismo log.
+- `POST /backups/cleanup` — runs retention now and returns the number of deleted files. Used by the rest-client **"Apply retention"** button.
+- `POST /backups` (manual creation) does **not** apply retention: it only creates the backup. To clean up manually, use `POST /backups/cleanup`.
+- The scheduled backup (`BackupScheduler`) creates a backup and then applies retention according to `backup.cron` (unchanged).
+
+## Audit log (plain text)
+
+Every backup operation is recorded in a **plain-text log** with the format:
+
+```
+yyyy-MM-dd HH:mm:ss | ACTOR | ACTION | detail
+```
+
+Example:
+
+```
+2026-08-12 17:25:13 | admin@empresa.com | CREATE  | Backup created: aplicacion_2026-08-12_17-25-13.sql.gz
+2026-08-12 17:30:00 | SYSTEM (scheduled) | CLEANUP | Retention applied: 3 files deleted (days=7, weeks=4, months=12)
+2026-08-12 18:00:00 | admin@empresa.com | RESTORE | Backup restored: aplicacion_2026-08-10_12-00-00.sql.gz
+```
+
+- **Action** (`ACTION`): `CREATE`, `RESTORE`, `DELETE`, `CLEANUP`, `DOWNLOAD` (and `FAILED` on errors).
+- **Who** (`ACTOR`): the user who performed the action (their session `username`, sent by the rest-client via the `X-Actor` header); or `SYSTEM (scheduled)` for the automatic backup; or `UNKNOWN` if not identified.
+- **When**: timestamp `yyyy-MM-dd HH:mm:ss`.
+
+The file is stored at `backup.log-file` (default `<backup.directory>/backup-audit.log`, inside the `/backup` volume).
+
+### Configuration
+
+| Property         | Env var            | Default                                | Description |
+|------------------|--------------------|----------------------------------------|-------------|
+| `backup.log-file`| `BACKUP_LOG_FILE`  | `<backup.directory>/backup-audit.log`  | Path of the log file. |
+
+### Endpoints
+
+- `GET /backups/log` — returns the log content as plain text (`text/plain`).
+- In the rest-client, `GET /menu/backups/log` (ADMIN only) shows the same log.
+- In the rest-client, `GET /menu/backups/log/view` (ADMIN only) shows the log on a page that **auto-refreshes every 2 s** (without reloading).
+
+### Deleting the audit log
+
+The log file can be deleted directly inside the container:
+
+```
+docker compose exec backup-service rm -f /backup/backup-audit.log
+```
+
+If `BACKUP_LOG_FILE` is configured with a different path, use that instead of `/backup/backup-audit.log`.
+
+**What happens when you delete it:** nothing breaks. Reading (`GET /backups/log` / rest-client view) returns empty until a new entry appears, and the next operation (create backup, restore, delete or apply retention) **recreates the file automatically** and resumes logging. Only the previous log history is lost.
