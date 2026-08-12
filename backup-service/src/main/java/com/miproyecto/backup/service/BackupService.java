@@ -12,4 +12,5 @@ public interface BackupService {
     List<BackupInfo> listBackups();
     Resource downloadBackup(String fileName);
     Boolean restoreBackup(String fileName);
+    Boolean deleteBackup(String fileName);
 }

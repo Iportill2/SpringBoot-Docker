@@ -52,17 +52,19 @@ Run a single method:
 
 ## Summary
 
-**Total: 13 tests** (5 controller + 1 context + 7 service).
+**Total: 18 tests** (7 controller + 1 context + 10 service).
 
 ## Endpoints — `BackupControllerTests`
 
-The controller exposes 4 REST endpoints under `/backups`:
+The controller exposes 5 REST endpoints under `/backups`:
 
 - `createBackupReturnsPath` — `POST /backups` returns the path of the created backup (string).
 - `listBackupsReturnsJsonArray` — `GET /backups` returns the JSON list of backups with `fileName` and `size`.
 - `downloadBackupReturnsResourceBody` — `GET /backups/{fileName}` returns the file content in the response body.
 - `restoreBackupReturnsTrue` — `POST /backups/restore/{fileName}` returns `true` when the restore works.
 - `restoreBackupReturnsFalseWhenFileMissing` — `POST /backups/restore/{fileName}` returns `false` when the file does not exist.
+- `deleteBackupReturnsTrue` — `DELETE /backups/{fileName}` returns `true` when the backup is deleted.
+- `deleteBackupReturnsFalseWhenFileMissing` — `DELETE /backups/{fileName}` returns `false` when the file does not exist.
 
 ## Service — `MySqlBackupServiceTests`
 
@@ -75,6 +77,9 @@ Tests of the real service (without external processes):
 - `downloadBackupRejectsNonBackupName` — rejects names that do not end in `.sql.gz`.
 - `restoreBackupRejectsInvalidName` — rejects names containing `..`.
 - `restoreBackupReturnsFalseWhenFileDoesNotExist` — returns `false` if the file does not exist.
+- `deleteBackupRemovesFile` — deletes the file and returns `true`.
+- `deleteBackupReturnsFalseWhenFileDoesNotExist` — returns `false` if the file does not exist.
+- `deleteBackupRejectsInvalidName` — rejects names containing `..`.
 
 ## Context — `BackupServiceApplicationTests`
 

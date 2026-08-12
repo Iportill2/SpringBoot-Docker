@@ -38,23 +38,23 @@ public class AdminService {
 	}
 
 	public Boolean approve(Integer id) {
-		AdminUserDTO result = restClient.patch()
+		Boolean result = restClient.patch()
 				.uri("/api/user/{id}", id)
 				.body(Map.of("role", Map.of("id", 2)))
 				.retrieve()
-				.body(AdminUserDTO.class);
+				.body(Boolean.class);
 
-		return result != null;
+		return Boolean.TRUE.equals(result);
 	}
 
 	public Boolean block(Integer id) {
-		AdminUserDTO result = restClient.patch()
+		Boolean result = restClient.patch()
 				.uri("/api/user/{id}", id)
 				.body(Map.of("blocked", true))
 				.retrieve()
-				.body(AdminUserDTO.class);
+				.body(Boolean.class);
 
-		return result != null;
+		return Boolean.TRUE.equals(result);
 	}
 
 	public Boolean delete(Integer id) {

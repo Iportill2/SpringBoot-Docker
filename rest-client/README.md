@@ -126,6 +126,7 @@ Run a single method:
 - `listBackupsGetsList` — `GET /backups` (uses the backup client, without JWT).
 - `createBackupPostsAndReturnsMessage` — `POST /backups`.
 - `restoreBackupPostsAndReturnsBoolean` — `POST /backups/restore/{fileName}`.
+- `deleteBackupDeletesAndReturnsBoolean` — `DELETE /backups/{fileName}`.
 - `downloadBackupGetsResource` — `GET /backups/{fileName}`.
 
 ## Controllers
@@ -165,9 +166,9 @@ Run a single method:
 - `menuGetShowsBaseAppLayout` — `GET /menu` shows the base layout.
 
 ### `AdminControllerTests`
-- `listUsersShowsPendingUsersAndBackups` — `GET /menu-admin` adds pending users and backups to the model.
-- `createBackupCallsClientAndRedirects` — `POST /menu-admin/backup` calls the backup client.
-- `downloadBackupReturnsAttachmentHeader` — `GET /menu-admin/download/{file}` returns the file with the `Content-Disposition` header.
+- `listUsersShowsPendingUsers` — `GET /menu/admin` adds pending users to the model.
+- `createBackupCallsClientAndRedirects` — `POST /menu/admin/backup` calls the backup client.
+- `downloadBackupReturnsAttachmentHeader` — `GET /menu/admin/download/{file}` returns the file with the `Content-Disposition` header.
 - `restoreBackupSuccessShowsMessage` — successful restore from the admin panel adds a flash message.
 - `restoreBackupFailureShowsError` — failed restore from the admin panel adds a flash error.
 - `approveRedirectsAndCallsService` — approve a user and redirect.
@@ -175,12 +176,15 @@ Run a single method:
 - `deleteRedirectsAndCallsService` — delete a user and redirect.
 
 ### `BackupControllerTests`
-- `createBackupRedirectsToList` — `POST /backups/create` redirects to `/backups`.
-- `listBackupsShowsViewWithModel` — `GET /backups` shows `app/backups` with the model.
-- `restoreBackupSuccessShowsMessage` — successful restore adds a flash message.
+- `createBackupRedirectsToList` — `POST /menu/backups/create` redirects to `/menu/backups` and shows the popup.
+- `listBackupsShowsViewWithModel` — `GET /menu/backups` shows `app/backups` with the model.
+- `restoreBackupSuccessShowsPopup` — successful restore adds a popup.
 - `restoreBackupFailureShowsError` — failed restore adds a flash error.
 - `restoreBackupWithApiErrorShowsDetailedError` — API exception shows the detail.
-- `downloadBackupReturnsAttachmentHeader` — `GET /backups/download/{file}` returns the file with the `Content-Disposition` header.
+- `downloadBackupReturnsAttachmentHeader` — `GET /menu/backups/download/{file}` returns the file with the `Content-Disposition` header.
+- `deleteBackupSuccessShowsPopup` — successful delete shows the popup.
+- `deleteBackupFailureShowsError` — failed delete adds a flash error.
+- `deleteBackupWithApiErrorShowsDetailedError` — API exception shows the detail.
 
 ### `GlobalModelAttributesTests`
 - `addsUsernameFromSessionToEveryModel` — the `@ControllerAdvice` adds `username` to all views.

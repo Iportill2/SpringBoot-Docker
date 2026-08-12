@@ -56,7 +56,7 @@ public class MySqlBackupService implements BackupService {
 
         String command = String.format(
                 "set -o pipefail; "
-                + "mysqldump --single-transaction --routines --triggers --no-tablespaces "
+                + "mysqldump --single-transaction --routines --triggers --no-tablespaces --databases "
                 + "-h %s -P %d -u %s %s | gzip > %s",
                 mySqlProperties.getHost(),
                 mySqlProperties.getPort(),
@@ -170,6 +170,32 @@ public class MySqlBackupService implements BackupService {
                     "Error restaurando el backup "
                     + fileName + ":\n"
                     + error
+            );
+        }
+
+        return true;
+    }
+
+    @Override
+    public Boolean deleteBackup(String fileName) {
+
+        Path file = resolverArchivoBackup(fileName);
+
+        if (!Files.exists(file)) {
+            return false;
+        }
+
+        try {
+
+            Files.delete(file);
+
+        } catch (IOException e) {
+
+            throw new RuntimeException(
+                    "Error eliminando el backup "
+                    + fileName + ":\n"
+                    + e.getMessage(),
+                    e
             );
         }
 

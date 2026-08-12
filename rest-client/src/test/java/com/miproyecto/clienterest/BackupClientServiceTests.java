@@ -82,6 +82,23 @@ class BackupClientServiceTests {
     }
 
     @Test
+    void deleteBackupDeletesAndReturnsBoolean() {
+        RestClient.Builder builder = RestClient.builder().baseUrl(BASE);
+        MockRestServiceServer server = RestClientTestSupport.bindServer(builder);
+        RestClient client = builder.build();
+
+        server.expect(requestTo(BASE + "/backups/backup-1.sql"))
+                .andExpect(method(HttpMethod.DELETE))
+                .andRespond(withSuccess("true", MediaType.APPLICATION_JSON));
+
+        BackupClientService service = new BackupClientService(client);
+
+        assertTrue(service.deleteBackup("backup-1.sql"));
+
+        server.verify();
+    }
+
+    @Test
     void downloadBackupGetsResource() {
         RestClient.Builder builder = RestClient.builder().baseUrl(BASE);
         MockRestServiceServer server = RestClientTestSupport.bindServer(builder);

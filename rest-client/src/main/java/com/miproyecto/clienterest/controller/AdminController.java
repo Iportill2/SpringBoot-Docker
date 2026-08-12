@@ -12,7 +12,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.miproyecto.clienterest.dto.AdminUserDTO;
-import com.miproyecto.clienterest.model.BackupInfo;
 import com.miproyecto.clienterest.service.AdminService;
 import com.miproyecto.clienterest.service.BackupClientService;
 
@@ -40,19 +39,9 @@ public class AdminController {
                 adminServ.findPendingUsers();
 
 
-        List<BackupInfo> backups =
-                backupService.listBackups();
-
-
         model.addAttribute(
                 "users",
                 users
-        );
-
-
-        model.addAttribute(
-                "backups",
-                backups
         );
 
         return "app/menu-admin";
@@ -65,7 +54,7 @@ public class AdminController {
         backupService.createBackup();
 
 
-        return "redirect:/menu-admin";
+        return "redirect:/menu/admin";
     }
 
 
@@ -101,7 +90,7 @@ public class AdminController {
             );
         }
 
-        return "redirect:/menu-admin";
+        return "redirect:/menu/admin";
     }
 
 

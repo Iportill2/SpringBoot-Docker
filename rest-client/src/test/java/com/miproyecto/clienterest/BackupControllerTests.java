@@ -38,10 +38,57 @@ class BackupControllerTests {
     void createBackupRedirectsToList() throws Exception {
         when(backupService.createBackup()).thenReturn("ok");
 
-        mockMvc.perform(post("/backups/create")
-                        .sessionAttr("userId", 1))
+        mockMvc.perform(post("/menu/backups/create")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "ADMIN"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/backups"));
+                .andExpect(redirectedUrl("/menu/backups"))
+                .andExpect(flash().attribute("popup", "Backup creado correctamente"));
+    }
+
+    @Test
+    void createBackupDeniedForNonAdmin() throws Exception {
+        mockMvc.perform(post("/menu/backups/create")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "EMPLEADO"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    void restoreBackupDeniedForNonAdmin() throws Exception {
+        mockMvc.perform(post("/menu/backups/restore/backup-2026-08-07.zip")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "EMPLEADO"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    void deleteBackupDeniedForNonAdmin() throws Exception {
+        mockMvc.perform(post("/menu/backups/delete/backup-2026-08-07.zip")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "EMPLEADO"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    void listBackupsDeniedForNonAdmin() throws Exception {
+        mockMvc.perform(get("/menu/backups")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "EMPLEADO"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    void downloadBackupDeniedForNonAdmin() throws Exception {
+        mockMvc.perform(get("/menu/backups/download/backup-2026-08-07.zip")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "EMPLEADO"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
     }
 
     @Test
@@ -51,32 +98,35 @@ class BackupControllerTests {
 
         when(backupService.listBackups()).thenReturn(List.of(backup));
 
-        mockMvc.perform(get("/backups")
-                        .sessionAttr("userId", 1))
+        mockMvc.perform(get("/menu/backups")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "ADMIN"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("app/backups"))
                 .andExpect(model().attribute("backups", List.of(backup)));
     }
 
     @Test
-    void restoreBackupSuccessShowsMessage() throws Exception {
+    void restoreBackupSuccessShowsPopup() throws Exception {
         when(backupService.restoreBackup("backup-2026-08-07.zip")).thenReturn(true);
 
-        mockMvc.perform(post("/backups/restore/backup-2026-08-07.zip")
-                        .sessionAttr("userId", 1))
+        mockMvc.perform(post("/menu/backups/restore/backup-2026-08-07.zip")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "ADMIN"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/backups"))
-                .andExpect(flash().attribute("message", "Backup restaurado correctamente"));
+                .andExpect(redirectedUrl("/menu/backups"))
+                .andExpect(flash().attribute("popup", "Backup restaurado correctamente"));
     }
 
     @Test
     void restoreBackupFailureShowsError() throws Exception {
         when(backupService.restoreBackup("backup-2026-08-07.zip")).thenReturn(false);
 
-        mockMvc.perform(post("/backups/restore/backup-2026-08-07.zip")
-                        .sessionAttr("userId", 1))
+        mockMvc.perform(post("/menu/backups/restore/backup-2026-08-07.zip")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "ADMIN"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/backups"))
+                .andExpect(redirectedUrl("/menu/backups"))
                 .andExpect(flash().attribute("error", "No se pudo restaurar el backup"));
     }
 
@@ -85,10 +135,11 @@ class BackupControllerTests {
         when(backupService.restoreBackup("backup-2026-08-07.zip"))
                 .thenThrow(new RestClientException("conexión rechazada"));
 
-        mockMvc.perform(post("/backups/restore/backup-2026-08-07.zip")
-                        .sessionAttr("userId", 1))
+        mockMvc.perform(post("/menu/backups/restore/backup-2026-08-07.zip")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "ADMIN"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/backups"))
+                .andExpect(redirectedUrl("/menu/backups"))
                 .andExpect(flash().attribute(
                         "error", "No se pudo restaurar el backup: conexión rechazada"));
     }
@@ -99,11 +150,50 @@ class BackupControllerTests {
 
         when(backupService.downloadBackup("backup-2026-08-07.zip")).thenReturn(resource);
 
-        mockMvc.perform(get("/backups/download/backup-2026-08-07.zip")
-                        .sessionAttr("userId", 1))
+        mockMvc.perform(get("/menu/backups/download/backup-2026-08-07.zip")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "ADMIN"))
                 .andExpect(status().isOk())
                 .andExpect(header().string(
                         HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"backup-2026-08-07.zip\""));
+    }
+
+    @Test
+    void deleteBackupSuccessShowsPopup() throws Exception {
+        when(backupService.deleteBackup("backup-2026-08-07.zip")).thenReturn(true);
+
+        mockMvc.perform(post("/menu/backups/delete/backup-2026-08-07.zip")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "ADMIN"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/menu/backups"))
+                .andExpect(flash().attribute("popup", "Backup eliminado correctamente"));
+    }
+
+    @Test
+    void deleteBackupFailureShowsError() throws Exception {
+        when(backupService.deleteBackup("backup-2026-08-07.zip")).thenReturn(false);
+
+        mockMvc.perform(post("/menu/backups/delete/backup-2026-08-07.zip")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "ADMIN"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/menu/backups"))
+                .andExpect(flash().attribute("error", "No se pudo eliminar el backup"));
+    }
+
+    @Test
+    void deleteBackupWithApiErrorShowsDetailedError() throws Exception {
+        when(backupService.deleteBackup("backup-2026-08-07.zip"))
+                .thenThrow(new RestClientException("conexión rechazada"));
+
+        mockMvc.perform(post("/menu/backups/delete/backup-2026-08-07.zip")
+                        .sessionAttr("userId", 1)
+                        .sessionAttr("role", "ADMIN"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/menu/backups"))
+                .andExpect(flash().attribute(
+                        "error", "No se pudo eliminar el backup: conexión rechazada"));
     }
 }

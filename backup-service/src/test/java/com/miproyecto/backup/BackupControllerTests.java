@@ -2,6 +2,7 @@ package com.miproyecto.backup;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -85,6 +86,25 @@ class BackupControllerTests {
         when(backupService.restoreBackup("no-existe.sql.gz")).thenReturn(false);
 
         mockMvc.perform(post("/backups/restore/no-existe.sql.gz"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
+
+    @Test
+    void deleteBackupReturnsTrue() throws Exception {
+        when(backupService.deleteBackup("aplicacion_2026-08-07_10-00-00.sql.gz"))
+                .thenReturn(true);
+
+        mockMvc.perform(delete("/backups/aplicacion_2026-08-07_10-00-00.sql.gz"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+    }
+
+    @Test
+    void deleteBackupReturnsFalseWhenFileMissing() throws Exception {
+        when(backupService.deleteBackup("no-existe.sql.gz")).thenReturn(false);
+
+        mockMvc.perform(delete("/backups/no-existe.sql.gz"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("false"));
     }

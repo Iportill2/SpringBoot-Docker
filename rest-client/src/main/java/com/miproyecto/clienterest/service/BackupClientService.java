@@ -48,6 +48,13 @@ public class BackupClientService {
                 .retrieve()
                 .body(Boolean.class);
     }
+    public Boolean deleteBackup(String fileName) {
+
+        return restClient.delete()
+                .uri("/backups/{fileName}", fileName)
+                .retrieve()
+                .body(Boolean.class);
+    }
     public Resource downloadBackup(String fileName) {
 
         return restClient.get()

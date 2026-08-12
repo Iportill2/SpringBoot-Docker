@@ -129,4 +129,36 @@ class MySqlBackupServiceTests {
 
         assertFalse(service.restoreBackup("no-existe.sql.gz"));
     }
+
+    @Test
+    void deleteBackupRemovesFile() throws IOException {
+
+        Files.writeString(
+                tempDir.resolve("aplicacion_2026-08-07_10-00-00.sql.gz"),
+                "datos"
+        );
+
+        assertTrue(
+                service.deleteBackup("aplicacion_2026-08-07_10-00-00.sql.gz")
+        );
+
+        assertFalse(
+                Files.exists(tempDir.resolve("aplicacion_2026-08-07_10-00-00.sql.gz"))
+        );
+    }
+
+    @Test
+    void deleteBackupReturnsFalseWhenFileDoesNotExist() {
+
+        assertFalse(service.deleteBackup("no-existe.sql.gz"));
+    }
+
+    @Test
+    void deleteBackupRejectsInvalidName() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.deleteBackup("../fuera.sql.gz")
+        );
+    }
 }

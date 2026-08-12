@@ -43,6 +43,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       BACKUP_DIRECTORY: /backup
+      TZ: ${TZ:-Europe/Madrid}
 
     depends_on:
       mysql:
@@ -82,6 +83,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      TZ: ${TZ:-Europe/Madrid}
 
     depends_on:
       mysql:
@@ -113,6 +115,7 @@ services:
 
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      TZ: ${TZ:-Europe/Madrid}
 
     depends_on:
       api-rest:
