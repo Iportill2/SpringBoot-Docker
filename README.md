@@ -108,12 +108,32 @@ cd backup-service && ./mvnw.cmd clean package -DskipTests
 - The `.sql.gz` files are stored in the Docker volume `backups` (`/backup` inside the container).
 - Direct backup-service API: `http://localhost:8082`
 
+## CRM (tasks)
+
+The `rest-client` exposes a task management page at `/menu/crm`, backed by two new API resources in `api-rest`:
+
+- `GET/POST /api/cliente` and `GET/PUT/DELETE /api/cliente/{id}` — customers.
+- `GET/POST /api/tarea` and `GET/PUT/DELETE /api/tarea/{id}` — tasks, with query filters:
+  - `?responsableId=<id>` — tasks assigned to a user.
+  - `?sinAsignar=true` — tasks with no responsible (the pool).
+  - `?clienteId=<id>` and `?estado=<PENDIENTE|EN_CURSO|COMPLETADA>`.
+- `POST /api/tarea/{id}/asignar/{userId}` — assign a task to a user.
+- `PUT /api/tarea/{id}/horas` — update the `horasEmpleadas` field.
+
+Behaviour by role on `/menu/crm`:
+
+- **ADMIN:** sees all tasks and can create, edit and delete them.
+- **EMPLEADO:** sees their own tasks plus the pool of unassigned tasks, can assign themselves a pool task and record their worked hours.
+
 ## Initial data (seed)
 
-The database is created automatically the first time `api-rest` starts (`createDatabaseIfNotExist` + `ddl-auto: update`) and some minimal data is inserted through `api-rest/src/main/resources/data.sql`, which runs on every startup idempotently (`INSERT IGNORE`):
+The database is created automatically the first time `api-rest` starts (`createDatabaseIfNotExist` + `ddl-auto: update`) and `api-rest/src/main/resources/data.sql` runs on every startup idempotently (`INSERT IGNORE`), seeding **20 sample rows per table** (except `roles`, kept at 3):
 
 - **Roles:** `EMPLEADO` (1), `ADMIN` (2) and `PENDIENTE` (3).
-- **Security questions:** 3 default questions for the 2-step registration.
-- **Initial administrator user:** `admin` / `admin123` (role `ADMIN`).
+- **Security questions:** 20 default questions for the 2-step registration.
+- **Users:** 20 (the `admin`/`admin123` administrator, a pending `nuevo_usuario`, and employees `carlos`, `lucia`, ..., `sofia`, all with password `123456`).
+- **Customers:** 20 sample clients (Empresa Alpha, Bodegas del Sol, ...).
+- **Tasks:** 20 tasks with a mix of states and priorities, some without a responsible (the pool).
+- **Time entries, breaks and user security answers:** 20 rows each, referencing the seeded users.
 
-> If you drop the database (e.g. `DROP DATABASE aplicacion` from MySQL Workbench), simply restart `api-rest`: the DB, the tables and the minimal data are recreated on their own. To change the default admin credentials, edit `data.sql`.
+> If you drop the database (e.g. `DROP DATABASE aplicacion` from MySQL Workbench), simply restart `api-rest`: the DB, the tables and the sample data are recreated on their own. `INSERT IGNORE` never overwrites existing rows, so manual changes survive restarts. To change the default admin credentials, edit `data.sql`.

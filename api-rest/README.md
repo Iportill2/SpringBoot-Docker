@@ -53,13 +53,15 @@ Run a single method:
 
 ## Summary
 
-**Total: 61 tests.**
+**Total: 75 tests.**
 
 | Class                          | Nº tests | What it checks |
 |--------------------------------|----------|----------------|
 | `SecurityHttpTests`            |        4 | JWT access control |
 | `AuthHttpTests`                |        7 | API login |
 | `UserControllerTests`          |       12 | User CRUD |
+| `ClienteControllerTests`       |        6 | Customer CRUD |
+| `TareaControllerTests`         |        8 | Task CRUD, filters and assignment |
 | `TimeEntryControllerTests`     |        6 | Clock in/out |
 | `BreakControllerTests`         |        4 | Break management |
 | `QuestionsControllerTests`     |        6 | Security questions CRUD |
@@ -115,6 +117,26 @@ Run a single method:
 - `startBreakWithUnknownEntryReturns400` — unknown entry → **400**.
 - `endBreakReturns200WithEndTime` — ending a break returns the end time.
 - `endBreakWithUnknownIdReturns400` — unknown break → **400**.
+
+## Customers — `ClienteControllerTests`
+
+- `createRequiresAuthAndReturnsCliente` — `POST /api/cliente` requires a token and creates the customer with **200**.
+- `createWithoutTokenReturns401` — creating without a token → **401**.
+- `findAllReturnsClientes` — `GET /api/cliente` returns the list.
+- `findByIdReturnsCliente` — `GET /api/cliente/{id}` returns the customer.
+- `updateClienteReturnsUpdated` — `PUT /api/cliente/{id}` updates the name.
+- `deleteClienteReturnsTrue` — `DELETE /api/cliente/{id}` → `true`.
+
+## Tasks — `TareaControllerTests`
+
+- `createRequiresAuthAndReturnsTarea` — `POST /api/tarea` requires a token and creates the task with **200**, resolving the client and the responsible.
+- `createWithoutTokenReturns401` — creating without a token → **401**.
+- `createWithUnknownResponsableReturns400` — unknown responsible → **400**.
+- `findAllReturnsTareas` — `GET /api/tarea` returns the list.
+- `findAllByResponsableReturnsOnlyAssigned` — `GET /api/tarea?responsableId=...` returns only that user's tasks.
+- `findByIdReturnsTarea` — `GET /api/tarea/{id}` returns the task.
+- `updateTareaReturnsUpdated` — `PUT /api/tarea/{id}` updates the fields.
+- `deleteTareaReturnsTrue` — `DELETE /api/tarea/{id}` → `true`.
 
 ## Security questions — `QuestionsControllerTests`
 

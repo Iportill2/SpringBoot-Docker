@@ -51,7 +51,7 @@ Run a single method:
 
 ## Summary
 
-**Total: 66 tests** (17 suites: 11 controllers + 6 services).
+**Total: 86 tests** (18 suites: 9 controllers + 8 services + 1 context).
 
 ### Service tests (HTTP methods each service calls)
 
@@ -63,7 +63,8 @@ Run a single method:
 | `TimeEntryServiceTests`        |  3 | Clock start/stop and monthly listing |
 | `BreakClientServiceTests`      |  2 | Breaks start/end |
 | `AdminServiceTests`            |  4 | Administration management (approve, block, delete) |
-| `BackupClientServiceTests`     |  4 | Calls to the backup-service |
+| `BackupClientServiceTests`     |  5 | Calls to the backup-service |
+| `CrmServiceTests`              |  6 | Task and customer calls to the API |
 
 ### Controller tests (views, model, session and redirects)
 
@@ -73,10 +74,10 @@ Run a single method:
 | `WorkClockControllerTests`      |  7 | Clock: start, pause, resume, stop, reset |
 | `ProfileControllerTests`        |  1 | Profile view |
 | `CalendarControllerTests`       |  3 | Monthly hours calendar |
-| `HistoryControllerTests`        |  1 | History view |
 | `MenuControllerTests`           |  1 | Main menu view |
 | `AdminControllerTests`          |  8 | Admin panel: pending users and backups |
-| `BackupControllerTests`         |  6 | Backup management from the client |
+| `BackupControllerTests`         | 14 | Backup management from the client |
+| `CrmControllerTests`            |  6 | CRM page and task actions |
 | `GlobalModelAttributesTests`    |  1 | The `@ControllerAdvice` adds `username` to the model |
 
 > Note: the endpoints protected by the `SessionInterceptor` (any endpoint other than `/login`, `/register`, etc.) redirect to `/login` if the session has no `userId`. That is why the controller tests include `.sessionAttr("userId", ...)`.
@@ -129,6 +130,14 @@ Run a single method:
 - `deleteBackupDeletesAndReturnsBoolean` — `DELETE /backups/{fileName}`.
 - `downloadBackupGetsResource` — `GET /backups/{fileName}`.
 
+### `CrmServiceTests`
+- `findAllTareasGetsTareas` — `GET /api/tarea` (with the bearer token).
+- `findTareasByResponsableUsesQueryParam` — `GET /api/tarea?responsableId=<id>`.
+- `findAllClientesGetsClientes` — `GET /api/cliente`.
+- `crearTareaPostsTarea` — `POST /api/tarea` with the task body.
+- `actualizarTareaPutsTarea` — `PUT /api/tarea/{id}` with the task body.
+- `eliminarTareaDeletesTarea` — `DELETE /api/tarea/{id}`.
+
 ## Controllers
 
 ### `AuthControllerTests`
@@ -159,8 +168,13 @@ Run a single method:
 - `calendarGetWithYearAndMonthBuildsHoursByDay` — with `year`/`month` it builds `hoursByDay` ("2h 10m").
 - `calendarGetIgnoresEntriesWithoutTotalMinutesWorked` — entries without worked minutes are ignored.
 
-### `HistoryControllerTests`
-- `historyGetShowsHistoryView` — `GET /history` shows `app/history`.
+### `CrmControllerTests`
+- `crmGetAsAdminShowsAllTareas` — `GET /menu/crm` as ADMIN loads all tasks.
+- `crmGetAsEmployeeShowsOnlyOwnTareas` — as EMPLEADO loads the user's own tasks (`findTareasByResponsable`).
+- `crmGetWithoutRoleShowsCrmView` — `GET /menu/crm` without a role still renders the CRM view.
+- `crearRedirectsAndCallsService` — `POST /menu/crm/crear` creates the task and redirects.
+- `editarRedirectsAndCallsService` — `POST /menu/crm/editar/{id}` updates the task and redirects.
+- `eliminarRedirectsAndCallsService` — `POST /menu/crm/eliminar/{id}` deletes the task and redirects.
 
 ### `MenuControllerTests`
 - `menuGetShowsBaseAppLayout` — `GET /menu` shows the base layout.
