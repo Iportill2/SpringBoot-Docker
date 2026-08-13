@@ -40,7 +40,7 @@ public class AdminService {
 	public Boolean approve(Integer id) {
 		Boolean result = restClient.patch()
 				.uri("/api/user/{id}", id)
-				.body(Map.of("role", Map.of("id", 2)))
+				.body(Map.of("role", Map.of("id", 1)))
 				.retrieve()
 				.body(Boolean.class);
 

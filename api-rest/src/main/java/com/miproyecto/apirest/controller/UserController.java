@@ -139,7 +139,7 @@ public class UserController {
     }
     //Update
     @PatchMapping("/{id}")
-    public ResponseEntity<Users> patchUpdate(
+    public ResponseEntity<Boolean> patchUpdate(
             @PathVariable Integer id,
             @RequestBody Users user) {
 
@@ -151,7 +151,7 @@ public class UserController {
         if (updatedUser == null)
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(true);
     }
     //Delete
     @DeleteMapping("/{id}")

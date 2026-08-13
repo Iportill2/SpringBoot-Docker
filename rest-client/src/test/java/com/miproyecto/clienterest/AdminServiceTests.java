@@ -70,7 +70,7 @@ class AdminServiceTests {
         server.expect(requestTo(BASE + "/api/user/2"))
                 .andExpect(method(HttpMethod.PATCH))
                 .andExpect(content().json("""
-                        {"role": {"id": 2}}
+                        {"role": {"id": 1}}
                         """))
                 .andRespond(withSuccess("true", MediaType.APPLICATION_JSON));
 
