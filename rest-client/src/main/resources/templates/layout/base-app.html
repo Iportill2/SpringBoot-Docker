@@ -10,6 +10,12 @@
     </title>
     <link rel="icon" type="image/png" href="/favicon-32.png" />
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <script th:inline="javascript">
+      try {
+        var t = localStorage.getItem("theme");
+        document.documentElement.setAttribute("data-theme", t === "dark" ? "dark" : "light");
+      } catch (e) {}
+    </script>
   </head>
 
   <body class="base-app">
@@ -19,6 +25,9 @@
         <h1>Nombre Empresa</h1>
       </div>
       <div class="app-header-user">
+        <button type="button" class="theme-toggle" aria-pressed="false" title="Cambiar a tema oscuro">
+          <span class="theme-toggle-icon">🌙</span>
+        </button>
         <span th:text="${username}"></span>
         <form th:action="@{/logout}" method="post" class="logout-form">
           <button type="submit" class="btn-logout">Cerrar sesión</button>
@@ -52,5 +61,6 @@
         </footer>
       </div>
     </div>
+    <script th:src="@{/js/theme.js}"></script>
   </body>
 </html>
