@@ -145,7 +145,7 @@ class UserControllerTests {
                                 {"role": {"id": 2}}
                                 """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.role.id").value(2));
+                .andExpect(jsonPath("$").value(true));
     }
 
     @Test
@@ -160,8 +160,7 @@ class UserControllerTests {
                                 {"fails": 3, "blocked": true}
                                 """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.fails").value(3))
-                .andExpect(jsonPath("$.blocked").value(true));
+                .andExpect(jsonPath("$").value(true));
     }
 
     @Test

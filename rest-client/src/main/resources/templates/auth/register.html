@@ -26,6 +26,9 @@
 					<input type="password" th:field="*{pass}" placeholder="contraseña">
 					<span class="error" th:if="${#fields.hasErrors('pass')}" th:errors="*{pass}"></span>
 
+					<input type="password" th:field="*{confirmPass}" placeholder="Repite contraseña">
+					<span class="error" th:if="${#fields.hasErrors('confirmPass')}" th:errors="*{confirmPass}"></span>
+
 					<input type="text" th:field="*{email}" placeholder="Introduce tu email">
 					<span class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
 

@@ -12,9 +12,10 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.miproyecto.clienterest.dto.AdminUserDTO;
-import com.miproyecto.clienterest.model.BackupInfo;
 import com.miproyecto.clienterest.service.AdminService;
 import com.miproyecto.clienterest.service.BackupClientService;
+
+import jakarta.servlet.http.HttpSession;
 
 
 @Controller
@@ -40,43 +41,34 @@ public class AdminController {
                 adminServ.findPendingUsers();
 
 
-        List<BackupInfo> backups =
-                backupService.listBackups();
-
-
         model.addAttribute(
                 "users",
                 users
-        );
-
-
-        model.addAttribute(
-                "backups",
-                backups
         );
 
         return "app/menu-admin";
     }
 
     @PostMapping("/backup")
-    public String createBackup() {
+    public String createBackup(HttpSession session) {
 
 
-        backupService.createBackup();
+        backupService.createBackup(actorOf(session));
 
 
-        return "redirect:/menu-admin";
+        return "redirect:/menu/admin";
     }
 
 
     @PostMapping("/restore/{file}")
     public String restoreBackup(
             @PathVariable String file,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
 
         try {
 
-            Boolean restored = backupService.restoreBackup(file);
+            Boolean restored = backupService.restoreBackup(file, actorOf(session));
 
             if (Boolean.TRUE.equals(restored)) {
 
@@ -101,15 +93,16 @@ public class AdminController {
             );
         }
 
-        return "redirect:/menu-admin";
+        return "redirect:/menu/admin";
     }
 
 
     @GetMapping("/download/{file}")
     public ResponseEntity<Resource> downloadBackup(
-            @PathVariable String file) {
+            @PathVariable String file,
+            HttpSession session) {
 
-        Resource resource = backupService.downloadBackup(file);
+        Resource resource = backupService.downloadBackup(file, actorOf(session));
 
         return ResponseEntity.ok()
                 .header(
@@ -136,5 +129,10 @@ public class AdminController {
     public String delete(@PathVariable Integer id) {
         adminServ.delete(id);
         return "redirect:/menu/admin";
+    }
+
+    private String actorOf(HttpSession session) {
+        Object username = session.getAttribute("username");
+        return username != null ? String.valueOf(username) : "DESCONOCIDO";
     }
 }

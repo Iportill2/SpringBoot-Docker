@@ -37,7 +37,7 @@ class WorkClockControllerTests {
 
     @Test
     void clockInGetShowsClockInViewWithSessionAttributes() throws Exception {
-        mockMvc.perform(get("/clock-in")
+        mockMvc.perform(get("/menu/clock-in")
                         .sessionAttr("userId", 5)
                         .sessionAttr("username", "testuser")
                         .sessionAttr("startTime", "07/08/2026 09:00:00")
@@ -63,10 +63,10 @@ class WorkClockControllerTests {
 
         when(timeEntryService.start(5)).thenReturn(entry);
 
-        mockMvc.perform(post("/clock-in/start")
+        mockMvc.perform(post("/menu/clock-in/start")
                         .sessionAttr("userId", 5))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/clock-in"))
+                .andExpect(redirectedUrl("/menu/clock-in"))
                 .andExpect(result -> {
                     var session = result.getRequest().getSession();
                     assertTrue(session.getAttribute("timeEntryId").equals(10));
@@ -84,11 +84,11 @@ class WorkClockControllerTests {
 
         when(breakClientService.start(10)).thenReturn(newBreak);
 
-        mockMvc.perform(post("/clock-in/pause")
+        mockMvc.perform(post("/menu/clock-in/pause")
                         .sessionAttr("userId", 5)
                         .sessionAttr("timeEntryId", 10))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/clock-in"))
+                .andExpect(redirectedUrl("/menu/clock-in"))
                 .andExpect(result -> {
                     var session = result.getRequest().getSession();
                     assertTrue(session.getAttribute("breakId").equals(7));
@@ -105,11 +105,11 @@ class WorkClockControllerTests {
 
         when(breakClientService.end(7)).thenReturn(endedBreak);
 
-        mockMvc.perform(post("/clock-in/resume")
+        mockMvc.perform(post("/menu/clock-in/resume")
                         .sessionAttr("userId", 5)
                         .sessionAttr("breakId", 7))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/clock-in"))
+                .andExpect(redirectedUrl("/menu/clock-in"))
                 .andExpect(result -> {
                     var session = result.getRequest().getSession();
                     assertTrue(session.getAttribute("breakId") == null);
@@ -122,10 +122,10 @@ class WorkClockControllerTests {
 
     @Test
     void resumeWithoutBreakIdOnlyClearsSession() throws Exception {
-        mockMvc.perform(post("/clock-in/resume")
+        mockMvc.perform(post("/menu/clock-in/resume")
                         .sessionAttr("userId", 5))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/clock-in"))
+                .andExpect(redirectedUrl("/menu/clock-in"))
                 .andExpect(result ->
                         assertFalse(Boolean.TRUE.equals(
                                 result.getRequest().getSession().getAttribute("breakOpen"))));
@@ -144,12 +144,12 @@ class WorkClockControllerTests {
         when(breakClientService.end(7)).thenReturn(endedBreak);
         when(timeEntryService.stop(10)).thenReturn(entry);
 
-        mockMvc.perform(post("/clock-in/stop")
+        mockMvc.perform(post("/menu/clock-in/stop")
                         .sessionAttr("userId", 5)
                         .sessionAttr("breakId", 7)
                         .sessionAttr("timeEntryId", 10))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/clock-in"))
+                .andExpect(redirectedUrl("/menu/clock-in"))
                 .andExpect(result -> {
                     var session = result.getRequest().getSession();
                     assertTrue(session.getAttribute("breakId") == null);
@@ -162,14 +162,14 @@ class WorkClockControllerTests {
 
     @Test
     void resetClearsAllSessionAttributes() throws Exception {
-        mockMvc.perform(post("/clock-in/reset")
+        mockMvc.perform(post("/menu/clock-in/reset")
                         .sessionAttr("userId", 5)
                         .sessionAttr("timeEntryId", 10)
                         .sessionAttr("breakId", 7)
                         .sessionAttr("startTime", "07/08/2026 09:00:00")
                         .sessionAttr("breakOpen", true))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/clock-in"))
+                .andExpect(redirectedUrl("/menu/clock-in"))
                 .andExpect(result -> {
                     var session = result.getRequest().getSession();
                     assertTrue(session.getAttribute("timeEntryId") == null);

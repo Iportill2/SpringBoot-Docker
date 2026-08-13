@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/menu")
-public class HistoryController {
+public class CrmController {
 
-    @GetMapping("/history")
-    public String historyGet() {
+    @GetMapping("/crm")
+    public String crmGet() {
         
-        return "app/history";
+        return "app/crm";
     }
 }

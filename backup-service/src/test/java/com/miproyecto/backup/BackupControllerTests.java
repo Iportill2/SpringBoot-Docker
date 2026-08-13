@@ -2,6 +2,7 @@ package com.miproyecto.backup;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -20,7 +21,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.miproyecto.backup.controller.BackupController;
+import com.miproyecto.backup.config.BackupActorContext;
 import com.miproyecto.backup.model.BackupInfo;
+import com.miproyecto.backup.service.BackupAuditLog;
 import com.miproyecto.backup.service.BackupService;
 
 @WebMvcTest(controllers = BackupController.class)
@@ -31,6 +34,12 @@ class BackupControllerTests {
 
     @MockitoBean
     private BackupService backupService;
+
+    @MockitoBean
+    private BackupActorContext actorContext;
+
+    @MockitoBean
+    private BackupAuditLog auditLog;
 
     @Test
     void createBackupReturnsPath() throws Exception {
@@ -87,5 +96,45 @@ class BackupControllerTests {
         mockMvc.perform(post("/backups/restore/no-existe.sql.gz"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("false"));
+    }
+
+    @Test
+    void deleteBackupReturnsTrue() throws Exception {
+        when(backupService.deleteBackup("aplicacion_2026-08-07_10-00-00.sql.gz"))
+                .thenReturn(true);
+
+        mockMvc.perform(delete("/backups/aplicacion_2026-08-07_10-00-00.sql.gz"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+    }
+
+    @Test
+    void deleteBackupReturnsFalseWhenFileMissing() throws Exception {
+        when(backupService.deleteBackup("no-existe.sql.gz")).thenReturn(false);
+
+        mockMvc.perform(delete("/backups/no-existe.sql.gz"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
+
+    @Test
+    void cleanupBackupsReturnsDeletedCount() throws Exception {
+        when(backupService.cleanupOldBackups()).thenReturn(3);
+
+        mockMvc.perform(post("/backups/cleanup"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("3"));
+    }
+
+    @Test
+    void getLogReturnsPlainText() throws Exception {
+        when(auditLog.readLog()).thenReturn(
+                "2026-08-12 17:25:13 | admin | CREATE | Backup created: aplicacion_2026-08-12_17-25-13.sql.gz");
+
+        mockMvc.perform(get("/backups/log"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("text/plain"))
+                .andExpect(content().string(
+                        "2026-08-12 17:25:13 | admin | CREATE | Backup created: aplicacion_2026-08-12_17-25-13.sql.gz"));
     }
 }

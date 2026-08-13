@@ -57,7 +57,7 @@ class BackupClientServiceTests {
 
         BackupClientService service = new BackupClientService(client);
 
-        String message = service.createBackup();
+        String message = service.createBackup("test-user");
 
         assertEquals("backup creado", message);
 
@@ -76,7 +76,24 @@ class BackupClientServiceTests {
 
         BackupClientService service = new BackupClientService(client);
 
-        assertTrue(service.restoreBackup("backup-1.sql"));
+        assertTrue(service.restoreBackup("backup-1.sql", "test-user"));
+
+        server.verify();
+    }
+
+    @Test
+    void deleteBackupDeletesAndReturnsBoolean() {
+        RestClient.Builder builder = RestClient.builder().baseUrl(BASE);
+        MockRestServiceServer server = RestClientTestSupport.bindServer(builder);
+        RestClient client = builder.build();
+
+        server.expect(requestTo(BASE + "/backups/backup-1.sql"))
+                .andExpect(method(HttpMethod.DELETE))
+                .andRespond(withSuccess("true", MediaType.APPLICATION_JSON));
+
+        BackupClientService service = new BackupClientService(client);
+
+        assertTrue(service.deleteBackup("backup-1.sql", "test-user"));
 
         server.verify();
     }
@@ -95,7 +112,7 @@ class BackupClientServiceTests {
 
         BackupClientService service = new BackupClientService(client);
 
-        org.springframework.core.io.Resource resource = service.downloadBackup("backup-1.sql");
+        org.springframework.core.io.Resource resource = service.downloadBackup("backup-1.sql", "test-user");
 
         assertNotNull(resource);
 

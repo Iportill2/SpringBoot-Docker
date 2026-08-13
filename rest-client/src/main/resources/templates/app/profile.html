@@ -1,6 +1,6 @@
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/base-app}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/base-app}">
+
 <body>
     <div layout:fragment="content">
         <div class="profile-page">
@@ -14,7 +14,10 @@
 
                 <div class="profile-field">
                     <span class="profile-label">Email</span>
-                    <span class="profile-value" th:text="${user.email}"></span>
+                    <span class="profile-value-wrapper">
+                        <span class="profile-value" id="emailValue" th:attr="data-email=${user.email}">••••••••</span>
+                        <button type="button" id="toggleEmailBtn" class="btn-toggle-email">👁️</button>
+                    </span>
                 </div>
 
                 <form th:action="@{/logout}" method="post">
@@ -22,6 +25,29 @@
                 </form>
             </div>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const emailValue = document.getElementById('emailValue');
+                const toggleBtn = document.getElementById('toggleEmailBtn');
+                const realEmail = emailValue.getAttribute('data-email');
+                let hidden = true;
+
+                function mask(email) {
+                    const [user, domain] = email.split('@');
+                    return '•'.repeat(user.length) + '@' + domain;
+                }
+
+                emailValue.textContent = mask(realEmail);
+
+                toggleBtn.addEventListener('click', function () {
+                    hidden = !hidden;
+                    emailValue.textContent = hidden ? mask(realEmail) : realEmail;
+                    toggleBtn.textContent = hidden ? '👁️' : '👁️‍🗨️';
+                });
+            });
+        </script>
     </div>
+
 </body>
+
 </html>

@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.miproyecto.clienterest.controller.HistoryController;
+import com.miproyecto.clienterest.controller.CrmController;
 
-@WebMvcTest(controllers = HistoryController.class)
+@WebMvcTest(controllers = CrmController.class)
 class HistoryControllerTests {
 
     @Autowired
@@ -19,9 +19,9 @@ class HistoryControllerTests {
 
     @Test
     void historyGetShowsHistoryView() throws Exception {
-        mockMvc.perform(get("/history")
+        mockMvc.perform(get("/crm")
                         .sessionAttr("userId", 1))
                 .andExpect(status().isOk())
-                .andExpect(view().name("app/history"));
+                .andExpect(view().name("app/crm"));
     }
 }

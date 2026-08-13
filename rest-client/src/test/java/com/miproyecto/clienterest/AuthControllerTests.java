@@ -61,7 +61,7 @@ class AuthControllerTests {
                         .param("username", "testuser")
                         .param("pass", "password123"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/clock-in"))
+                .andExpect(redirectedUrl("/menu/clock-in"))
                 .andExpect(result ->
                         result.getRequest().getSession().getAttribute("jwt").equals("jwt-token"))
                 .andExpect(result ->

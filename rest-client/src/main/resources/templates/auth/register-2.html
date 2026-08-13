@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base-auth}">
 
 <head>
@@ -22,44 +21,61 @@
 
 			<div class="auth-form">
 
-				<form class="register-form"
-				      th:action="@{/register/questions}"
-				      th:object="${userQuestionsDTO}"
-				      method="post">
+				<form class="register-form" th:action="@{/register/questions}" th:object="${userQuestionsDTO}"
+					method="post">
 
-				    <!-- ID del usuario creado en el paso 1 -->
-				    <input type="hidden" th:field="*{userId}">
+					<!-- ID del usuario creado en el paso 1 -->
+					<input type="hidden" th:field="*{userId}">
 
-				    <div th:each="answer, stat : *{answers}">
+					<div th:each="answer, stat : *{answers}">
 
-				        <select th:field="*{answers[__${stat.index}__].questionId}">
-				            <option value="">-- Selecciona una pregunta --</option>
-				            <option th:each="q : ${questions}"
-				                    th:value="${q.id}"
-				                    th:text="${q.text}">
-				            </option>
-				        </select>
+						<select class="question-select" th:field="*{answers[__${stat.index}__].questionId}">
+							<option value="">-- Selecciona una pregunta --</option>
+							<option th:each="q : ${questions}" th:value="${q.id}" th:text="${q.text}">
+							</option>
+						</select>
 
-				        <input type="text"
-				               th:field="*{answers[__${stat.index}__].answer}"
-				               placeholder="Introduce tu respuesta">
+						<input type="text" th:field="*{answers[__${stat.index}__].answer}"
+							placeholder="Introduce tu respuesta">
 
-				        <span class="error"
-				              th:if="${#fields.hasErrors('answers[' + stat.index + '].answer')}"
-				              th:errors="*{answers[__${stat.index}__].answer}">
-				        </span>
+						<span class="error" th:if="${#fields.hasErrors('answers[' + stat.index + '].answer')}"
+							th:errors="*{answers[__${stat.index}__].answer}">
+						</span>
 
-				    </div>
+					</div>
 
-				    <button type="submit">
-				        Finalizar
-				    </button>
+					<button type="submit">
+						Finalizar
+					</button>
 
 				</form>
 
 			</div>
 
 		</div>
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				const selects = document.querySelectorAll('.question-select');
+
+				function updateOptions() {
+					const selectedValues = Array.from(selects)
+						.map(s => s.value)
+						.filter(v => v !== '');
+
+					selects.forEach(select => {
+						const currentValue = select.value;
+						select.querySelectorAll('option').forEach(option => {
+							if (option.value === '') return;
+							option.disabled = selectedValues.includes(option.value) && option.value !== currentValue;
+						});
+					});
+				}
+
+				selects.forEach(select => select.addEventListener('change', updateOptions));
+
+				updateOptions();
+			});
+		</script>
 
 	</div>
 

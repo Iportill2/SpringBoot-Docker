@@ -2,6 +2,8 @@ package com.miproyecto.clienterest.controller;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,6 +15,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.miproyecto.clienterest.service.BackupClientService;
+
+import jakarta.servlet.http.HttpSession;
 
 
 @Controller
@@ -29,16 +33,33 @@ public class BackupController {
 
 
     @PostMapping("/create")
-    public String createBackup() {
+    public String createBackup(
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
-        backupService.createBackup();
+        if (!esAdmin(session)) {
+            session.invalidate();
+            return "redirect:/login";
+        }
 
-        return "redirect:/backups";
+        backupService.createBackup(actorOf(session));
+
+        redirectAttributes.addFlashAttribute(
+                "popup",
+                "Backup creado correctamente"
+        );
+
+        return "redirect:/menu/backups";
     }
 
 
     @GetMapping
-    public String listBackups(Model model) {
+    public String listBackups(HttpSession session, Model model) {
+
+        if (!esAdmin(session)) {
+            session.invalidate();
+            return "redirect:/login";
+        }
 
         model.addAttribute(
             "backups",
@@ -47,19 +68,57 @@ public class BackupController {
 
         return "app/backups";
     }
-    @PostMapping("/restore/{file}")
-    public String restoreBackup(
-            @PathVariable String file,
+
+    @PostMapping("/cleanup")
+    public String cleanupBackups(
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
+
+        if (!esAdmin(session)) {
+            session.invalidate();
+            return "redirect:/login";
+        }
 
         try {
 
-            Boolean restored = backupService.restoreBackup(file);
+            Integer deleted = backupService.cleanup(actorOf(session));
+
+            redirectAttributes.addFlashAttribute(
+                    "popup",
+                    "Retención aplicada: "
+                            + (deleted != null ? deleted : 0)
+                            + " archivos eliminados"
+            );
+
+        } catch (RestClientException e) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "No se pudo aplicar la retención: " + e.getMessage()
+            );
+        }
+
+        return "redirect:/menu/backups";
+    }
+    @PostMapping("/restore/{file}")
+    public String restoreBackup(
+            @PathVariable String file,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        if (!esAdmin(session)) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+
+        try {
+
+            Boolean restored = backupService.restoreBackup(file, actorOf(session));
 
             if (Boolean.TRUE.equals(restored)) {
 
                 redirectAttributes.addFlashAttribute(
-                        "message",
+                        "popup",
                         "Backup restaurado correctamente"
                 );
 
@@ -79,13 +138,21 @@ public class BackupController {
             );
         }
 
-        return "redirect:/backups";
+        return "redirect:/menu/backups";
     }
     @GetMapping("/download/{file}")
     public ResponseEntity<Resource> downloadBackup(
-            @PathVariable String file) {
+            @PathVariable String file,
+            HttpSession session) {
 
-        Resource resource = backupService.downloadBackup(file);
+        if (!esAdmin(session)) {
+            session.invalidate();
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(java.net.URI.create("/login"))
+                    .build();
+        }
+
+        Resource resource = backupService.downloadBackup(file, actorOf(session));
 
         return ResponseEntity.ok()
                 .header(
@@ -93,5 +160,85 @@ public class BackupController {
                     "attachment; filename=\"" + file + "\""
                 )
                 .body(resource);
+    }
+
+    @PostMapping("/delete/{file}")
+    public String deleteBackup(
+            @PathVariable String file,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        if (!esAdmin(session)) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+
+        try {
+
+            Boolean deleted = backupService.deleteBackup(file, actorOf(session));
+
+            if (Boolean.TRUE.equals(deleted)) {
+
+                redirectAttributes.addFlashAttribute(
+                        "popup",
+                        "Backup eliminado correctamente"
+                );
+
+            } else {
+
+                redirectAttributes.addFlashAttribute(
+                        "error",
+                        "No se pudo eliminar el backup"
+                );
+            }
+
+        } catch (RestClientException e) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "No se pudo eliminar el backup: " + e.getMessage()
+            );
+        }
+
+        return "redirect:/menu/backups";
+    }
+
+    @GetMapping("/log/view")
+    public String viewLogPage(HttpSession session, Model model) {
+
+        if (!esAdmin(session)) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+
+        model.addAttribute("log", backupService.getLog());
+
+        return "app/backups-log";
+    }
+
+    @GetMapping("/log")
+    public ResponseEntity<String> viewLog(HttpSession session) {
+
+        if (!esAdmin(session)) {
+            session.invalidate();
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(java.net.URI.create("/login"))
+                    .build();
+        }
+
+        String log = backupService.getLog();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(log != null ? log : "");
+    }
+
+    private boolean esAdmin(HttpSession session) {
+        return "ADMIN".equals(session.getAttribute("role"));
+    }
+
+    private String actorOf(HttpSession session) {
+        Object username = session.getAttribute("username");
+        return username != null ? String.valueOf(username) : "UNKNOWN";
     }
 }

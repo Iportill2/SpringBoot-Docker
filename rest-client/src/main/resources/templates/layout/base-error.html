@@ -6,8 +6,18 @@
     <title>Error</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script th:inline="javascript">
+      try {
+        var t = localStorage.getItem("theme");
+        document.documentElement.setAttribute("data-theme", t === "dark" ? "dark" : "light");
+      } catch (e) {}
+    </script>
 </head>
 <body>
+
+    <button type="button" class="theme-toggle theme-toggle-fixed" aria-pressed="false" title="Cambiar a tema oscuro">
+        <span class="theme-toggle-icon">🌙</span>
+    </button>
 
     <header class="app-header">
         <img th:src="@{/img/logo.png}" alt="Logo" class="logo-header">
@@ -21,6 +31,8 @@
             <p>&copy; <span th:text="${#dates.year(#dates.createNow())}"></span> Tu Empresa - Sistema de Fichajes</p>
         </footer>
     </div>
+
+    <script th:src="@{/js/theme.js}"></script>
 
 </body>
 </html>

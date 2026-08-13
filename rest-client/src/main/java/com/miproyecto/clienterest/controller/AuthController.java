@@ -60,8 +60,7 @@ public class AuthController {
         }
 
         try {
-            ResponseEntity<AuthResponseDTO> response =
-                    authService.login(loginDTO.getUsername(), loginDTO.getPass());
+            ResponseEntity<AuthResponseDTO> response = authService.login(loginDTO.getUsername(), loginDTO.getPass());
 
             AuthResponseDTO body = response.getBody();
 
@@ -100,6 +99,11 @@ public class AuthController {
             Model model) {
 
         if (result.hasErrors()) {
+            return "auth/register";
+        }
+
+        if (!usersDTO.getConfirmPass().equals(usersDTO.getPass())) {
+            model.addAttribute("error", "Las contraseñas no son iguales");
             return "auth/register";
         }
 
@@ -168,6 +172,8 @@ public class AuthController {
             Model model) {
 
         if (result.hasErrors()) {
+            List<QuestionDTO> questions = userService.findAllQuestions().getBody();
+            model.addAttribute("questions", questions);
             return "auth/register-2";
         }
 
@@ -189,6 +195,8 @@ public class AuthController {
             return "redirect:/login";
         }
 
+        List<QuestionDTO> questions = userService.findAllQuestions().getBody();
+        model.addAttribute("questions", questions);
         model.addAttribute("error", "No se pudieron guardar las respuestas");
         return "auth/register-2";
     }

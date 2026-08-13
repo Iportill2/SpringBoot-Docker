@@ -1,0 +1,93 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base-app}">
+
+<head>
+    <title>Log de auditoría</title>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+    <div class="admin-page">
+
+        <div class="backup-log-header">
+
+            <h2 class="admin-title">
+                Log de auditoría de copias de seguridad
+            </h2>
+
+            <div class="backup-log-status">
+                <span class="backup-log-dot" id="logStatusDot"></span>
+                <span id="logStatusText">Conectando…</span>
+                <span class="backup-log-updated" id="logUpdated"></span>
+            </div>
+
+            <a th:href="@{/menu/backups}" class="btn-db-upload">
+                Volver
+            </a>
+
+        </div>
+
+        <pre class="backup-log-content" id="logContent" th:text="${log} ?: ''"></pre>
+
+    </div>
+
+    <script>
+        (function () {
+
+            var content = document.getElementById('logContent');
+            var dot = document.getElementById('logStatusDot');
+            var statusText = document.getElementById('logStatusText');
+            var updated = document.getElementById('logUpdated');
+            var timer = null;
+
+            function refresh() {
+
+                fetch('/menu/backups/log', { cache: 'no-store' })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('HTTP ' + response.status);
+                        }
+                        return response.text();
+                    })
+                    .then(function (text) {
+                        var atBottom = content.scrollTop + content.clientHeight
+                            >= content.scrollHeight - 4;
+
+                        content.textContent = text || '';
+
+                        if (atBottom) {
+                            content.scrollTop = content.scrollHeight;
+                        }
+
+                        dot.classList.add('online');
+                        dot.classList.remove('offline');
+                        statusText.textContent = 'En vivo';
+                        updated.textContent = 'Actualizado: ' +
+                            new Date().toLocaleTimeString();
+                    })
+                    .catch(function () {
+                        dot.classList.add('offline');
+                        dot.classList.remove('online');
+                        statusText.textContent = 'Sin conexión';
+                    });
+            }
+
+            refresh();
+            timer = setInterval(refresh, 2000);
+
+            window.addEventListener('beforeunload', function () {
+                if (timer) {
+                    clearInterval(timer);
+                }
+            });
+        })();
+    </script>
+
+</div>
+
+</body>
+
+</html>

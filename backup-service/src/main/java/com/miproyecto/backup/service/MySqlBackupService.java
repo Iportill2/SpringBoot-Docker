@@ -7,14 +7,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.miproyecto.backup.config.BackupProperties;
+import com.miproyecto.backup.config.BackupActorContext;
 import com.miproyecto.backup.config.MySqlProperties;
 import com.miproyecto.backup.model.BackupInfo;
 
@@ -23,13 +29,22 @@ public class MySqlBackupService implements BackupService {
 
     private final BackupProperties backupProperties;
     private final MySqlProperties mySqlProperties;
+    private final BackupAuditLog auditLog;
+    private final BackupActorContext actorContext;
+
+    private static final DateTimeFormatter FILE_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
     public MySqlBackupService(
             BackupProperties backupProperties,
-            MySqlProperties mySqlProperties) {
+            MySqlProperties mySqlProperties,
+            BackupAuditLog auditLog,
+            BackupActorContext actorContext) {
 
         this.backupProperties = backupProperties;
         this.mySqlProperties = mySqlProperties;
+        this.auditLog = auditLog;
+        this.actorContext = actorContext;
     }
 
     @Override
@@ -41,7 +56,7 @@ public class MySqlBackupService implements BackupService {
             Files.createDirectories(directory);
         } catch (IOException e) {
             throw new RuntimeException(
-                    "No se pudo crear el directorio de backups: " + directory,
+                    "Could not create backups directory: " + directory,
                     e
             );
         }
@@ -56,7 +71,7 @@ public class MySqlBackupService implements BackupService {
 
         String command = String.format(
                 "set -o pipefail; "
-                + "mysqldump --single-transaction --routines --triggers --no-tablespaces "
+                + "mysqldump --single-transaction --routines --triggers --no-tablespaces --databases "
                 + "-h %s -P %d -u %s %s | gzip > %s",
                 mySqlProperties.getHost(),
                 mySqlProperties.getPort(),
@@ -68,11 +83,22 @@ public class MySqlBackupService implements BackupService {
         String error = ejecutarComando(command);
 
         if (error != null) {
+            auditLog.log(
+                    actorContext.getActor(),
+                    BackupAuditLog.ACTION_CREATE,
+                    "FAILED: backup creation"
+            );
             throw new RuntimeException(
                     "Error creando backup:\n"
                     + error
             );
         }
+
+        auditLog.log(
+                actorContext.getActor(),
+                BackupAuditLog.ACTION_CREATE,
+                "Backup created: " + fileName
+        );
 
         return file.toString();
     }
@@ -110,7 +136,7 @@ public class MySqlBackupService implements BackupService {
 
                         } catch (IOException e) {
                             throw new RuntimeException(
-                                "Error leyendo backup: "
+                                "Error reading backup: "
                                 + path.getFileName(),
                                 e
                             );
@@ -121,7 +147,7 @@ public class MySqlBackupService implements BackupService {
         } catch (IOException e) {
 
             throw new RuntimeException(
-                    "No se pudo leer el directorio de backups",
+                    "Could not read the backups directory",
                     e
             );
         }
@@ -137,9 +163,15 @@ public class MySqlBackupService implements BackupService {
         if (!Files.exists(file)) {
 
             throw new RuntimeException(
-                    "El backup no existe: " + fileName
+                    "Backup does not exist: " + fileName
             );
         }
+
+        auditLog.log(
+                actorContext.getActor(),
+                BackupAuditLog.ACTION_DOWNLOAD,
+                "Backup descargado: " + fileName
+        );
 
         return new FileSystemResource(file);
     }
@@ -166,14 +198,184 @@ public class MySqlBackupService implements BackupService {
         String error = ejecutarComando(command);
 
         if (error != null) {
+            auditLog.log(
+                    actorContext.getActor(),
+                    BackupAuditLog.ACTION_RESTORE,
+                    "FAILED: restore backup: " + fileName
+            );
             throw new RuntimeException(
-                    "Error restaurando el backup "
+                    "Error restoring backup "
                     + fileName + ":\n"
                     + error
             );
         }
 
+        auditLog.log(
+                actorContext.getActor(),
+                BackupAuditLog.ACTION_RESTORE,
+                "Backup restaurado: " + fileName
+        );
+
         return true;
+    }
+
+    @Override
+    public Boolean deleteBackup(String fileName) {
+
+        Path file = resolverArchivoBackup(fileName);
+
+        if (!Files.exists(file)) {
+            return false;
+        }
+
+        try {
+
+            Files.delete(file);
+
+        } catch (IOException e) {
+
+            throw new RuntimeException(
+                    "Error deleting backup "
+                    + fileName + ":\n"
+                    + e.getMessage(),
+                    e
+            );
+        }
+
+        auditLog.log(
+                actorContext.getActor(),
+                BackupAuditLog.ACTION_DELETE,
+                "Backup eliminado: " + fileName
+        );
+
+        return true;
+    }
+
+    @Override
+    public int cleanupOldBackups() {
+
+        BackupProperties.Retention retention = backupProperties.getRetention();
+
+        if (retention == null || !retention.isEnabled()) {
+            return 0;
+        }
+
+        Path directory = Path.of(backupProperties.getDirectory());
+
+        try {
+            Files.createDirectories(directory);
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "Could not create backups directory: " + directory,
+                    e
+            );
+        }
+
+        Map<Path, LocalDateTime> backups = new HashMap<>();
+
+        try (var stream = Files.list(directory)) {
+            stream
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".sql.gz"))
+                    .forEach(path -> {
+                        LocalDateTime created = parseFileNameDate(path.getFileName().toString());
+                        if (created != null) {
+                            backups.put(path, created);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "Could not read the backups directory",
+                    e
+            );
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime dailyCutoff = now.minusDays(retention.getDaily());
+        LocalDateTime weeklyCutoff = now.minusWeeks(retention.getWeekly());
+        LocalDateTime monthlyCutoff = now.minusMonths(retention.getMonthly());
+
+        Set<Path> keep = new HashSet<>();
+
+        backups.forEach((path, created) -> {
+            if (!created.isBefore(dailyCutoff)) {
+                keep.add(path);
+            }
+        });
+
+        WeekFields weekFields = WeekFields.ISO;
+        Map<String, Path> newestOfWeek = new HashMap<>();
+        Map<String, Path> newestOfMonth = new HashMap<>();
+
+        backups.entrySet().stream()
+                .sorted(Map.Entry.<Path, LocalDateTime>comparingByValue().reversed())
+                .forEach(entry -> {
+                    Path path = entry.getKey();
+                    LocalDateTime created = entry.getValue();
+
+                    if (!created.isBefore(weeklyCutoff)) {
+                        String weekKey = created.get(weekFields.weekBasedYear())
+                                + "-"
+                                + created.get(weekFields.weekOfWeekBasedYear());
+                        newestOfWeek.putIfAbsent(weekKey, path);
+                    }
+
+                    if (!created.isBefore(monthlyCutoff)) {
+                        String monthKey = created.getYear()
+                                + "-"
+                                + created.getMonthValue();
+                        newestOfMonth.putIfAbsent(monthKey, path);
+                    }
+                });
+
+        keep.addAll(newestOfWeek.values());
+        keep.addAll(newestOfMonth.values());
+
+        int deleted = 0;
+
+        for (Path path : backups.keySet()) {
+            if (!keep.contains(path)) {
+                try {
+                    Files.deleteIfExists(path);
+                    deleted++;
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                            "Error deleting backup " + path.getFileName(),
+                            e
+                    );
+                }
+            }
+        }
+
+        auditLog.log(
+                actorContext.getActor(),
+                BackupAuditLog.ACTION_CLEANUP,
+                "Retention applied: "
+                + deleted
+                + " file(s) deleted (days="
+                + retention.getDaily()
+                + ", weeks="
+                + retention.getWeekly()
+                + ", months="
+                + retention.getMonthly()
+                + ")"
+        );
+
+        return deleted;
+    }
+
+    private LocalDateTime parseFileNameDate(String fileName) {
+        try {
+            String datePart = fileName
+                    .substring(
+                            "aplicacion_".length(),
+                            fileName.length() - ".sql.gz".length()
+                    );
+            return LocalDateTime.parse(datePart, FILE_DATE_FORMATTER);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private Path resolverArchivoBackup(String fileName) {
@@ -190,7 +392,7 @@ public class MySqlBackupService implements BackupService {
                 || !fileName.endsWith(".sql.gz")) {
 
             throw new IllegalArgumentException(
-                    "Nombre de backup no válido: " + fileName
+                    "Invalid backup name: " + fileName
             );
         }
 
@@ -199,7 +401,7 @@ public class MySqlBackupService implements BackupService {
         if (!file.startsWith(directory)) {
 
             throw new IllegalArgumentException(
-                    "Nombre de backup no válido: " + fileName
+                    "Invalid backup name: " + fileName
             );
         }
 
@@ -251,7 +453,7 @@ public class MySqlBackupService implements BackupService {
         } catch (IOException e) {
 
             throw new RuntimeException(
-                    "No se pudo ejecutar el comando",
+                    "Could not execute the command",
                     e
             );
 
