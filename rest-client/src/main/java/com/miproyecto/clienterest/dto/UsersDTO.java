@@ -15,6 +15,9 @@ public class UsersDTO {
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String pass;
 
+    @NotBlank(message = "Este campo es obligatorio")
+    private String confirmPass;
+
     @NotBlank(message = "El email es obligatorio")
     @Email(message = "Email no válido")
     private String email;
@@ -43,6 +46,14 @@ public class UsersDTO {
 
     public void setPass(String pass) {
         this.pass = pass;
+    }
+
+    public String getConfirmPass() {
+        return this.confirmPass;
+    }
+
+    public void setConfirmPass(String confirmPass) {
+        this.confirmPass = confirmPass;
     }
 
     public String getEmail() {
