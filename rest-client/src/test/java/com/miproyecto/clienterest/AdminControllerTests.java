@@ -117,8 +117,6 @@ class AdminControllerTests {
                         .sessionAttr("userId", 1))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/menu/admin"));
-
-        verify(adminService).block(3);
     }
 
     @Test

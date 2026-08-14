@@ -35,9 +35,11 @@ public class TimeEntryController {
     }
 
     @PostMapping("/stop/{timeEntryId}")
-    public ResponseEntity<TimeEntry> stop(@PathVariable Integer timeEntryId) {
+    public ResponseEntity<TimeEntry> stop(
+            @PathVariable Integer timeEntryId,
+            @RequestParam(defaultValue = "0") int pauseMinutes) {
         try {
-            TimeEntry entry = timeEntryServ.stopEntry(timeEntryId);
+            TimeEntry entry = timeEntryServ.stopEntry(timeEntryId, pauseMinutes);
             return ResponseEntity.ok(entry);
         } catch (RuntimeException e) {
             e.printStackTrace();

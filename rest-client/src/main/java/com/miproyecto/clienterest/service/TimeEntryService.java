@@ -25,17 +25,18 @@ public class TimeEntryService {
                 .body(TimeEntryDTO.class);
     }
 
-    public TimeEntryDTO stop(Integer timeEntryId) {
+    public TimeEntryDTO stop(Integer timeEntryId, int pauseMinutes) {
         return restClient.post()
-                .uri("/api/time-entry/stop/{timeEntryId}", timeEntryId)
+                .uri("/api/time-entry/stop/{timeEntryId}?pauseMinutes={pauseMinutes}", timeEntryId, pauseMinutes)
                 .retrieve()
                 .body(TimeEntryDTO.class);
     }
-    
+
     public List<TimeEntryDTO> findByMonth(Integer userId, int year, int month) {
         return restClient.get()
                 .uri("/api/time-entry/user/{userId}?year={year}&month={month}", userId, year, month)
                 .retrieve()
-                .body(new ParameterizedTypeReference<List<TimeEntryDTO>>() {});
+                .body(new ParameterizedTypeReference<List<TimeEntryDTO>>() {
+                });
     }
 }

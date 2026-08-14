@@ -1,31 +1,35 @@
 package com.miproyecto.clienterest.service;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import java.util.Map;
+
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-
-import com.miproyecto.clienterest.dto.BreakDTO;
 
 @Service
 public class BreakClientService {
 
     private final RestClient restClient;
 
-    public BreakClientService(@Qualifier("apiRestClient") RestClient restClient) {
+    public BreakClientService(RestClient restClient) {
         this.restClient = restClient;
     }
 
-    public BreakDTO start(Integer timeEntryId) {
-        return restClient.post()
-                .uri("/api/break/start/{timeEntryId}", timeEntryId)
+    public String start() {
+        Map<String, String> response = restClient.post()
+                .uri("/api/break/start")
                 .retrieve()
-                .body(BreakDTO.class);
+                .body(new ParameterizedTypeReference<Map<String, String>>() {});
+
+        return response.get("time");
     }
 
-    public BreakDTO end(Integer breakId) {
-        return restClient.post()
-                .uri("/api/break/end/{breakId}", breakId)
+    public String end() {
+        Map<String, String> response = restClient.post()
+                .uri("/api/break/end")
                 .retrieve()
-                .body(BreakDTO.class);
+                .body(new ParameterizedTypeReference<Map<String, String>>() {});
+
+        return response.get("time");
     }
 }

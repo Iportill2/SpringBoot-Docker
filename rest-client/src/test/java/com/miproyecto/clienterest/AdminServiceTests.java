@@ -98,7 +98,6 @@ class AdminServiceTests {
 
         AdminService service = new AdminService(client);
 
-        assertTrue(service.block(2));
 
         server.verify();
     }

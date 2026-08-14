@@ -47,16 +47,6 @@ public class AdminService {
 		return Boolean.TRUE.equals(result);
 	}
 
-	public Boolean block(Integer id) {
-		Boolean result = restClient.patch()
-				.uri("/api/user/{id}", id)
-				.body(Map.of("blocked", true))
-				.retrieve()
-				.body(Boolean.class);
-
-		return Boolean.TRUE.equals(result);
-	}
-
 	public Boolean delete(Integer id) {
 
 		List<UserQuestionReadDTO> userQuestions = restClient.get()

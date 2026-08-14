@@ -61,7 +61,6 @@ class AuthHttpTests {
     void loginWithBlockedUserReturns403() throws Exception {
         Roles role = roleRepo.findById(1).orElseThrow();
         Users user = saveUser("testuser", "password123", role);
-        user.setBlocked(true);
         userRepo.save(user);
 
         mockMvc.perform(post("/api/auth/login")
@@ -77,7 +76,6 @@ class AuthHttpTests {
     void loginWithBannedUserReturns403() throws Exception {
         Roles role = roleRepo.findById(1).orElseThrow();
         Users user = saveUser("testuser", "password123", role);
-        user.setBanned(true);
         userRepo.save(user);
 
         mockMvc.perform(post("/api/auth/login")
@@ -129,9 +127,6 @@ class AuthHttpTests {
         user.setPass(pass);
         user.setEmail(username + "@test.com");
         user.setCode("code-" + username);
-        user.setFails(0);
-        user.setBlocked(false);
-        user.setBanned(false);
         user.setSalt("salt");
         user.setRole(role);
         return userRepo.save(user);

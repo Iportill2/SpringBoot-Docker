@@ -51,28 +51,27 @@ INSERT IGNORE INTO clientes (id, nombre) VALUES
   (20, 'Automóviles Estrella');
 
 /* ===== USUARIOS (20) ===== */
-INSERT IGNORE INTO users (id, username, pass, salt, email, code, fails, blocked, banned, role_id)
-VALUES
-  (1,  'admin',         'admin123', 'salt_generada', 'admin@example.com',         UUID(), 0, 0, 0, 2),
-  (2,  'nuevo_usuario', '123456',   'salt_generada', 'nuevo@example.com',         UUID(), 0, 0, 0, 3),
-  (3,  'iker',          '123456',   'salt_generada', 'iker@example.com',          UUID(), 0, 0, 0, 1),
-  (4,  'carlos',        '123456',   'salt_generada', 'carlos@example.com',        UUID(), 0, 0, 0, 1),
-  (5,  'lucia',         '123456',   'salt_generada', 'lucia@example.com',         UUID(), 0, 0, 0, 1),
-  (6,  'marta',         '123456',   'salt_generada', 'marta@example.com',         UUID(), 0, 0, 0, 1),
-  (7,  'jorge',         '123456',   'salt_generada', 'jorge@example.com',         UUID(), 0, 0, 0, 1),
-  (8,  'ana',           '123456',   'salt_generada', 'ana@example.com',           UUID(), 0, 0, 0, 1),
-  (9,  'pedro',         '123456',   'salt_generada', 'pedro@example.com',         UUID(), 0, 0, 0, 1),
-  (10, 'sara',          '123456',   'salt_generada', 'sara@example.com',          UUID(), 0, 0, 0, 1),
-  (11, 'david',         '123456',   'salt_generada', 'david@example.com',         UUID(), 0, 0, 0, 1),
-  (12, 'laura',         '123456',   'salt_generada', 'laura@example.com',         UUID(), 0, 0, 0, 1),
-  (13, 'marco',         '123456',   'salt_generada', 'marco@example.com',         UUID(), 0, 0, 0, 1),
-  (14, 'elena',         '123456',   'salt_generada', 'elena@example.com',         UUID(), 0, 0, 0, 1),
-  (15, 'pablo',         '123456',   'salt_generada', 'pablo@example.com',         UUID(), 0, 0, 0, 1),
-  (16, 'claudia',       '123456',   'salt_generada', 'claudia@example.com',       UUID(), 0, 0, 0, 1),
-  (17, 'andres',        '123456',   'salt_generada', 'andres@example.com',        UUID(), 0, 0, 0, 1),
-  (18, 'valeria',       '123456',   'salt_generada', 'valeria@example.com',       UUID(), 0, 0, 0, 1),
-  (19, 'raul',          '123456',   'salt_generada', 'raul@example.com',          UUID(), 0, 0, 0, 1),
-  (20, 'sofia',         '123456',   'salt_generada', 'sofia@example.com',         UUID(), 0, 0, 0, 1);
+INSERT IGNORE INTO users (id, username, pass, salt, email, code, role_id) VALUES 
+(1, 'admin', 'admin123', 'salt_generada', 'admin@example.com', UUID(), 2), 
+(2, 'nuevo_usuario', '123456', 'salt_generada', 'nuevo@example.com', UUID(), 3), 
+(3, 'iker', '123456', 'salt_generada', 'iker@example.com', UUID(), 1), 
+(4, 'carlos', '123456', 'salt_generada', 'carlos@example.com', UUID(), 1), 
+(5, 'lucia', '123456', 'salt_generada', 'lucia@example.com', UUID(), 1), 
+(6, 'marta', '123456', 'salt_generada', 'marta@example.com', UUID(), 1), 
+(7, 'jorge', '123456', 'salt_generada', 'jorge@example.com', UUID(), 1), 
+(8, 'ana', '123456', 'salt_generada', 'ana@example.com', UUID(), 1), 
+(9, 'pedro', '123456', 'salt_generada', 'pedro@example.com', UUID(), 1), 
+(10, 'sara', '123456', 'salt_generada', 'sara@example.com', UUID(), 1), 
+(11, 'david', '123456', 'salt_generada', 'david@example.com', UUID(), 1), 
+(12, 'laura', '123456', 'salt_generada', 'laura@example.com', UUID(), 1), 
+(13, 'marco', '123456', 'salt_generada', 'marco@example.com', UUID(), 1), 
+(14, 'elena', '123456', 'salt_generada', 'elena@example.com', UUID(), 1), 
+(15, 'pablo', '123456', 'salt_generada', 'pablo@example.com', UUID(), 1), 
+(16, 'claudia', '123456', 'salt_generada', 'claudia@example.com', UUID(), 1), 
+(17, 'andres', '123456', 'salt_generada', 'andres@example.com', UUID(), 1), 
+(18, 'valeria', '123456', 'salt_generada', 'valeria@example.com', UUID(), 1), 
+(19, 'raul', '123456', 'salt_generada', 'raul@example.com', UUID(), 1), 
+(20, 'sofia', '123456', 'salt_generada', 'sofia@example.com', UUID(), 1);
 
 /* ===== TAREAS (20) ===== */
 INSERT IGNORE INTO tareas (id, titulo, descripcion, cliente_id, responsable_id, estado, prioridad, fecha_limite, horas_empleadas)
@@ -128,29 +127,6 @@ VALUES
   (19, 3,  @d4, CONCAT(@d4, ' 09:00:00'), CONCAT(@d4, ' 17:00:00'), 480),
   (20, 4,  @d4, CONCAT(@d4, ' 09:00:00'), CONCAT(@d4, ' 13:00:00'), 240);
 
-/* ===== PAUSAS (20) ===== */
-INSERT IGNORE INTO breaks (id, time_entry_id, start_time, end_time)
-VALUES
-  (1, 1,  CONCAT(@d0, ' 11:00:00'), CONCAT(@d0, ' 11:30:00')),
-  (2, 2,  CONCAT(@d0, ' 10:00:00'), CONCAT(@d0, ' 10:30:00')),
-  (3, 3,  CONCAT(@d1, ' 12:00:00'), CONCAT(@d1, ' 12:30:00')),
-  (4, 4,  CONCAT(@d1, ' 11:00:00'), CONCAT(@d1, ' 11:15:00')),
-  (5, 5,  CONCAT(@d0, ' 10:30:00'), CONCAT(@d0, ' 11:00:00')),
-  (6, 6,  CONCAT(@d0, ' 11:00:00'), CONCAT(@d0, ' 11:15:00')),
-  (7, 7,  CONCAT(@d2, ' 12:00:00'), CONCAT(@d2, ' 12:45:00')),
-  (8, 8,  CONCAT(@d2, ' 10:30:00'), CONCAT(@d2, ' 11:00:00')),
-  (9, 9,  CONCAT(@d1, ' 11:00:00'), CONCAT(@d1, ' 11:15:00')),
-  (10, 10, CONCAT(@d0, ' 12:30:00'), CONCAT(@d0, ' 13:00:00')),
-  (11, 11, CONCAT(@d3, ' 12:00:00'), CONCAT(@d3, ' 12:30:00')),
-  (12, 12, CONCAT(@d3, ' 10:30:00'), CONCAT(@d3, ' 10:45:00')),
-  (13, 13, CONCAT(@d1, ' 11:00:00'), CONCAT(@d1, ' 11:30:00')),
-  (14, 14, CONCAT(@d0, ' 12:00:00'), CONCAT(@d0, ' 12:45:00')),
-  (15, 15, CONCAT(@d2, ' 11:00:00'), CONCAT(@d2, ' 11:15:00')),
-  (16, 16, CONCAT(@d0, ' 11:30:00'), CONCAT(@d0, ' 12:00:00')),
-  (17, 17, CONCAT(@d1, ' 12:00:00'), CONCAT(@d1, ' 12:30:00')),
-  (18, 18, CONCAT(@d0, ' 10:00:00'), CONCAT(@d0, ' 10:30:00')),
-  (19, 19, CONCAT(@d4, ' 12:00:00'), CONCAT(@d4, ' 12:30:00')),
-  (20, 20, CONCAT(@d4, ' 11:00:00'), CONCAT(@d4, ' 11:15:00'));
 
 /* ===== PREGUNTAS DE SEGURIDAD DE LOS USUARIOS (20) ===== */
 INSERT IGNORE INTO user_questions (id, user_id, question_id, answer)

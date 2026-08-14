@@ -32,15 +32,6 @@ public class Users {
     @Column(nullable = false, unique = true)
     private String code;
 
-    @Column(nullable = false)
-    private Integer fails;
-
-    @Column(nullable = false, columnDefinition = "TINYINT(1)")
-    private Boolean blocked;
-
-    @Column(nullable = false, columnDefinition = "TINYINT(1)")
-    private Boolean banned;
-
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Roles role;
@@ -58,9 +49,6 @@ public class Users {
         this.salt = salt;
         this.email = email;
         this.code = code;
-        this.fails = fails;
-        this.blocked = blocked;
-        this.banned = banned;
         this.role = role;
     }
 
@@ -110,30 +98,6 @@ public class Users {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public Integer getFails() {
-        return fails;
-    }
-
-    public void setFails(Integer fails) {
-        this.fails = fails;
-    }
-
-    public Boolean getBlocked() {
-        return blocked;
-    }
-
-    public void setBlocked(Boolean blocked) {
-        this.blocked = blocked;
-    }
-
-    public Boolean getBanned() {
-        return banned;
-    }
-
-    public void setBanned(Boolean banned) {
-        this.banned = banned;
     }
 
     public Roles getRole() {

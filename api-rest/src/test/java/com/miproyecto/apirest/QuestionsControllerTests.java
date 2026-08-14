@@ -123,9 +123,6 @@ class QuestionsControllerTests {
         user.setPass("password123");
         user.setEmail(username + "@test.com");
         user.setCode("code-" + username);
-        user.setFails(0);
-        user.setBlocked(false);
-        user.setBanned(false);
         user.setSalt("salt");
         user.setRole(role);
         return userRepo.save(user);

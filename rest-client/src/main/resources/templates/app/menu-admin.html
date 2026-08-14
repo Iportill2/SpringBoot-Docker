@@ -15,7 +15,6 @@
                 <th>Usuario</th>
                 <th>Email</th>
                 <th>Rol</th>
-                <th>Bloqueado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -39,26 +38,12 @@
                   >
                   </span>
                 </td>
-                <td>
-                  <span
-                    class="badge"
-                    th:classappend="${u.blocked} ? 'badge-blocked' : 'badge-active'"
-                    th:text="${u.blocked}"
-                  >
-                  </span>
-                </td>
                 <td class="admin-actions">
                   <form
                     th:action="@{/menu/admin/approve/{id}(id=${u.id})}"
                     method="post"
                   >
                     <button type="submit" class="btn-approve">Aprobar</button>
-                  </form>
-                  <form
-                    th:action="@{/menu/admin/block/{id}(id=${u.id})}"
-                    method="post"
-                  >
-                    <button type="submit" class="btn-block">Bloquear</button>
                   </form>
                   <form
                     th:action="@{/menu/admin/delete/{id}(id=${u.id})}"
