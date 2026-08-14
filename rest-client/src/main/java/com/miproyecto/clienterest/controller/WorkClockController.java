@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.miproyecto.clienterest.dto.BreakDTO;
 import com.miproyecto.clienterest.dto.TimeEntryDTO;
 import com.miproyecto.clienterest.service.BreakClientService;
 import com.miproyecto.clienterest.service.TimeEntryService;

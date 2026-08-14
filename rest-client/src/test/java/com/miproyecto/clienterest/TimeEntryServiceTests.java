@@ -62,7 +62,7 @@ class TimeEntryServiceTests {
 
         RestClientTestSupport.loginSession("token-abc");
 
-        server.expect(requestTo(BASE + "/api/time-entry/stop/1"))
+        server.expect(requestTo(BASE + "/api/time-entry/stop/1?pauseMinutes=15"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess("""
                         {"id": 1, "date": "2026-08-07", "startTime": "2026-08-07T09:00:00",
@@ -71,7 +71,7 @@ class TimeEntryServiceTests {
 
         TimeEntryService service = new TimeEntryService(client);
 
-        TimeEntryDTO entry = service.stop(1);
+        TimeEntryDTO entry = service.stop(1, 15);
 
         assertNotNull(entry.getEndTime());
         assertEquals(480, entry.getTotalMinutesWorked());

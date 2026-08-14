@@ -18,7 +18,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.miproyecto.clienterest.controller.WorkClockController;
-import com.miproyecto.clienterest.dto.BreakDTO;
 import com.miproyecto.clienterest.dto.TimeEntryDTO;
 import com.miproyecto.clienterest.service.BreakClientService;
 import com.miproyecto.clienterest.service.TimeEntryService;
@@ -38,13 +37,13 @@ class WorkClockControllerTests {
     @Test
     void clockInGetShowsClockInViewWithSessionAttributes() throws Exception {
         mockMvc.perform(get("/menu/clock-in")
-                        .sessionAttr("userId", 5)
-                        .sessionAttr("username", "testuser")
-                        .sessionAttr("startTime", "07/08/2026 09:00:00")
-                        .sessionAttr("pauseTime", "07/08/2026 10:00:00")
-                        .sessionAttr("resumeTime", "07/08/2026 10:15:00")
-                        .sessionAttr("endTime", "07/08/2026 14:00:00")
-                        .sessionAttr("breakOpen", true))
+                .sessionAttr("userId", 5)
+                .sessionAttr("username", "testuser")
+                .sessionAttr("startTime", "07/08/2026 09:00:00")
+                .sessionAttr("pauseTime", "07/08/2026 10:00:00")
+                .sessionAttr("resumeTime", "07/08/2026 10:15:00")
+                .sessionAttr("endTime", "07/08/2026 14:00:00")
+                .sessionAttr("breakOpen", true))
                 .andExpect(status().isOk())
                 .andExpect(view().name("app/clock-in"))
                 .andExpect(model().attribute("username", "testuser"))
@@ -64,7 +63,7 @@ class WorkClockControllerTests {
         when(timeEntryService.start(5)).thenReturn(entry);
 
         mockMvc.perform(post("/menu/clock-in/start")
-                        .sessionAttr("userId", 5))
+                .sessionAttr("userId", 5))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/menu/clock-in"))
                 .andExpect(result -> {
@@ -77,97 +76,63 @@ class WorkClockControllerTests {
     }
 
     @Test
-    void pauseStoresBreakInSessionAndRedirects() throws Exception {
-        BreakDTO newBreak = new BreakDTO();
-        newBreak.setId(7);
-        newBreak.setStartTime("2026-08-07T10:00:00");
-
-        when(breakClientService.start(10)).thenReturn(newBreak);
+    void pauseStoresPauseTimeInSessionAndRedirects() throws Exception {
+        when(breakClientService.start()).thenReturn("2026-08-07T10:00:00");
 
         mockMvc.perform(post("/menu/clock-in/pause")
-                        .sessionAttr("userId", 5)
-                        .sessionAttr("timeEntryId", 10))
+                .sessionAttr("userId", 5)
+                .sessionAttr("timeEntryId", 10))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/menu/clock-in"))
                 .andExpect(result -> {
                     var session = result.getRequest().getSession();
-                    assertTrue(session.getAttribute("breakId").equals(7));
+                    assertTrue(session.getAttribute("pauseStartRaw").equals("2026-08-07T10:00:00"));
                     assertTrue(session.getAttribute("pauseTime").equals("07/08/2026 10:00:00"));
                     assertTrue(Boolean.TRUE.equals(session.getAttribute("breakOpen")));
                 });
     }
 
     @Test
-    void resumeEndsBreakAndRedirects() throws Exception {
-        BreakDTO endedBreak = new BreakDTO();
-        endedBreak.setId(7);
-        endedBreak.setEndTime("2026-08-07T10:15:00");
-
-        when(breakClientService.end(7)).thenReturn(endedBreak);
-
-        mockMvc.perform(post("/menu/clock-in/resume")
-                        .sessionAttr("userId", 5)
-                        .sessionAttr("breakId", 7))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/menu/clock-in"))
-                .andExpect(result -> {
-                    var session = result.getRequest().getSession();
-                    assertTrue(session.getAttribute("breakId") == null);
-                    assertTrue(session.getAttribute("resumeTime").equals("07/08/2026 10:15:00"));
-                    assertFalse(Boolean.TRUE.equals(session.getAttribute("breakOpen")));
-                });
-
-        verify(breakClientService).end(7);
-    }
-
-    @Test
     void resumeWithoutBreakIdOnlyClearsSession() throws Exception {
         mockMvc.perform(post("/menu/clock-in/resume")
-                        .sessionAttr("userId", 5))
+                .sessionAttr("userId", 5))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/menu/clock-in"))
-                .andExpect(result ->
-                        assertFalse(Boolean.TRUE.equals(
-                                result.getRequest().getSession().getAttribute("breakOpen"))));
+                .andExpect(result -> assertFalse(Boolean.TRUE.equals(
+                        result.getRequest().getSession().getAttribute("breakOpen"))));
     }
 
     @Test
-    void stopEndsBreakAndTimeEntryThenRedirects() throws Exception {
-        BreakDTO endedBreak = new BreakDTO();
-        endedBreak.setId(7);
-        endedBreak.setEndTime("2026-08-07T10:30:00");
-
+    void stopEndsTimeEntryUsingAccumulatedPauseMinutesThenRedirects() throws Exception {
         TimeEntryDTO entry = new TimeEntryDTO();
         entry.setId(10);
         entry.setEndTime("2026-08-07T14:00:00");
+        entry.setDate("2026-08-07");
 
-        when(breakClientService.end(7)).thenReturn(endedBreak);
-        when(timeEntryService.stop(10)).thenReturn(entry);
+        when(timeEntryService.stop(10, 30)).thenReturn(entry);
 
         mockMvc.perform(post("/menu/clock-in/stop")
-                        .sessionAttr("userId", 5)
-                        .sessionAttr("breakId", 7)
-                        .sessionAttr("timeEntryId", 10))
+                .sessionAttr("userId", 5)
+                .sessionAttr("timeEntryId", 10)
+                .sessionAttr("totalPauseMinutes", 30))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/menu/clock-in"))
                 .andExpect(result -> {
                     var session = result.getRequest().getSession();
-                    assertTrue(session.getAttribute("breakId") == null);
                     assertTrue(session.getAttribute("endTime").equals("07/08/2026 14:00:00"));
                 });
 
-        verify(breakClientService).end(7);
-        verify(timeEntryService).stop(10);
+        verify(timeEntryService).stop(10, 30);
     }
 
     @Test
     void resetClearsAllSessionAttributes() throws Exception {
         mockMvc.perform(post("/menu/clock-in/reset")
-                        .sessionAttr("userId", 5)
-                        .sessionAttr("timeEntryId", 10)
-                        .sessionAttr("breakId", 7)
-                        .sessionAttr("startTime", "07/08/2026 09:00:00")
-                        .sessionAttr("breakOpen", true))
+                .sessionAttr("userId", 5)
+                .sessionAttr("timeEntryId", 10)
+                .sessionAttr("breakId", 7)
+                .sessionAttr("startTime", "07/08/2026 09:00:00")
+                .sessionAttr("breakOpen", true))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/menu/clock-in"))
                 .andExpect(result -> {
