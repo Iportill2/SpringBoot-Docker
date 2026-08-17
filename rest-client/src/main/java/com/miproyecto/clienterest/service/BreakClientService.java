@@ -5,15 +5,16 @@ import java.util.Map;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @Service
 public class BreakClientService {
 
     private final RestClient restClient;
 
-    public BreakClientService(RestClient restClient) {
-        this.restClient = restClient;
-    }
+public BreakClientService(@Qualifier("apiRestClient") RestClient restClient) {
+    this.restClient = restClient;
+}
 
     public String start() {
         Map<String, String> response = restClient.post()
