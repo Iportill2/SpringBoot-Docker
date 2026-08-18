@@ -7,6 +7,12 @@
             <div class="profile-card">
                 <h2>Mi perfil</h2>
 
+                <div th:each="uq : ${userQuestions}" class="profile-field">
+                    <span class="profile-label" th:text="${uq.questionText}"></span>
+                    <span class="profile-value" th:text="${uq.answer}"></span>
+                </div>
+
+
                 <div class="profile-field">
                     <span class="profile-label">Usuario</span>
                     <span class="profile-value" th:text="${user.username}"></span>

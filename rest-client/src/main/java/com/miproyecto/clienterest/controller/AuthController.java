@@ -69,7 +69,7 @@ public class AuthController {
             session.setAttribute("username", body.getUsername());
             session.setAttribute("role", body.getRole());
 
-            return "redirect:/menu/clock-in";
+            return "redirect:/menu/crm";
 
         } catch (RestClientResponseException e) {
             model.addAttribute("error", extractError(e));
