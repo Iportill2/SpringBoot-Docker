@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-ApiRestApplication<api-rest>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.miproyecto.apirest.ApiRestApplication",
+            "projectName": "api-rest",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ClientRestApplication<cliente-rest>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.miproyecto.clienterest.ClientRestApplication",
+            "projectName": "cliente-rest",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

@@ -63,8 +63,8 @@ public class CrmController {
 
     @PostMapping("/crm/crear")
     public String crear(@ModelAttribute("tareaForm") TareaDTO tarea,
-                        HttpSession session,
-                        RedirectAttributes redirectAttributes) {
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
         String role = (String) session.getAttribute("role");
         boolean isAdmin = "ADMIN".equalsIgnoreCase(role);
@@ -85,27 +85,62 @@ public class CrmController {
 
     @PostMapping("/crm/editar/{id}")
     public String editar(@PathVariable Integer id,
-                         @ModelAttribute("tareaForm") TareaDTO tarea,
-                         HttpSession session,
-                         RedirectAttributes redirectAttributes) {
+            @RequestParam(required = false) String titulo,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String prioridad,
+            @RequestParam(required = false) Integer clienteId,
+            @RequestParam(required = false) Integer responsableId,
+            @RequestParam(required = false) String fechaLimite,
+            @RequestParam(required = false) Double horasEmpleadas,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
         String role = (String) session.getAttribute("role");
         boolean isAdmin = "ADMIN".equalsIgnoreCase(role);
 
         if (!isAdmin) {
-            Integer userId = (Integer) session.getAttribute("userId");
-            if (tarea.getResponsable() == null) {
-                tarea.setResponsable(new AdminUserDTO());
-            }
-            if (tarea.getResponsable().getId() == null
-                    || !tarea.getResponsable().getId().equals(userId)) {
-                tarea.getResponsable().setId(userId);
-            }
+            redirectAttributes.addFlashAttribute("error", "No tienes permisos");
+            return "redirect:/menu/crm";
         }
 
         try {
+            // 1. Traer la tarea actual
+            TareaDTO tarea = crmService.findTareaById(id);
+            if (tarea == null) {
+                redirectAttributes.addFlashAttribute("error", "Tarea no encontrada");
+                return "redirect:/menu/crm";
+            }
+
+            // 2. Sobreescribir solo el campo que vino
+            if (titulo != null)
+                tarea.setTitulo(titulo);
+            if (estado != null)
+                tarea.setEstado(estado);
+            if (prioridad != null)
+                tarea.setPrioridad(prioridad);
+            if (fechaLimite != null && !fechaLimite.isBlank())
+                tarea.setFechaLimite(java.time.LocalDate.parse(fechaLimite));
+            else if (fechaLimite != null && fechaLimite.isBlank())
+                tarea.setFechaLimite(null);
+            if (horasEmpleadas != null)
+                tarea.setHorasEmpleadas(horasEmpleadas);
+
+            // clienteId y responsableId: se mandan como objetos anidados
+            if (clienteId != null) {
+                ClienteDTO c = new ClienteDTO();
+                c.setId(clienteId == 0 ? null : clienteId);
+                tarea.setCliente(clienteId == 0 ? null : c);
+            }
+            if (responsableId != null) {
+                AdminUserDTO u = new AdminUserDTO();
+                u.setId(responsableId == 0 ? null : responsableId);
+                tarea.setResponsable(responsableId == 0 ? null : u);
+            }
+
+            // 3. Mandar el PUT con la tarea completa
             crmService.actualizarTarea(id, tarea);
-            redirectAttributes.addFlashAttribute("message", "Tarea actualizada correctamente");
+            redirectAttributes.addFlashAttribute("message", "Tarea actualizada");
+
         } catch (RestClientException e) {
             redirectAttributes.addFlashAttribute("error", "No se pudo actualizar la tarea");
         }
@@ -114,8 +149,8 @@ public class CrmController {
 
     @PostMapping("/crm/eliminar/{id}")
     public String eliminar(@PathVariable Integer id,
-                           HttpSession session,
-                           RedirectAttributes redirectAttributes) {
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
         boolean isAdmin = "ADMIN".equalsIgnoreCase((String) session.getAttribute("role"));
         if (!isAdmin) {
@@ -134,8 +169,8 @@ public class CrmController {
 
     @PostMapping("/crm/asignar/{id}")
     public String asignar(@PathVariable Integer id,
-                          HttpSession session,
-                          RedirectAttributes redirectAttributes) {
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
         Integer userId = (Integer) session.getAttribute("userId");
         try {
@@ -149,8 +184,8 @@ public class CrmController {
 
     @PostMapping("/crm/horas/{id}")
     public String horas(@PathVariable Integer id,
-                        @RequestParam(required = false) Double horasEmpleadas,
-                        RedirectAttributes redirectAttributes) {
+            @RequestParam(required = false) Double horasEmpleadas,
+            RedirectAttributes redirectAttributes) {
 
         try {
             crmService.actualizarHoras(id, horasEmpleadas);

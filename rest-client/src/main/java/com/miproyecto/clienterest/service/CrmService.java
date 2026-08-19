@@ -101,4 +101,11 @@ public class CrmService {
                 .retrieve()
                 .body(Boolean.class);
     }
+
+    public TareaDTO findTareaById(Integer id) {
+        return restClient.get()
+                .uri("/api/tarea/{id}", id)
+                .retrieve()
+                .body(TareaDTO.class);
+    }
 }
