@@ -11,7 +11,6 @@ import org.springframework.web.client.RestClient;
 import com.miproyecto.clienterest.dto.QuestionDTO;
 import com.miproyecto.clienterest.dto.SendQuestionDTO;
 import com.miproyecto.clienterest.dto.UserQuestionPrintDTO;
-import com.miproyecto.clienterest.dto.UserQuestionReadDTO;
 import com.miproyecto.clienterest.dto.UsersDTO;
 
 @Service

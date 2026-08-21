@@ -28,27 +28,27 @@ INSERT IGNORE INTO questions (id, text) VALUES
   (20, '¿Cuál es tu canción favorita?');
 
 /* ===== CLIENTES (20) ===== */
-INSERT IGNORE INTO clientes (id, nombre) VALUES
-  (1, 'Empresa Alpha'),
-  (2, 'Bodegas del Sol'),
-  (3, 'Consultora Beta'),
-  (4, 'Grupo Nova'),
-  (5, 'Industrias Delta'),
-  (6, 'Transportes Vía'),
-  (7, 'Clínica Salud Total'),
-  (8, 'Hotel Gran Bahía'),
-  (9, 'Tecnología Nexus'),
-  (10, 'Comercios Unión'),
-  (11, 'Agro Campos'),
-  (12, 'Editorial Letras'),
-  (13, 'Constructora Andamios'),
-  (14, 'Farmacias San Roque'),
-  (15, 'Estudio Diseño Azul'),
-  (16, 'Logística Rápida'),
-  (17, 'Gimnasio VitalFit'),
-  (18, 'Cafetería La Esquina'),
-  (19, 'Seguros Protección'),
-  (20, 'Automóviles Estrella');
+INSERT IGNORE INTO clientes (id, nombre, persona_contacto, telefono, direccion, fecha_alta) VALUES
+  (1, 'Empresa Alpha', 'Marta Gómez', '944112233', 'Gran Vía 12, Bilbao', '2024-01-15'),
+  (2, 'Bodegas del Sol', 'Javier Ruiz', '941223344', 'Calle Mayor 5, Logroño', '2024-02-03'),
+  (3, 'Consultora Beta', 'Laura Sánchez', '915334455', 'Paseo de la Castellana 88, Madrid', '2024-02-20'),
+  (4, 'Grupo Nova', 'Diego Fernández', '963445566', 'Avenida del Puerto 30, Valencia', '2024-03-05'),
+  (5, 'Industrias Delta', 'Elena Torres', '976556677', 'Polígono Industrial Norte 7, Zaragoza', '2024-03-18'),
+  (6, 'Transportes Vía', 'Roberto Díaz', '985667788', 'Carretera N-634 km 12, Gijón', '2024-04-02'),
+  (7, 'Clínica Salud Total', 'Ana Martínez', '954778899', 'Calle Sierpes 20, Sevilla', '2024-04-25'),
+  (8, 'Hotel Gran Bahía', 'Carlos López', '971889900', 'Paseo Marítimo 45, Palma', '2024-05-10'),
+  (9, 'Tecnología Nexus', 'Sara Navarro', '946990011', 'Alameda Recalde 18, Bilbao', '2024-05-28'),
+  (10, 'Comercios Unión', 'Pablo Iglesias', '922001122', 'Calle León y Castillo 60, Las Palmas', '2024-06-14'),
+  (11, 'Agro Campos', 'Rosa Ortega', '957112233', 'Camino de la Vega 3, Córdoba', '2024-06-30'),
+  (12, 'Editorial Letras', 'Miguel Serrano', '981223344', 'Calle Real 22, A Coruña', '2024-07-11'),
+  (13, 'Constructora Andamios', 'Cristina Vidal', '968334455', 'Avenida Juan Carlos I 14, Murcia', '2024-07-29'),
+  (14, 'Farmacias San Roque', 'Fernando Castro', '952445566', 'Calle Larios 9, Málaga', '2024-08-07'),
+  (15, 'Estudio Diseño Azul', 'Beatriz Molina', '943556677', 'Parte Vieja 11, San Sebastián', '2024-08-22'),
+  (16, 'Logística Rápida', 'Andrés Guerrero', '926667788', 'Polígono El Salobral 4, Ciudad Real', '2024-09-09'),
+  (17, 'Gimnasio VitalFit', 'Patricia Ramos', '964778899', 'Avenida del Mar 8, Castellón', '2024-09-24'),
+  (18, 'Cafetería La Esquina', 'Álvaro Jiménez', '979889900', 'Plaza Mayor 2, Palencia', '2024-10-05'),
+  (19, 'Seguros Protección', 'Nuria Delgado', '925990011', 'Calle Comercio 15, Toledo', '2024-10-19'),
+  (20, 'Automóviles Estrella', 'Tomás Herrera', '984001122', 'Avenida de Galicia 33, Oviedo', '2024-11-02');
 
 /* ===== USUARIOS (20) ===== */
 INSERT IGNORE INTO users (id, username, pass, salt, email, code, role_id) VALUES 

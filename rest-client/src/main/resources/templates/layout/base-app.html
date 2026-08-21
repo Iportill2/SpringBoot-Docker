@@ -41,7 +41,7 @@
         <a th:if="${!isAdmin}" th:href="@{/menu/calendar}">Calendario</a>
         <a th:href="@{/menu/crm}">CRM Tareas</a>
         <a th:href="@{/menu/profile}">Mi perfil</a>
-        <a th:if="${isAdmin}" th:href="@{/menu/admin}">Clientes</a>
+        <a th:if="${isAdmin}" th:href="@{/menu/clientes}">Clientes</a>
         <a th:if="${isAdmin}" th:href="@{/menu/admin}">Menu Admin</a>
         <a th:if="${isAdmin}" th:href="@{/menu/backups}">Backup</a>
       </nav>
@@ -109,6 +109,57 @@
     </div>
   </div>
   <script th:src="@{/js/theme.js}"></script>
+  <!-- MODAL CONFIRMACIÓN -->
+      <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+          <h3 class="modal-title" id="modalTitle">Confirmar acción</h3>
+          <p class="modal-message" id="modalMessage">¿Seguro que quieres continuar?</p>
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" id="modalCancel">Cancelar</button>
+            <button type="button" class="btn-confirm" id="modalConfirm">Confirmar</button>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+
+          /* ---------- MODAL ---------- */
+          var overlay = document.getElementById('confirmModal');
+          var message = document.getElementById('modalMessage');
+          var confirmBtn = document.getElementById('modalConfirm');
+          var cancelBtn = document.getElementById('modalCancel');
+          var pendingForm = null;
+
+          document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+              event.preventDefault();
+              pendingForm = form;
+              message.textContent = form.dataset.confirm;
+              if (form.dataset.danger === 'true') {
+                confirmBtn.classList.add('btn-confirm-danger');
+              } else {
+                confirmBtn.classList.remove('btn-confirm-danger');
+              }
+              overlay.classList.add('show');
+            });
+          });
+
+          confirmBtn.addEventListener('click', function () {
+            overlay.classList.remove('show');
+            if (pendingForm) pendingForm.submit();
+          });
+
+          cancelBtn.addEventListener('click', function () {
+            overlay.classList.remove('show');
+          });
+
+          overlay.addEventListener('click', function (event) {
+            if (event.target === overlay) overlay.classList.remove('show');
+          });
+
+        })();
+      </script>
 </body>
 
 </html>

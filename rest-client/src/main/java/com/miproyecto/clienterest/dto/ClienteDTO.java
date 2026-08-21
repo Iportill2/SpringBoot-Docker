@@ -7,10 +7,8 @@ public class ClienteDTO {
     private Integer id;
     private String nombre;
     private String personaContacto;
-    private String email;
     private String telefono;
     private String direccion;
-    private String notas;
     private LocalDate fechaAlta;
 
     public Integer getId() {
@@ -37,14 +35,6 @@ public class ClienteDTO {
         this.personaContacto = personaContacto;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getTelefono() {
         return telefono;
     }
@@ -59,14 +49,6 @@ public class ClienteDTO {
 
     public void setDireccion(String direccion) {
         this.direccion = direccion;
-    }
-
-    public String getNotas() {
-        return notas;
-    }
-
-    public void setNotas(String notas) {
-        this.notas = notas;
     }
 
     public LocalDate getFechaAlta() {

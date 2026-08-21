@@ -75,7 +75,7 @@
 
 
         <section class="crm-table-section">
-          <h3 class="crm-section-title">Lista de tareas</h3>
+          <h3 class="crm-section-title">Filtro de tareas</h3>
 
           <!-- BARRA DE FILTROS -->
           <div class="crm-filters" id="crmFilters">
@@ -115,6 +115,8 @@
             </label>
             <button class="btn-clear-filters" id="btnLimpiar">✕ Limpiar</button>
           </div>
+
+          <h3 class="crm-section-title">Lista de tareas</h3>
 
           <table class="admin-table crm-table">
             <thead>
@@ -246,6 +248,11 @@
 
                 <!-- ACCIONES -->
                 <td class="admin-actions">
+                  <button type="button" class="btn-detail"
+                    th:attr="data-titulo=${t.titulo}, data-descripcion=${t.descripcion}">
+                    Detalles
+                  </button>
+
                   <form th:if="${isAdmin}" th:action="@{/menu/crm/eliminar/{id}(id=${t.id})}" method="post"
                     data-confirm="¿Seguro que quieres eliminar esta tarea? Esta acción no se puede deshacer."
                     data-danger="true">
@@ -269,86 +276,42 @@
             </tfoot>
           </table>
         </section>
-
-        <!-- TABLA DE CLIENTES (solo admin) -->
-        <section class="crm-form-section" th:if="${isAdmin}" style="margin-top: 1.5rem;">
-          <h3 class="crm-section-title">Clientes</h3>
-          <table class="admin-table crm-table" style="font-size: 0.8rem;">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Contacto</th>
-                <th>Email</th>
-                <th>Teléfono</th>
-                <th>Dirección</th>
-                <th>Alta</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr th:each="c : ${clientes}">
-                <td th:text="${c.nombre}"></td>
-                <td th:text="${c.personaContacto != null} ? ${c.personaContacto} : '—'"></td>
-                <td th:text="${c.email != null} ? ${c.email} : '—'"></td>
-                <td th:text="${c.telefono != null} ? ${c.telefono} : '—'"></td>
-                <td th:text="${c.direccion != null} ? ${c.direccion} : '—'"></td>
-                <td th:text="${c.fechaAlta != null} ? ${#temporals.format(c.fechaAlta, 'dd/MM/yyyy')} : '—'"></td>
-              </tr>
-              <tr th:if="${#lists.isEmpty(clientes)}">
-                <td colspan="6" class="crm-empty">No hay clientes</td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
       </div>
     </div>
 
-    <!-- MODAL CONFIRMACIÓN -->
-    <div class="modal-overlay" id="confirmModal">
+    <!-- MODAL DETALLE -->
+    <div class="modal-overlay" id="detailModal">
       <div class="modal-box">
-        <h3 class="modal-title" id="modalTitle">Confirmar acción</h3>
-        <p class="modal-message" id="modalMessage">¿Seguro que quieres continuar?</p>
+        <h3 class="modal-title" id="detailTitle">Detalle</h3>
+        <p class="modal-message" id="detailMessage" style="white-space: pre-wrap;"></p>
         <div class="modal-actions">
-          <button type="button" class="btn-cancel" id="modalCancel">Cancelar</button>
-          <button type="button" class="btn-confirm" id="modalConfirm">Confirmar</button>
+          <button type="button" class="btn-cancel" id="detailClose">Cerrar</button>
         </div>
       </div>
     </div>
 
     <script>
       (function () {
+        /* ---------- MODAL DETALLE ---------- */
+        var detailOverlay = document.getElementById('detailModal');
+        var detailTitle = document.getElementById('detailTitle');
+        var detailMessage = document.getElementById('detailMessage');
+        var detailClose = document.getElementById('detailClose');
 
-        /* ---------- MODAL ---------- */
-        var overlay = document.getElementById('confirmModal');
-        var message = document.getElementById('modalMessage');
-        var confirmBtn = document.getElementById('modalConfirm');
-        var cancelBtn = document.getElementById('modalCancel');
-        var pendingForm = null;
-
-        document.querySelectorAll('form[data-confirm]').forEach(function (form) {
-          form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            pendingForm = form;
-            message.textContent = form.dataset.confirm;
-            if (form.dataset.danger === 'true') {
-              confirmBtn.classList.add('btn-confirm-danger');
-            } else {
-              confirmBtn.classList.remove('btn-confirm-danger');
-            }
-            overlay.classList.add('show');
+        document.querySelectorAll('.btn-detail').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            detailTitle.textContent = btn.dataset.titulo;
+            detailMessage.textContent = btn.dataset.descripcion || 'Sin descripción';
+            detailOverlay.classList.add('show');
           });
         });
 
-        confirmBtn.addEventListener('click', function () {
-          overlay.classList.remove('show');
-          if (pendingForm) pendingForm.submit();
+        detailClose.addEventListener('click', function () {
+          detailOverlay.classList.remove('show');
         });
 
-        cancelBtn.addEventListener('click', function () {
-          overlay.classList.remove('show');
-        });
-
-        overlay.addEventListener('click', function (event) {
-          if (event.target === overlay) overlay.classList.remove('show');
+        detailOverlay.addEventListener('click', function (event) {
+          if (event.target === detailOverlay) detailOverlay.classList.remove('show');
         });
 
         /* ---------- FILTROS ---------- */

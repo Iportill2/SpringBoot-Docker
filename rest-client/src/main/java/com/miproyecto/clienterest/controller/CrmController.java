@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.miproyecto.clienterest.dto.AdminUserDTO;
 import com.miproyecto.clienterest.dto.ClienteDTO;
 import com.miproyecto.clienterest.dto.TareaDTO;
+import com.miproyecto.clienterest.service.ClienteService;
 import com.miproyecto.clienterest.service.CrmService;
 
 import jakarta.servlet.http.HttpSession;
@@ -26,9 +27,11 @@ import jakarta.servlet.http.HttpSession;
 public class CrmController {
 
     private final CrmService crmService;
+    private final ClienteService clienteServ;
 
-    public CrmController(CrmService crmService) {
+    public CrmController(CrmService crmService, ClienteService clienteServ) {
         this.crmService = crmService;
+        this.clienteServ = clienteServ;
     }
 
     @GetMapping("/crm")
@@ -53,8 +56,8 @@ public class CrmController {
         }
 
         model.addAttribute("tareas", tareas);
-        model.addAttribute("clientes", crmService.findAllClientes());
         model.addAttribute("usuarios", crmService.findAllUsuarios());
+        model.addAttribute("clientes", clienteServ.findAllClientes());
         model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("tareaForm", emptyForm());
 

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import com.miproyecto.clienterest.dto.AdminUserDTO;
-import com.miproyecto.clienterest.dto.ClienteDTO;
 import com.miproyecto.clienterest.dto.TareaDTO;
 
 @Service
@@ -43,14 +42,6 @@ public class CrmService {
                 .uri("/api/tarea?sinAsignar=true")
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<TareaDTO>>() {
-                });
-    }
-
-    public List<ClienteDTO> findAllClientes() {
-        return restClient.get()
-                .uri("/api/cliente")
-                .retrieve()
-                .body(new ParameterizedTypeReference<List<ClienteDTO>>() {
                 });
     }
 
