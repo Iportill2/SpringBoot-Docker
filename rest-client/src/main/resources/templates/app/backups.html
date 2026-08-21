@@ -1,225 +1,134 @@
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/base-app}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/base-app}">
 
 <body>
 
-<div layout:fragment="content">
+    <div layout:fragment="content">
 
-    <div class="admin-page">
+        <div class="admin-page">
 
-        <h2 class="admin-title">
-            Gestión de copias de seguridad
-        </h2>
-
-
-        <!-- Mensajes de restauración -->
-        <div th:if="${message}" class="alert alert-success">
-            <span th:text="${message}"></span>
-        </div>
-
-        <div th:if="${error}" class="alert alert-danger">
-            <span th:text="${error}"></span>
-        </div>
-
-        <div th:if="${popup}" class="toast" id="backupToast">
-            <span th:text="${popup}"></span>
-        </div>
+            <h2 class="admin-title">
+                Gestión de copias de seguridad
+            </h2>
 
 
-        <div class="backup-actions">
+            <!-- Mensajes de restauración -->
+            <div th:if="${message}" class="alert alert-success">
+                <span th:text="${message}"></span>
+            </div>
 
-            <form th:action="@{/menu/backups/create}" method="post">
+            <div th:if="${error}" class="alert alert-danger">
+                <span th:text="${error}"></span>
+            </div>
 
-                <button type="submit" class="btn-db-upload">
-                    Crear backup
-                </button>
-
-            </form>
-
-            <a th:href="@{/menu/backups/log/view}" class="btn-db-upload">
-                Ver log de auditoría
-            </a>
-
-            <form th:action="@{/menu/backups/cleanup}" method="post"
-                  data-confirm="¿Aplicar la retención y eliminar los backups antiguos según la configuración?">
-                <button type="submit" class="btn-db-upload">
-                    Aplicar retención
-                </button>
-            </form>
-
-        </div>
+            <div th:if="${popup}" class="toast" id="backupToast">
+                <span th:text="${popup}"></span>
+            </div>
 
 
-        <div class="backup-container">
+            <div class="backup-actions">
 
-            <table class="admin-table backup-table">
+                <form th:action="@{/menu/backups/create}" method="post">
 
-                <thead>
+                    <button type="submit" class="btn-db-upload">
+                        Crear backup
+                    </button>
 
-                    <tr>
-                        <th>Archivo</th>
-                        <th>Tamaño</th>
-                        <th>Fecha de creación</th>
-                        <th>Acciones</th>
-                    </tr>
+                </form>
 
-                </thead>
+                <a th:href="@{/menu/backups/log/view}" class="btn-db-upload">
+                    Ver log de auditoría
+                </a>
 
-
-                <tbody>
-
-                    <tr th:each="backup : ${backups}">
-
-
-                        <td th:text="${backup.fileName}">
-                            archivo.sql.gz
-                        </td>
-
-
-                        <td th:text="${backup.size >= 1048576
-                              ? #numbers.formatDecimal(backup.size / 1048576.0, 1, 2) + ' MB'
-                              : #numbers.formatDecimal(backup.size / 1024.0, 1, 2) + ' KB'}">
-                            0 KB
-                        </td>
-
-
-                        <td th:text="${#temporals.format(backup.created, 'yyyy/MM/dd HH:mm:ss')}">
-                            2026/08/12 10:00:00
-                        </td>
-
-
-                        <td>
-
-                            <div class="backup-actions-table">
-
-                                <div class="backup-actions-group">
-
-                                    <a class="btn-approve"
-                                       th:href="@{/menu/backups/download/{file}(file=${backup.fileName})}">
-                                        Descargar
-                                    </a>
-
-
-                                    <form th:action="@{/menu/backups/restore/{file}(file=${backup.fileName})}"
-                                          method="post"
-                                          data-confirm="¿Seguro que quieres restaurar esta copia? Se reemplazarán los datos actuales.">
-
-                                        <button type="submit"
-                                                class="btn-db-download">
-                                            Restaurar
-                                        </button>
-
-                                    </form>
-
-                                </div>
-
-
-                                <form th:action="@{/menu/backups/delete/{file}(file=${backup.fileName})}"
-                                      method="post"
-                                      data-confirm="¿Seguro que quieres eliminar este backup? Esta acción no se puede deshacer."
-                                      data-danger="true">
-
-                                    <button type="submit"
-                                            class="btn-db-delete">
-                                        Eliminar
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-    </div>
-
-
-    <div class="modal-overlay" id="confirmModal">
-
-        <div class="modal-box">
-
-            <h3 class="modal-title" id="modalTitle">
-                Confirmar acción
-            </h3>
-
-            <p class="modal-message" id="modalMessage">
-                ¿Seguro que quieres continuar?
-            </p>
-
-            <div class="modal-actions">
-
-                <button type="button" class="btn-cancel" id="modalCancel">
-                    Cancelar
-                </button>
-
-                <button type="button" class="btn-confirm" id="modalConfirm">
-                    Confirmar
-                </button>
+                <form th:action="@{/menu/backups/cleanup}" method="post"
+                    data-confirm="¿Aplicar la retención y eliminar los backups antiguos según la configuración?">
+                    <button type="submit" class="btn-db-upload">
+                        Aplicar retención
+                    </button>
+                </form>
 
             </div>
 
-        </div>
 
+            <div>
+
+                <table class="backup-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Archivo</th>
+                            <th>Tamaño</th>
+                            <th>Fecha de creación</th>
+                            <th>Acciones</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr th:each="backup : ${backups}">
+
+                            <td th:text="${backup.fileName}">
+                                archivo.sql.gz
+                            </td>
+
+                            <td th:text="${backup.size >= 1048576
+                              ? #numbers.formatDecimal(backup.size / 1048576.0, 1, 2) + ' MB'
+                              : #numbers.formatDecimal(backup.size / 1024.0, 1, 2) + ' KB'}">
+                                0 KB
+                            </td>
+
+                            <td th:text="${#temporals.format(backup.created, 'yyyy/MM/dd HH:mm:ss')}">
+                                2026/08/12 10:00:00
+                            </td>
+
+                            <td>
+                                <div class="backup-actions-table">
+
+                                    <div class="backup-actions-group">
+
+                                        <a class="btn-approve"
+                                            th:href="@{/menu/backups/download/{file}(file=${backup.fileName})}">
+                                            Descargar
+                                        </a>
+
+                                        <form th:action="@{/menu/backups/restore/{file}(file=${backup.fileName})}"
+                                            method="post"
+                                            data-confirm="¿Seguro que quieres restaurar esta copia? Se reemplazarán los datos actuales.">
+
+                                            <button type="submit" class="btn-db-download">
+                                                Restaurar
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <form th:action="@{/menu/backups/delete/{file}(file=${backup.fileName})}"
+                                        method="post"
+                                        data-confirm="¿Seguro que quieres eliminar este backup? Esta acción no se puede deshacer."
+                                        data-danger="true">
+
+                                        <button type="submit" class="btn-db-delete">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(backups)}">
+                            <td colspan="4" class="crm-empty">No hay copias de seguridad</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
 
     <script>
         (function () {
-
-            var overlay = document.getElementById('confirmModal');
-            var message = document.getElementById('modalMessage');
-            var confirmBtn = document.getElementById('modalConfirm');
-            var cancelBtn = document.getElementById('modalCancel');
-            var pendingForm = null;
-
-            document.querySelectorAll('form[data-confirm]').forEach(function (form) {
-
-                form.addEventListener('submit', function (event) {
-
-                    event.preventDefault();
-
-                    pendingForm = form;
-                    message.textContent = form.dataset.confirm;
-
-                    if (form.dataset.danger === 'true') {
-                        confirmBtn.classList.add('btn-confirm-danger');
-                    } else {
-                        confirmBtn.classList.remove('btn-confirm-danger');
-                    }
-
-                    overlay.classList.add('show');
-                });
-            });
-
-            confirmBtn.addEventListener('click', function () {
-
-                overlay.classList.remove('show');
-
-                if (pendingForm) {
-                    pendingForm.submit();
-                }
-            });
-
-            cancelBtn.addEventListener('click', function () {
-                overlay.classList.remove('show');
-            });
-
-            overlay.addEventListener('click', function (event) {
-
-                if (event.target === overlay) {
-                    overlay.classList.remove('show');
-                }
-            });
 
             var toast = document.getElementById('backupToast');
 
@@ -237,7 +146,7 @@
         })();
     </script>
 
-</div>
+    </div>
 
 </body>
 

@@ -1,0 +1,59 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/base-app}">
+
+<body>
+    <div layout:fragment="content">
+
+        <section class="cliente-form-section" style="margin-top: 1.5rem;">
+            <h3 class="crm-section-title">Añadir Cliente</h3>
+            <form th:action="@{/menu/clientes}" th:object="${clienteForm}" method="post">
+                <input type="text" th:field="*{nombre}" placeholder="Nombre" required />
+                <input type="text" th:field="*{personaContacto}" placeholder="Persona de contacto" />
+                <input type="text" th:field="*{telefono}" placeholder="Teléfono" />
+                <input type="text" th:field="*{direccion}" placeholder="Dirección" />
+                <input type="date" th:field="*{fechaAlta}" />
+                <button type="submit">Guardar</button>
+            </form>
+        </section>
+
+        <!-- TABLA DE CLIENTES (solo admin) -->
+        <section class="crm-form-section" th:if="${isAdmin}" style="margin-top: 1.5rem;">
+            <h3 class="cliente-table-title">Clientes</h3>
+            <table class="cliente-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Contacto</th>
+                        <th>Teléfono</th>
+                        <th>Dirección</th>
+                        <th>Alta</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${clientes}">
+                        <td th:text="${c.nombre}"></td>
+                        <td th:text="${c.personaContacto != null} ? ${c.personaContacto} : '—'"></td>
+                        <td th:text="${c.telefono != null} ? ${c.telefono} : '—'"></td>
+                        <td th:text="${c.direccion != null} ? ${c.direccion} : '—'"></td>
+                        <td th:text="${c.fechaAlta != null} ? ${#temporals.format(c.fechaAlta, 'dd/MM/yyyy')} : '—'">
+                        </td>
+                        <td class="admin-actions">
+                            <form th:if="${isAdmin}" th:action="@{/menu/clientes/eliminar/{id}(id=${c.id})}"
+                                method="post"
+                                data-confirm="¿Seguro que quieres eliminar este cliente? Esta acción no se puede deshacer."
+                                data-danger="true">
+                                <button type="submit" class="btn-delete">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(clientes)}">
+                        <td colspan="6" class="crm-empty">No hay clientes</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+</body>
+
+</html>

@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
-import com.miproyecto.clienterest.dto.ClienteDTO;
 import com.miproyecto.clienterest.dto.TareaDTO;
 import com.miproyecto.clienterest.service.CrmService;
 
@@ -93,10 +92,6 @@ class CrmServiceTests {
 
         CrmService service = new CrmService(client);
 
-        List<ClienteDTO> clientes = service.findAllClientes();
-
-        assertEquals(1, clientes.size());
-        assertEquals("Acme", clientes.get(0).getNombre());
 
         server.verify();
     }

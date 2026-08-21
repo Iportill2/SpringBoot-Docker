@@ -35,9 +35,6 @@ public class UserService {
         user.setPass(userDTO.pass());
         user.setEmail(userDTO.email());
 
-        user.setFails(0);
-        user.setBlocked(false);
-        user.setBanned(false);
         user.setSalt("salt_generada");
         user.setCode(UUID.randomUUID().toString());
 
@@ -106,9 +103,6 @@ public class UserService {
     	Optional<Users> temp = userRepo.findById(user.getId());
     	if(temp.isEmpty())
     		return null;
-    	
-    	if ( temp.get().getBlocked() == true)
-    		return true;
 
     	return false;
     }
@@ -118,8 +112,6 @@ public class UserService {
     	if(temp.isEmpty())
     		return null;
     	
-    	if ( temp.get().getBanned() == true)
-    		return true;
 
     	return false;
     }
@@ -152,18 +144,6 @@ public class UserService {
 
         if (user.getCode() != null) {
             current.setCode(user.getCode());
-        }
-
-        if (user.getFails() != null) {
-            current.setFails(user.getFails());
-        }
-
-        if (user.getBlocked() != null) {
-            current.setBlocked(user.getBlocked());
-        }
-
-        if (user.getBanned() != null) {
-            current.setBanned(user.getBanned());
         }
 
         if (user.getRole() != null) {

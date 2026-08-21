@@ -20,91 +20,98 @@ import com.miproyecto.apirest.model.UserQuestion;
 
 import com.miproyecto.apirest.service.UserQuestionService;
 
-
 @RestController
 @RequestMapping("/api/userquestion")
 public class UserQuestionController {
 	private final UserQuestionService userQuestionServ;
-	public UserQuestionController(UserQuestionService userQuestionService) {this.userQuestionServ = userQuestionService ;}
-	//Create
+
+	public UserQuestionController(UserQuestionService userQuestionService) {
+		this.userQuestionServ = userQuestionService;
+	}
+
+	// Create
 	@PostMapping
-	public ResponseEntity<UserQuestion> create (@RequestBody UserQuestion userQuestion)
-	{
+	public ResponseEntity<UserQuestion> create(@RequestBody UserQuestion userQuestion) {
 		UserQuestion temp = userQuestionServ.create(userQuestion);
-		if(temp == null)
+		if (temp == null)
 			return ResponseEntity.badRequest().build();
 		return ResponseEntity.ok(temp);
 	}
-	//Create from DTO
+
+	// Create from DTO
 	@PostMapping("/from-dto")
-	public ResponseEntity<UserQuestion> createFromDTO(@RequestBody UserQuestionDTO dto)
-	{
+	public ResponseEntity<UserQuestion> createFromDTO(@RequestBody UserQuestionDTO dto) {
 		UserQuestion temp = userQuestionServ.createFromDTO(dto);
-		if(temp == null)
+		if (temp == null)
 			return ResponseEntity.badRequest().build();
 		return ResponseEntity.status(HttpStatus.CREATED).body(temp);
 	}
-	//Read
+
+	// Read
 	@GetMapping
-	public ResponseEntity<List<UserQuestion>> findAll()
-	{
+	public ResponseEntity<List<UserQuestion>> findAll() {
 		List<UserQuestion> temp = userQuestionServ.findAll();
-		if(temp == null || temp.isEmpty())
+		if (temp == null || temp.isEmpty())
 			return ResponseEntity.noContent().build();
-		 return ResponseEntity.ok(temp);
-		 
+		return ResponseEntity.ok(temp);
 
 	}
-	
+
 	@GetMapping("/user/{id}")
-	public ResponseEntity<List<UserQuestion>> findByUser(@PathVariable Integer id)
-	{
-	    if(id == null || id < 1)
-	        return ResponseEntity.badRequest().build();
+	public ResponseEntity<List<UserQuestionDTO>> findByUser(@PathVariable Integer id) {
+		if (id == null || id < 1)
+			return ResponseEntity.badRequest().build();
 
-	    List<UserQuestion> temp = userQuestionServ.findByUser(id);
+		List<UserQuestion> temp = userQuestionServ.findByUser(id);
 
-	    if(temp.isEmpty())
-	        return ResponseEntity.notFound().build();
+		if (temp.isEmpty())
+			return ResponseEntity.notFound().build();
 
-	    return ResponseEntity.ok(temp);
+		List<UserQuestionDTO> dtoList = temp.stream()
+				.map(uq -> new UserQuestionDTO(
+						uq.getUser().getId(),
+						uq.getQuestion().getId(),
+						uq.getQuestion().getText(), // Ajusta getTexto() al getter real de tu entidad Question
+						uq.getAnswer()))
+				.toList();
+
+		return ResponseEntity.ok(dtoList);
 	}
+
 	@PostMapping("/check")
-	public ResponseEntity<Boolean> checkAnswer(@RequestBody CheckAnswerRequest request)
-	{
-	    Boolean result = userQuestionServ.checkAnswer(
-	            request.userId(),
-	            request.questionId(),
-	            request.answer()
-	    );
+	public ResponseEntity<Boolean> checkAnswer(@RequestBody CheckAnswerRequest request) {
+		Boolean result = userQuestionServ.checkAnswer(
+				request.userId(),
+				request.questionId(),
+				request.answer());
 
-	    if (result == null)
-	        return ResponseEntity.notFound().build();
+		if (result == null)
+			return ResponseEntity.notFound().build();
 
-	    return ResponseEntity.ok(result);
+		return ResponseEntity.ok(result);
 	}
+
 	@GetMapping("/{id}")
-	public ResponseEntity<UserQuestion> findById(@PathVariable Integer id)
-	{
-	    if(id == null || id < 1)
-	        return ResponseEntity.badRequest().build();
+	public ResponseEntity<UserQuestion> findById(@PathVariable Integer id) {
+		if (id == null || id < 1)
+			return ResponseEntity.badRequest().build();
 
-	    Optional<UserQuestion> temp = userQuestionServ.findById(id);
+		Optional<UserQuestion> temp = userQuestionServ.findById(id);
 
-	    if(temp.isEmpty())
-	        return ResponseEntity.notFound().build();
+		if (temp.isEmpty())
+			return ResponseEntity.notFound().build();
 
-	    return ResponseEntity.ok(temp.get());
+		return ResponseEntity.ok(temp.get());
 	}
+
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Boolean> delete(@PathVariable Integer id)
-	{
-	    Boolean result = userQuestionServ.delete(id);
+	public ResponseEntity<Boolean> delete(@PathVariable Integer id) {
+		Boolean result = userQuestionServ.delete(id);
 
-	    if(result == null)
-	        return ResponseEntity.notFound().build();
+		if (result == null)
+			return ResponseEntity.notFound().build();
 
-	    return ResponseEntity.ok(result);
+		return ResponseEntity.ok(result);
 	}
 
 }

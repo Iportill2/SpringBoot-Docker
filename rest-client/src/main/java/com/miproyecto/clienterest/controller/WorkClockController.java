@@ -1,5 +1,6 @@
 package com.miproyecto.clienterest.controller;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.miproyecto.clienterest.dto.BreakDTO;
 import com.miproyecto.clienterest.dto.TimeEntryDTO;
 import com.miproyecto.clienterest.service.BreakClientService;
 import com.miproyecto.clienterest.service.TimeEntryService;
@@ -64,12 +64,9 @@ public class WorkClockController {
 
     @PostMapping("/pause")
     public String pause(HttpSession session) {
-        Integer timeEntryId = (Integer) session.getAttribute("timeEntryId");
-
-        BreakDTO newBreak = breakClientService.start(timeEntryId);
-
-        session.setAttribute("breakId", newBreak.getId());
-        session.setAttribute("pauseTime", formatDate(newBreak.getStartTime()));
+        String pauseStart = breakClientService.start();
+        session.setAttribute("pauseTime", formatDate(pauseStart));
+        session.setAttribute("pauseStartRaw", pauseStart);
         session.setAttribute("breakOpen", true);
 
         return "redirect:/menu/clock-in";
@@ -77,13 +74,21 @@ public class WorkClockController {
 
     @PostMapping("/resume")
     public String resume(HttpSession session) {
-        Integer breakId = (Integer) session.getAttribute("breakId");
-        if (breakId != null) {
-            BreakDTO endedBreak = breakClientService.end(breakId);
-            session.setAttribute("resumeTime", formatDate(endedBreak.getEndTime()));
+        String pauseStartRaw = (String) session.getAttribute("pauseStartRaw");
+        String pauseEndRaw = breakClientService.end();
+
+        if (pauseStartRaw != null) {
+            LocalDateTime start = LocalDateTime.parse(pauseStartRaw);
+            LocalDateTime end = LocalDateTime.parse(pauseEndRaw);
+            long minutes = Duration.between(start, end).toMinutes();
+
+            Integer totalPauseMinutes = (Integer) session.getAttribute("totalPauseMinutes");
+            totalPauseMinutes = (totalPauseMinutes == null ? 0 : totalPauseMinutes) + (int) minutes;
+            session.setAttribute("totalPauseMinutes", totalPauseMinutes);
         }
 
-        session.removeAttribute("breakId");
+        session.setAttribute("resumeTime", formatDate(pauseEndRaw));
+        session.removeAttribute("pauseStartRaw");
         session.setAttribute("breakOpen", false);
 
         return "redirect:/menu/clock-in";
@@ -91,17 +96,13 @@ public class WorkClockController {
 
     @PostMapping("/stop")
     public String stop(HttpSession session) {
-        Integer breakId = (Integer) session.getAttribute("breakId");
-
-        if (breakId != null) {
-            breakClientService.end(breakId);
-            session.removeAttribute("breakId");
-        }
+        Integer timeEntryId = (Integer) session.getAttribute("timeEntryId");
+        Integer totalPauseMinutes = (Integer) session.getAttribute("totalPauseMinutes");
+        int pauseMinutes = totalPauseMinutes == null ? 0 : totalPauseMinutes;
 
         session.setAttribute("breakOpen", false);
 
-        Integer timeEntryId = (Integer) session.getAttribute("timeEntryId");
-        TimeEntryDTO entry = timeEntryService.stop(timeEntryId);
+        TimeEntryDTO entry = timeEntryService.stop(timeEntryId, pauseMinutes);
 
         session.setAttribute("endTime", formatDate(entry.getEndTime()));
         session.setAttribute("lastEntryDate", entry.getDate());
