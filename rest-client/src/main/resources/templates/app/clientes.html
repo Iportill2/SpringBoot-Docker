@@ -3,56 +3,122 @@
 
 <body>
     <div layout:fragment="content">
+        <div class="crm-page-full">
+            <h2 class="admin-title">Clientes</h2>
 
-        <section class="cliente-form-section" style="margin-top: 1.5rem;">
-            <h3 class="crm-section-title">Añadir Cliente</h3>
-            <form th:action="@{/menu/clientes}" th:object="${clienteForm}" method="post">
-                <input type="text" th:field="*{nombre}" placeholder="Nombre" required />
-                <input type="text" th:field="*{personaContacto}" placeholder="Persona de contacto" />
-                <input type="text" th:field="*{telefono}" placeholder="Teléfono" />
-                <input type="text" th:field="*{direccion}" placeholder="Dirección" />
-                <input type="date" th:field="*{fechaAlta}" />
-                <button type="submit">Guardar</button>
-            </form>
-        </section>
+            <div th:if="${message}" class="flash-message" th:text="${message}"></div>
+            <div th:if="${error}" class="flash-message flash-error" th:text="${error}"></div>
 
-        <!-- TABLA DE CLIENTES (solo admin) -->
-        <section class="crm-form-section" th:if="${isAdmin}" style="margin-top: 1.5rem;">
-            <h3 class="cliente-table-title">Clientes</h3>
-            <table class="cliente-table">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Contacto</th>
-                        <th>Teléfono</th>
-                        <th>Dirección</th>
-                        <th>Alta</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="c : ${clientes}">
-                        <td th:text="${c.nombre}"></td>
-                        <td th:text="${c.personaContacto != null} ? ${c.personaContacto} : '—'"></td>
-                        <td th:text="${c.telefono != null} ? ${c.telefono} : '—'"></td>
-                        <td th:text="${c.direccion != null} ? ${c.direccion} : '—'"></td>
-                        <td th:text="${c.fechaAlta != null} ? ${#temporals.format(c.fechaAlta, 'dd/MM/yyyy')} : '—'">
-                        </td>
-                        <td class="admin-actions">
-                            <form th:if="${isAdmin}" th:action="@{/menu/clientes/eliminar/{id}(id=${c.id})}"
-                                method="post"
-                                data-confirm="¿Seguro que quieres eliminar este cliente? Esta acción no se puede deshacer."
-                                data-danger="true">
-                                <button type="submit" class="btn-delete">Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(clientes)}">
-                        <td colspan="6" class="crm-empty">No hay clientes</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+            <!-- FILTRO: ancho completo arriba -->
+            <section class="crm-filter-section" th:if="${isAdmin}">
+                <h3 class="crm-section-title">Filtro de clientes</h3>
+                <div class="crm-filters" id="clienteFilters">
+                    <label>
+                        Buscar nombre
+                        <input type="text" id="filtroNombre" placeholder="Escribe para buscar…" />
+                    </label>
+                    <label>
+                        Contacto
+                        <input type="text" id="filtroContacto" placeholder="Escribe para buscar…" />
+                    </label>
+                    <label>
+                        Teléfono
+                        <input type="text" id="filtroTelefono" placeholder="Escribe para buscar…" />
+                    </label>
+                    <button class="btn-clear-filters" id="btnLimpiarCliente">✕ Limpiar</button>
+                </div>
+            </section>
+
+            <div class="crm-layout">
+
+                <!-- FORM: izquierda -->
+                <section class="cliente-form-section">
+                    <h3 class="crm-section-title">Añadir Cliente</h3>
+                    <form th:action="@{/menu/clientes}" th:object="${clienteForm}" method="post" class="crm-form">
+                        <input type="text" th:field="*{nombre}" placeholder="Nombre" required />
+                        <input type="text" th:field="*{personaContacto}" placeholder="Persona de contacto" />
+                        <input type="text" th:field="*{telefono}" placeholder="Teléfono" />
+                        <input type="text" th:field="*{direccion}" placeholder="Dirección" />
+                        <input type="date" th:field="*{fechaAlta}" />
+                        <button type="submit">Guardar</button>
+                    </form>
+                </section>
+
+                <!-- TABLA: derecha -->
+                <section class="cliente-table-section" th:if="${isAdmin}">
+                    <table class="cliente-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Contacto</th>
+                                <th>Teléfono</th>
+                                <th>Dirección</th>
+                                <th>Alta</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clienteTbody">
+                            <tr th:each="c : ${clientes}" th:attr="
+                                    data-nombre=${c.nombre},
+                                    data-contacto=${c.personaContacto},
+                                    data-telefono=${c.telefono}
+                                  ">
+                                <td th:text="${c.nombre}"></td>
+                                <td th:text="${c.personaContacto != null} ? ${c.personaContacto} : '—'"></td>
+                                <td th:text="${c.telefono != null} ? ${c.telefono} : '—'"></td>
+                                <td th:text="${c.direccion != null} ? ${c.direccion} : '—'"></td>
+                                <td
+                                    th:text="${c.fechaAlta != null} ? ${#temporals.format(c.fechaAlta, 'dd/MM/yyyy')} : '—'">
+                                </td>
+                                <td class="admin-actions">
+                                    <form th:if="${isAdmin}" th:action="@{/menu/clientes/eliminar/{id}(id=${c.id})}"
+                                        method="post"
+                                        data-confirm="¿Seguro que quieres eliminar este cliente? Esta acción no se puede deshacer."
+                                        data-danger="true">
+                                        <button type="submit" class="btn-delete">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(clientes)}">
+                                <td colspan="6" class="crm-empty">No hay clientes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                var rows = Array.from(document.querySelectorAll('#clienteTbody tr[data-nombre]'));
+
+                function filtrar() {
+                    var nombre = document.getElementById('filtroNombre').value.toLowerCase().trim();
+                    var contacto = document.getElementById('filtroContacto').value.toLowerCase().trim();
+                    var telefono = document.getElementById('filtroTelefono').value.toLowerCase().trim();
+
+                    rows.forEach(function (row) {
+                        var ok =
+                            (!nombre || row.dataset.nombre.toLowerCase().includes(nombre)) &&
+                            (!contacto || (row.dataset.contacto || '').toLowerCase().includes(contacto)) &&
+                            (!telefono || (row.dataset.telefono || '').toLowerCase().includes(telefono));
+
+                        row.style.display = ok ? '' : 'none';
+                    });
+                }
+
+                ['filtroNombre', 'filtroContacto', 'filtroTelefono'].forEach(function (id) {
+                    document.getElementById(id).addEventListener('input', filtrar);
+                });
+
+                document.getElementById('btnLimpiarCliente').addEventListener('click', function () {
+                    ['filtroNombre', 'filtroContacto', 'filtroTelefono'].forEach(function (id) {
+                        document.getElementById(id).value = '';
+                    });
+                    filtrar();
+                });
+            })();
+        </script>
     </div>
 </body>
 

@@ -1,373 +1,570 @@
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layout/base-app}">
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/base-app}"
+>
+  <body>
+    <div layout:fragment="content">
+      <div class="crm-page-full">
+        <h2 class="admin-title">CRM Tareas</h2>
 
-<body>
-  <div layout:fragment="content">
-    <div class="crm-page-full">
-      <h2 class="admin-title">CRM Tareas</h2>
+        <div
+          th:if="${message}"
+          class="flash-message"
+          th:text="${message}"
+        ></div>
+        <div
+          th:if="${error}"
+          class="flash-message flash-error"
+          th:text="${error}"
+        ></div>
 
-      <div th:if="${message}" class="flash-message" th:text="${message}"></div>
-      <div th:if="${error}" class="flash-message flash-error" th:text="${error}"></div>
+        <h3 class="crm-section-title">Filtro de tareas</h3>
 
-      <div class="crm-layout">
-        <section class="crm-form-section" th:if="${isAdmin}">
-          <h3 class="crm-section-title">Nueva tarea</h3>
-          <form th:action="@{/menu/crm/crear}" th:object="${tareaForm}" method="post" class="crm-form">
-            <label>
-              Título
-              <input type="text" th:field="*{titulo}" required />
-            </label>
+        <!-- BARRA DE FILTROS -->
+        <div class="crm-filters" id="crmFilters">
+          <label>
+            Buscar título
+            <input
+              type="text"
+              id="filtroTitulo"
+              placeholder="Escribe para buscar…"
+            />
+          </label>
+          <label>
+            Estado
+            <select id="filtroEstado">
+              <option value="">Todos</option>
+              <option value="PENDIENTE">Pendiente</option>
+              <option value="EN_CURSO">En curso</option>
+              <option value="COMPLETADA">Completada</option>
+            </select>
+          </label>
+          <label>
+            Prioridad
+            <select id="filtroPrioridad">
+              <option value="">Todas</option>
+              <option value="ALTA">Alta</option>
+              <option value="MEDIA">Media</option>
+              <option value="BAJA">Baja</option>
+            </select>
+          </label>
+          <label>
+            Responsable
+            <select id="filtroResponsable">
+              <option value="">Todos</option>
+            </select>
+          </label>
+          <label>
+            Cliente
+            <select id="filtroCliente">
+              <option value="">Todos</option>
+            </select>
+          </label>
+          <button class="btn-clear-filters" id="btnLimpiar">✕ Limpiar</button>
+        </div>
 
-            <label>
-              Descripción
-              <textarea th:field="*{descripcion}" rows="3"></textarea>
-            </label>
+        <div class="crm-layout">
+          <section class="crm-form-section" th:if="${isAdmin}">
+            <h3 class="crm-section-title">Nueva tarea</h3>
+            <form
+              th:action="@{/menu/crm/crear}"
+              th:object="${tareaForm}"
+              method="post"
+              class="crm-form"
+            >
+              <label>
+                Título
+                <input type="text" th:field="*{titulo}" required />
+              </label>
 
-            <label>
-              Cliente
-              <select th:field="*{cliente.id}">
-                <option value="">Sin cliente</option>
-                <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nombre}"></option>
-              </select>
-            </label>
+              <label>
+                Cliente
+                <select th:field="*{cliente.id}">
+                  <option value="">Sin cliente</option>
+                  <option
+                    th:each="c : ${clientes}"
+                    th:value="${c.id}"
+                    th:text="${c.nombre}"
+                  ></option>
+                </select>
+              </label>
 
-            <label>
-              Responsable
-              <select th:field="*{responsable.id}" th:disabled="${!isAdmin}">
-                <option th:if="${!isAdmin}" th:value="${session.userId}"></option>
-                <option value="">Sin responsable</option>
-                <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.username}"></option>
-              </select>
-            </label>
+              <label>
+                Responsable
+                <select th:field="*{responsable.id}" th:disabled="${!isAdmin}">
+                  <option
+                    th:if="${!isAdmin}"
+                    th:value="${session.userId}"
+                  ></option>
+                  <option value="">Sin responsable</option>
+                  <option
+                    th:each="u : ${usuarios}"
+                    th:value="${u.id}"
+                    th:text="${u.username}"
+                  ></option>
+                </select>
+              </label>
 
-            <label>
-              Estado
-              <select th:field="*{estado}">
-                <option value="PENDIENTE">Pendiente</option>
-                <option value="EN_CURSO">En curso</option>
-                <option value="COMPLETADA">Completada</option>
-              </select>
-            </label>
+              <label>
+                Estado
+                <select th:field="*{estado}">
+                  <option value="PENDIENTE">Pendiente</option>
+                  <option value="EN_CURSO">En curso</option>
+                  <option value="COMPLETADA">Completada</option>
+                </select>
+              </label>
 
-            <label>
-              Prioridad
-              <select th:field="*{prioridad}">
-                <option value="ALTA">Alta</option>
-                <option value="MEDIA">Media</option>
-                <option value="BAJA">Baja</option>
-              </select>
-            </label>
+              <label>
+                Prioridad
+                <select th:field="*{prioridad}">
+                  <option value="ALTA">Alta</option>
+                  <option value="MEDIA">Media</option>
+                  <option value="BAJA">Baja</option>
+                </select>
+              </label>
 
-            <label>
-              Fecha límite
-              <input type="date" th:field="*{fechaLimite}" />
-            </label>
+              <label>
+                Fecha límite
+                <input type="date" th:field="*{fechaLimite}" />
+              </label>
 
-            <label>
-              Horas empleadas
-              <input type="number" step="0.5" min="0" th:field="*{horasEmpleadas}" />
-            </label>
+              <label>
+                Horas empleadas
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0"
+                  th:field="*{horasEmpleadas}"
+                />
+              </label>
 
-            <button type="submit" class="btn-create">Crear tarea</button>
-          </form>
-        </section>
+              <label>
+                Descripción
+                <textarea th:field="*{descripcion}" rows="3"></textarea>
+              </label>
 
+              <button type="submit" class="btn-create">Crear tarea</button>
+            </form>
+          </section>
 
+          <section class="crm-table-section">
+            <h3 class="crm-section-title">Lista de tareas</h3>
 
-        <section class="crm-table-section">
-          <h3 class="crm-section-title">Filtro de tareas</h3>
-
-          <!-- BARRA DE FILTROS -->
-          <div class="crm-filters" id="crmFilters">
-            <label>
-              Buscar título
-              <input type="text" id="filtroTitulo" placeholder="Escribe para buscar…" />
-            </label>
-            <label>
-              Estado
-              <select id="filtroEstado">
-                <option value="">Todos</option>
-                <option value="PENDIENTE">Pendiente</option>
-                <option value="EN_CURSO">En curso</option>
-                <option value="COMPLETADA">Completada</option>
-              </select>
-            </label>
-            <label>
-              Prioridad
-              <select id="filtroPrioridad">
-                <option value="">Todas</option>
-                <option value="ALTA">Alta</option>
-                <option value="MEDIA">Media</option>
-                <option value="BAJA">Baja</option>
-              </select>
-            </label>
-            <label>
-              Responsable
-              <select id="filtroResponsable">
-                <option value="">Todos</option>
-              </select>
-            </label>
-            <label>
-              Cliente
-              <select id="filtroCliente">
-                <option value="">Todos</option>
-              </select>
-            </label>
-            <button class="btn-clear-filters" id="btnLimpiar">✕ Limpiar</button>
-          </div>
-
-          <h3 class="crm-section-title">Lista de tareas</h3>
-
-          <table class="admin-table crm-table">
-            <thead>
-              <tr>
-                <th>Título</th>
-                <th>Cliente</th>
-                <th>Responsable</th>
-                <th>Estado</th>
-                <th>Prioridad</th>
-                <th>Fecha límite</th>
-                <th>Horas</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="crmTbody">
-              <tr th:each="t : ${tareas}" th:attr="
+            <table class="admin-table crm-table">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Cliente</th>
+                  <th>Responsable</th>
+                  <th>Estado</th>
+                  <th>Prioridad</th>
+                  <th>Fecha límite</th>
+                  <th>Horas</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="crmTbody">
+                <tr
+                  th:each="t : ${tareas}"
+                  th:attr="
                     data-titulo=${t.titulo},
                     data-estado=${t.estado},
                     data-prioridad=${t.prioridad},
                     data-responsable=${t.responsable != null ? t.responsable.username : ''},
                     data-cliente=${t.cliente != null ? t.cliente.nombre : ''}
-                  ">
-                <!-- TÍTULO editable solo admin -->
-                <td>
-                  <th:block th:if="${isAdmin}">
-                    <form th:action="@{/menu/crm/editar/{id}(id=${t.id})}" method="post" class="crm-inline-form">
-                      <input type="text" name="titulo" th:value="${t.titulo}" class="crm-inline-input"
-                        onchange="this.form.submit()" />
-                    </form>
-                  </th:block>
-                  <th:block th:unless="${isAdmin}">
-                    <span th:text="${t.titulo}"></span>
-                  </th:block>
-                </td>
+                  "
+                >
+                  <!-- TÍTULO editable solo admin -->
+                  <td>
+                    <th:block th:if="${isAdmin}">
+                      <form
+                        th:action="@{/menu/crm/editar/{id}(id=${t.id})}"
+                        method="post"
+                        class="crm-inline-form"
+                      >
+                        <input
+                          type="text"
+                          name="titulo"
+                          th:value="${t.titulo}"
+                          class="crm-inline-input"
+                          onchange="this.form.submit()"
+                        />
+                      </form>
+                    </th:block>
+                    <th:block th:unless="${isAdmin}">
+                      <span th:text="${t.titulo}"></span>
+                    </th:block>
+                  </td>
 
-                <!-- CLIENTE editable solo admin -->
-                <td>
-                  <th:block th:if="${isAdmin}">
-                    <form th:action="@{/menu/crm/editar/{id}(id=${t.id})}" method="post" class="crm-inline-form">
-                      <select name="clienteId" class="crm-inline-select" onchange="this.form.submit()">
-                        <option value="0">Sin cliente</option>
-                        <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nombre}"
-                          th:selected="${t.cliente != null and t.cliente.id == c.id}"></option>
-                      </select>
-                    </form>
-                  </th:block>
-                  <th:block th:unless="${isAdmin}">
-                    <span th:text="${t.cliente != null} ? ${t.cliente.nombre} : '—'"></span>
-                  </th:block>
-                </td>
+                  <!-- CLIENTE editable solo admin -->
+                  <td>
+                    <th:block th:if="${isAdmin}">
+                      <form
+                        th:action="@{/menu/crm/editar/{id}(id=${t.id})}"
+                        method="post"
+                        class="crm-inline-form"
+                      >
+                        <select
+                          name="clienteId"
+                          class="crm-inline-select"
+                          onchange="this.form.submit()"
+                        >
+                          <option value="0">Sin cliente</option>
+                          <option
+                            th:each="c : ${clientes}"
+                            th:value="${c.id}"
+                            th:text="${c.nombre}"
+                            th:selected="${t.cliente != null and t.cliente.id == c.id}"
+                          ></option>
+                        </select>
+                      </form>
+                    </th:block>
+                    <th:block th:unless="${isAdmin}">
+                      <span
+                        th:text="${t.cliente != null} ? ${t.cliente.nombre} : '—'"
+                      ></span>
+                    </th:block>
+                  </td>
 
-                <!-- RESPONSABLE editable solo admin -->
-                <td>
-                  <th:block th:if="${isAdmin}">
-                    <form th:action="@{/menu/crm/editar/{id}(id=${t.id})}" method="post" class="crm-inline-form">
-                      <select name="responsableId" class="crm-inline-select" onchange="this.form.submit()">
-                        <option value="0">Sin responsable</option>
-                        <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.username}"
-                          th:selected="${t.responsable != null and t.responsable.id == u.id}"></option>
-                      </select>
-                    </form>
-                  </th:block>
-                  <th:block th:unless="${isAdmin}">
-                    <span th:text="${t.responsable != null} ? ${t.responsable.username} : '—'"></span>
-                  </th:block>
-                </td>
+                  <!-- RESPONSABLE editable solo admin -->
+                  <td>
+                    <th:block th:if="${isAdmin}">
+                      <form
+                        th:action="@{/menu/crm/editar/{id}(id=${t.id})}"
+                        method="post"
+                        class="crm-inline-form"
+                      >
+                        <select
+                          name="responsableId"
+                          class="crm-inline-select"
+                          onchange="this.form.submit()"
+                        >
+                          <option value="0">Sin responsable</option>
+                          <option
+                            th:each="u : ${usuarios}"
+                            th:value="${u.id}"
+                            th:text="${u.username}"
+                            th:selected="${t.responsable != null and t.responsable.id == u.id}"
+                          ></option>
+                        </select>
+                      </form>
+                    </th:block>
+                    <th:block th:unless="${isAdmin}">
+                      <span
+                        th:text="${t.responsable != null} ? ${t.responsable.username} : '—'"
+                      ></span>
+                    </th:block>
+                  </td>
 
-                <!-- ESTADO: select para todos (admin y usuario) -->
-                <td>
-                  <form th:action="@{/menu/crm/editar/{id}(id=${t.id})}" method="post" class="crm-inline-form"
-                    th:if="${isAdmin or (t.responsable != null and t.responsable.id == session.userId)}">
-                    <select name="estado" class="crm-inline-select" onchange="this.form.submit()"
-                      th:classappend="${t.estado == 'COMPLETADA'} ? 'select-completada' : (${t.estado == 'EN_CURSO'} ? 'select-en-curso' : 'select-pendiente')">
-                      <option value="PENDIENTE" th:selected="${t.estado == 'PENDIENTE'}">Pendiente</option>
-                      <option value="EN_CURSO" th:selected="${t.estado == 'EN_CURSO'}">En curso</option>
-                      <option value="COMPLETADA" th:selected="${t.estado == 'COMPLETADA'}">Completada</option>
-                    </select>
-                  </form>
-                  <span th:unless="${isAdmin or (t.responsable != null and t.responsable.id == session.userId)}"
-                    class="badge"
-                    th:classappend="${t.estado == 'COMPLETADA'} ? 'badge-active' : (${t.estado == 'EN_CURSO'} ? 'badge-user' : 'badge-blocked')"
-                    th:text="${t.estado}">
-                  </span>
-                </td>
-
-                <!-- PRIORIDAD editable solo admin -->
-                <td>
-                  <th:block th:if="${isAdmin}">
-                    <form th:action="@{/menu/crm/editar/{id}(id=${t.id})}" method="post" class="crm-inline-form">
-                      <select name="prioridad" class="crm-inline-select crm-select-prioridad"
+                  <!-- ESTADO: select para todos (admin y usuario) -->
+                  <td>
+                    <form
+                      th:action="@{/menu/crm/editar/{id}(id=${t.id})}"
+                      method="post"
+                      class="crm-inline-form"
+                      th:if="${isAdmin or (t.responsable != null and t.responsable.id == session.userId)}"
+                    >
+                      <select
+                        name="estado"
+                        class="crm-inline-select"
                         onchange="this.form.submit()"
-                        th:classappend="${t.prioridad == 'ALTA'} ? 'select-alta' : (${t.prioridad == 'MEDIA'} ? 'select-media' : 'select-baja')">
-                        <option value="ALTA" th:selected="${t.prioridad == 'ALTA'}">Alta</option>
-                        <option value="MEDIA" th:selected="${t.prioridad == 'MEDIA'}">Media</option>
-                        <option value="BAJA" th:selected="${t.prioridad == 'BAJA'}">Baja</option>
+                        th:classappend="${t.estado == 'COMPLETADA'} ? 'select-completada' : (${t.estado == 'EN_CURSO'} ? 'select-en-curso' : 'select-pendiente')"
+                      >
+                        <option
+                          value="PENDIENTE"
+                          th:selected="${t.estado == 'PENDIENTE'}"
+                        >
+                          Pendiente
+                        </option>
+                        <option
+                          value="EN_CURSO"
+                          th:selected="${t.estado == 'EN_CURSO'}"
+                        >
+                          En curso
+                        </option>
+                        <option
+                          value="COMPLETADA"
+                          th:selected="${t.estado == 'COMPLETADA'}"
+                        >
+                          Completada
+                        </option>
                       </select>
                     </form>
-                  </th:block>
-                  <th:block th:unless="${isAdmin}">
-                    <span class="badge" th:classappend="${t.prioridad == 'ALTA'} ? 'badge-blocked' : 'badge-user'"
-                      th:text="${t.prioridad}"></span>
-                  </th:block>
-                </td>
-
-                <!-- FECHA LÍMITE editable solo admin -->
-                <td>
-                  <th:block th:if="${isAdmin}">
-                    <form th:action="@{/menu/crm/editar/{id}(id=${t.id})}" method="post" class="crm-inline-form">
-                      <input type="date" name="fechaLimite" th:value="${t.fechaLimite}" class="crm-inline-input"
-                        onchange="this.form.submit()" />
-                    </form>
-                  </th:block>
-                  <th:block th:unless="${isAdmin}">
                     <span
-                      th:text="${t.fechaLimite != null} ? ${#temporals.format(t.fechaLimite, 'dd/MM/yyyy')} : '—'"></span>
-                  </th:block>
-                </td>
+                      th:unless="${isAdmin or (t.responsable != null and t.responsable.id == session.userId)}"
+                      class="badge"
+                      th:classappend="${t.estado == 'COMPLETADA'} ? 'badge-active' : (${t.estado == 'EN_CURSO'} ? 'badge-user' : 'badge-blocked')"
+                      th:text="${t.estado}"
+                    >
+                    </span>
+                  </td>
 
-                <!-- HORAS: editable para admin y para el responsable -->
-                <td>
-                  <form th:action="@{/menu/crm/horas/{id}(id=${t.id})}" method="post" class="crm-inline-form"
-                    th:if="${isAdmin or (t.responsable != null and t.responsable.id == session.userId)}">
-                    <input type="number" step="0.5" min="0" name="horasEmpleadas" th:value="${t.horasEmpleadas}"
-                      class="crm-inline-input crm-input-horas" onchange="this.form.submit()" />
-                  </form>
-                  <span th:unless="${isAdmin or (t.responsable != null and t.responsable.id == session.userId)}"
-                    th:text="${t.horasEmpleadas != null} ? ${t.horasEmpleadas} : '—'"></span>
-                </td>
+                  <!-- PRIORIDAD editable solo admin -->
+                  <td>
+                    <th:block th:if="${isAdmin}">
+                      <form
+                        th:action="@{/menu/crm/editar/{id}(id=${t.id})}"
+                        method="post"
+                        class="crm-inline-form"
+                      >
+                        <select
+                          name="prioridad"
+                          class="crm-inline-select crm-select-prioridad"
+                          onchange="this.form.submit()"
+                          th:classappend="${t.prioridad == 'ALTA'} ? 'select-alta' : (${t.prioridad == 'MEDIA'} ? 'select-media' : 'select-baja')"
+                        >
+                          <option
+                            value="ALTA"
+                            th:selected="${t.prioridad == 'ALTA'}"
+                          >
+                            Alta
+                          </option>
+                          <option
+                            value="MEDIA"
+                            th:selected="${t.prioridad == 'MEDIA'}"
+                          >
+                            Media
+                          </option>
+                          <option
+                            value="BAJA"
+                            th:selected="${t.prioridad == 'BAJA'}"
+                          >
+                            Baja
+                          </option>
+                        </select>
+                      </form>
+                    </th:block>
+                    <th:block th:unless="${isAdmin}">
+                      <span
+                        class="badge"
+                        th:classappend="${t.prioridad == 'ALTA'} ? 'badge-blocked' : 'badge-user'"
+                        th:text="${t.prioridad}"
+                      ></span>
+                    </th:block>
+                  </td>
 
-                <!-- ACCIONES -->
-                <td class="admin-actions">
-                  <button type="button" class="btn-detail"
-                    th:attr="data-titulo=${t.titulo}, data-descripcion=${t.descripcion}">
-                    Detalles
-                  </button>
+                  <!-- FECHA LÍMITE editable solo admin -->
+                  <td>
+                    <th:block th:if="${isAdmin}">
+                      <form
+                        th:action="@{/menu/crm/editar/{id}(id=${t.id})}"
+                        method="post"
+                        class="crm-inline-form"
+                      >
+                        <input
+                          type="date"
+                          name="fechaLimite"
+                          th:value="${t.fechaLimite}"
+                          class="crm-inline-input"
+                          onchange="this.form.submit()"
+                        />
+                      </form>
+                    </th:block>
+                    <th:block th:unless="${isAdmin}">
+                      <span
+                        th:text="${t.fechaLimite != null} ? ${#temporals.format(t.fechaLimite, 'dd/MM/yyyy')} : '—'"
+                      ></span>
+                    </th:block>
+                  </td>
 
-                  <form th:if="${isAdmin}" th:action="@{/menu/crm/eliminar/{id}(id=${t.id})}" method="post"
-                    data-confirm="¿Seguro que quieres eliminar esta tarea? Esta acción no se puede deshacer."
-                    data-danger="true">
-                    <button type="submit" class="btn-delete">Eliminar</button>
-                  </form>
+                  <!-- HORAS: editable para admin y para el responsable -->
+                  <td>
+                    <form
+                      th:action="@{/menu/crm/horas/{id}(id=${t.id})}"
+                      method="post"
+                      class="crm-inline-form"
+                      th:if="${isAdmin or (t.responsable != null and t.responsable.id == session.userId)}"
+                    >
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        name="horasEmpleadas"
+                        th:value="${t.horasEmpleadas}"
+                        class="crm-inline-input crm-input-horas"
+                        onchange="this.form.submit()"
+                      />
+                    </form>
+                    <span
+                      th:unless="${isAdmin or (t.responsable != null and t.responsable.id == session.userId)}"
+                      th:text="${t.horasEmpleadas != null} ? ${t.horasEmpleadas} : '—'"
+                    ></span>
+                  </td>
 
-                  <form th:if="${!isAdmin and t.responsable == null}" th:action="@{/menu/crm/asignar/{id}(id=${t.id})}"
-                    method="post" data-confirm="¿Quieres asignarte esta tarea?">
-                    <button type="submit" class="btn-approve">Asignarme</button>
-                  </form>
-                </td>
-              </tr>
-              <tr th:if="${#lists.isEmpty(tareas)}">
-                <td colspan="8" class="crm-empty">No hay tareas</td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr id="noResultsRow" style="display:none;">
-                <td colspan="8" class="crm-empty">No hay tareas que coincidan con los filtros</td>
-              </tr>
-            </tfoot>
-          </table>
-        </section>
-      </div>
-    </div>
+                  <!-- ACCIONES -->
+                  <td class="admin-actions">
+                    <button
+                      type="button"
+                      class="btn-detail"
+                      th:attr="data-titulo=${t.titulo}, data-descripcion=${t.descripcion}"
+                    >
+                      Detalles
+                    </button>
 
-    <!-- MODAL DETALLE -->
-    <div class="modal-overlay" id="detailModal">
-      <div class="modal-box">
-        <h3 class="modal-title" id="detailTitle">Detalle</h3>
-        <p class="modal-message" id="detailMessage" style="white-space: pre-wrap;"></p>
-        <div class="modal-actions">
-          <button type="button" class="btn-cancel" id="detailClose">Cerrar</button>
+                    <form
+                      th:if="${isAdmin}"
+                      th:action="@{/menu/crm/eliminar/{id}(id=${t.id})}"
+                      method="post"
+                      data-confirm="¿Seguro que quieres eliminar esta tarea? Esta acción no se puede deshacer."
+                      data-danger="true"
+                    >
+                      <button type="submit" class="btn-delete">Eliminar</button>
+                    </form>
+
+                    <form
+                      th:if="${!isAdmin and t.responsable == null}"
+                      th:action="@{/menu/crm/asignar/{id}(id=${t.id})}"
+                      method="post"
+                      data-confirm="¿Quieres asignarte esta tarea?"
+                    >
+                      <button type="submit" class="btn-approve">
+                        Asignarme
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(tareas)}">
+                  <td colspan="8" class="crm-empty">No hay tareas</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr id="noResultsRow" style="display: none">
+                  <td colspan="8" class="crm-empty">
+                    No hay tareas que coincidan con los filtros
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </section>
         </div>
       </div>
+
+      <!-- MODAL DETALLE -->
+      <div class="modal-overlay" id="detailModal">
+        <div class="modal-box">
+          <h3 class="modal-title" id="detailTitle">Detalle</h3>
+          <p
+            class="modal-message"
+            id="detailMessage"
+            style="white-space: pre-wrap"
+          ></p>
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" id="detailClose">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          /* ---------- MODAL DETALLE ---------- */
+          var detailOverlay = document.getElementById("detailModal");
+          var detailTitle = document.getElementById("detailTitle");
+          var detailMessage = document.getElementById("detailMessage");
+          var detailClose = document.getElementById("detailClose");
+
+          document.querySelectorAll(".btn-detail").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              detailTitle.textContent = btn.dataset.titulo;
+              detailMessage.textContent =
+                btn.dataset.descripcion || "Sin descripción";
+              detailOverlay.classList.add("show");
+            });
+          });
+
+          detailClose.addEventListener("click", function () {
+            detailOverlay.classList.remove("show");
+          });
+
+          detailOverlay.addEventListener("click", function (event) {
+            if (event.target === detailOverlay)
+              detailOverlay.classList.remove("show");
+          });
+
+          /* ---------- FILTROS ---------- */
+          var rows = Array.from(
+            document.querySelectorAll("#crmTbody tr[data-estado]"),
+          );
+          var noResults = document.getElementById("noResultsRow");
+
+          function poblarSelect(id, dataKey) {
+            var select = document.getElementById(id);
+            var valores = [
+              ...new Set(
+                rows
+                  .map(function (r) {
+                    return r.dataset[dataKey];
+                  })
+                  .filter(Boolean),
+              ),
+            ].sort();
+            valores.forEach(function (v) {
+              var opt = document.createElement("option");
+              opt.value = v;
+              opt.textContent = v;
+              select.appendChild(opt);
+            });
+          }
+          poblarSelect("filtroResponsable", "responsable");
+          poblarSelect("filtroCliente", "cliente");
+
+          function filtrar() {
+            var titulo = document
+              .getElementById("filtroTitulo")
+              .value.toLowerCase()
+              .trim();
+            var estado = document.getElementById("filtroEstado").value;
+            var prioridad = document.getElementById("filtroPrioridad").value;
+            var responsable =
+              document.getElementById("filtroResponsable").value;
+            var cliente = document.getElementById("filtroCliente").value;
+
+            var visibles = 0;
+            rows.forEach(function (row) {
+              var ok =
+                (!titulo ||
+                  row.dataset.titulo.toLowerCase().includes(titulo)) &&
+                (!estado || row.dataset.estado === estado) &&
+                (!prioridad || row.dataset.prioridad === prioridad) &&
+                (!responsable || row.dataset.responsable === responsable) &&
+                (!cliente || row.dataset.cliente === cliente);
+
+              row.style.display = ok ? "" : "none";
+              if (ok) visibles++;
+            });
+
+            if (noResults)
+              noResults.style.display = visibles === 0 ? "" : "none";
+          }
+
+          [
+            "filtroTitulo",
+            "filtroEstado",
+            "filtroPrioridad",
+            "filtroResponsable",
+            "filtroCliente",
+          ].forEach(function (id) {
+            document.getElementById(id).addEventListener("input", filtrar);
+          });
+
+          document
+            .getElementById("btnLimpiar")
+            .addEventListener("click", function () {
+              [
+                "filtroTitulo",
+                "filtroEstado",
+                "filtroPrioridad",
+                "filtroResponsable",
+                "filtroCliente",
+              ].forEach(function (id) {
+                document.getElementById(id).value = "";
+              });
+              filtrar();
+            });
+        })();
+      </script>
     </div>
-
-    <script>
-      (function () {
-        /* ---------- MODAL DETALLE ---------- */
-        var detailOverlay = document.getElementById('detailModal');
-        var detailTitle = document.getElementById('detailTitle');
-        var detailMessage = document.getElementById('detailMessage');
-        var detailClose = document.getElementById('detailClose');
-
-        document.querySelectorAll('.btn-detail').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            detailTitle.textContent = btn.dataset.titulo;
-            detailMessage.textContent = btn.dataset.descripcion || 'Sin descripción';
-            detailOverlay.classList.add('show');
-          });
-        });
-
-        detailClose.addEventListener('click', function () {
-          detailOverlay.classList.remove('show');
-        });
-
-        detailOverlay.addEventListener('click', function (event) {
-          if (event.target === detailOverlay) detailOverlay.classList.remove('show');
-        });
-
-        /* ---------- FILTROS ---------- */
-        var rows = Array.from(document.querySelectorAll('#crmTbody tr[data-estado]'));
-        var noResults = document.getElementById('noResultsRow');
-
-        function poblarSelect(id, dataKey) {
-          var select = document.getElementById(id);
-          var valores = [...new Set(rows.map(function (r) { return r.dataset[dataKey]; }).filter(Boolean))].sort();
-          valores.forEach(function (v) {
-            var opt = document.createElement('option');
-            opt.value = v;
-            opt.textContent = v;
-            select.appendChild(opt);
-          });
-        }
-        poblarSelect('filtroResponsable', 'responsable');
-        poblarSelect('filtroCliente', 'cliente');
-
-        function filtrar() {
-          var titulo = document.getElementById('filtroTitulo').value.toLowerCase().trim();
-          var estado = document.getElementById('filtroEstado').value;
-          var prioridad = document.getElementById('filtroPrioridad').value;
-          var responsable = document.getElementById('filtroResponsable').value;
-          var cliente = document.getElementById('filtroCliente').value;
-
-          var visibles = 0;
-          rows.forEach(function (row) {
-            var ok =
-              (!titulo || row.dataset.titulo.toLowerCase().includes(titulo)) &&
-              (!estado || row.dataset.estado === estado) &&
-              (!prioridad || row.dataset.prioridad === prioridad) &&
-              (!responsable || row.dataset.responsable === responsable) &&
-              (!cliente || row.dataset.cliente === cliente);
-
-            row.style.display = ok ? '' : 'none';
-            if (ok) visibles++;
-          });
-
-          if (noResults) noResults.style.display = visibles === 0 ? '' : 'none';
-        }
-
-        ['filtroTitulo', 'filtroEstado', 'filtroPrioridad', 'filtroResponsable', 'filtroCliente']
-          .forEach(function (id) {
-            document.getElementById(id).addEventListener('input', filtrar);
-          });
-
-        document.getElementById('btnLimpiar').addEventListener('click', function () {
-          ['filtroTitulo', 'filtroEstado', 'filtroPrioridad', 'filtroResponsable', 'filtroCliente']
-            .forEach(function (id) { document.getElementById(id).value = ''; });
-          filtrar();
-        });
-
-      })();
-    </script>
-  </div>
-</body>
-
+  </body>
 </html>
