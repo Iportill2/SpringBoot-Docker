@@ -3,6 +3,7 @@ package com.miproyecto.clienterest.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.miproyecto.clienterest.dto.ClienteDTO;
 import com.miproyecto.clienterest.service.ClienteService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
@@ -45,11 +47,17 @@ public class ClienteController {
         return "redirect:/menu/clientes";
     }
 
+    @PutMapping("/clientes/{id}")
+    @ResponseBody
+    public ClienteDTO updateClient(@PathVariable Integer id, @RequestBody ClienteDTO clienteDTO) {
+        return clienteServ.update(id, clienteDTO);
+    }
+
     @PostMapping("/clientes/eliminar/{id}")
     public String deleteClient(@PathVariable Integer id) {
 
         clienteServ.deleteCliente(id);
-        
+
         return "redirect:/menu/clientes";
     }
 

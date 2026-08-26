@@ -741,6 +741,73 @@ body {
 	text-align: center;
 }
 
+/* ── Filtro admin ── */
+.admin-filter-section {
+	width: 100%;
+	box-sizing: border-box;
+	background-color: white;
+	border-radius: 10px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	padding: 1.25rem 1.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.admin-section-title {
+	color: #1e293b;
+	font-size: 1rem;
+	margin-bottom: 1rem;
+}
+
+.admin-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	align-items: flex-end;
+}
+
+.admin-filters label {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	font-size: 0.78rem;
+	color: #475569;
+	font-weight: 600;
+}
+
+.admin-filters input,
+.admin-filters select {
+	padding: 0.45rem 0.6rem;
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	color: #334155;
+	background-color: white;
+	min-width: 150px;
+}
+
+.admin-filters input:focus,
+.admin-filters select:focus {
+	outline: none;
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.admin-btn-clear-filters {
+	padding: 0.45rem 0.9rem;
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	background-color: #f8fafc;
+	color: #475569;
+	font-size: 0.8rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+
+.admin-btn-clear-filters:hover {
+	background-color: #e2e8f0;
+}
+
 .admin-layout {
 	display: flex;
 	justify-content: center;
@@ -1432,6 +1499,7 @@ body {
 /* ── Filtro ── */
 .cliente-filter-section {
 	width: 100%;
+	box-sizing: border-box;
 	background-color: white;
 	border-radius: 10px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -1627,6 +1695,45 @@ body {
 	color: #64748b;
 	padding: 1.5rem !important;
 	text-align: center;
+}
+
+/* ── Celdas editables ── */
+.cliente-table td.editable {
+	cursor: pointer;
+	position: relative;
+}
+
+.cliente-table td.editable:hover {
+	background-color: #eff6ff;
+}
+
+/* pequeño icono de lápiz que aparece al pasar el ratón */
+.cliente-table td.editable:hover::after {
+	content: "✎";
+	position: absolute;
+	right: 0.4rem;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #3b82f6;
+	font-size: 0.75rem;
+	opacity: 0.7;
+}
+
+.cliente-table td.editable input {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 0.3rem 0.4rem;
+	border: 1px solid #3b82f6;
+	border-radius: 4px;
+	font-size: 0.78rem;
+	color: #334155;
+	background-color: white;
+	font-family: inherit;
+}
+
+.cliente-table td.editable input:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 
@@ -1983,4 +2090,199 @@ body {
 
 [data-theme="dark"] .backup-log-content {
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Dark: sección cliente ── */
+[data-theme="dark"] .cliente-title,
+[data-theme="dark"] .cliente-table-title {
+	color: #e2e8f0;
+}
+
+[data-theme="dark"] .cliente-section-title,
+[data-theme="dark"] .admin-section-title {
+	color: #94a3b8;
+}
+
+[data-theme="dark"] .cliente-filter-section,
+[data-theme="dark"] .admin-filter-section,
+[data-theme="dark"] .cliente-form-section,
+[data-theme="dark"] .cliente-table {
+	background-color: #1e293b;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .cliente-filters input,
+[data-theme="dark"] .cliente-filters select,
+[data-theme="dark"] .admin-filters input,
+[data-theme="dark"] .admin-filters select,
+[data-theme="dark"] .cliente-form input {
+	background-color: #0f172a;
+	color: #e2e8f0;
+	border-color: #334155;
+}
+
+[data-theme="dark"] .cliente-filters input:focus,
+[data-theme="dark"] .cliente-filters select:focus,
+[data-theme="dark"] .admin-filters input:focus,
+[data-theme="dark"] .admin-filters select:focus,
+[data-theme="dark"] .cliente-form input:focus {
+	border-color: #3b82f6;
+}
+
+[data-theme="dark"] .cliente-btn-clear-filters,
+[data-theme="dark"] .admin-btn-clear-filters {
+	background-color: #1e293b;
+	border-color: #334155;
+	color: #94a3b8;
+}
+
+[data-theme="dark"] .cliente-btn-clear-filters:hover,
+[data-theme="dark"] .admin-btn-clear-filters:hover {
+	background-color: #334155;
+	color: #e2e8f0;
+}
+
+[data-theme="dark"] .cliente-table td {
+	border-bottom: 1px solid #334155;
+	color: #cbd5e1;
+}
+
+[data-theme="dark"] .cliente-table tbody tr:hover {
+	background-color: #334155;
+}
+
+[data-theme="dark"] .cliente-table td.editable:hover {
+	background-color: #1e3a5f;
+}
+
+[data-theme="dark"] .cliente-table td.editable input {
+	background-color: #0f172a;
+	color: #e2e8f0;
+	border-color: #3b82f6;
+}
+
+[data-theme="dark"] .cliente-empty {
+	color: #64748b;
+}
+
+/* ── Dark: CRM tareas ── */
+[data-theme="dark"] .crm-form-section,
+[data-theme="dark"] .crm-table {
+	background-color: #1e293b;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .crm-section-title {
+	color: #94a3b8;
+}
+
+[data-theme="dark"] .crm-form label {
+	color: #cbd5e1;
+}
+
+[data-theme="dark"] .crm-form input,
+[data-theme="dark"] .crm-form select,
+[data-theme="dark"] .crm-form textarea {
+	background-color: #0f172a;
+	color: #e2e8f0;
+	border-color: #334155;
+}
+
+[data-theme="dark"] .crm-form input:focus,
+[data-theme="dark"] .crm-form select:focus,
+[data-theme="dark"] .crm-form textarea:focus {
+	border-color: #3b82f6;
+}
+
+[data-theme="dark"] .crm-table th,
+[data-theme="dark"] .crm-table td {
+	color: #cbd5e1;
+	border-bottom: 1px solid #334155;
+}
+
+[data-theme="dark"] .crm-table tbody tr:hover {
+	background-color: #334155;
+}
+
+[data-theme="dark"] .crm-empty {
+	color: #64748b;
+}
+
+[data-theme="dark"] .btn-detail {
+	background-color: #475569;
+}
+
+[data-theme="dark"] .btn-detail:hover {
+	background-color: #334155;
+}
+
+/* ── Inline inputs/selects dentro de la tabla ── */
+[data-theme="dark"] .crm-inline-input,
+[data-theme="dark"] .crm-inline-select {
+	background-color: #0f172a;
+	color: #e2e8f0;
+	border-color: #334155;
+}
+
+[data-theme="dark"] .crm-inline-input:hover,
+[data-theme="dark"] .crm-inline-input:focus,
+[data-theme="dark"] .crm-inline-select:hover,
+[data-theme="dark"] .crm-inline-select:focus {
+	border-color: #3b82f6;
+	background-color: #1e293b;
+}
+
+/* Colores semánticos: mismo hue, aclarados para leerse sobre fondo oscuro */
+[data-theme="dark"] .select-pendiente {
+	color: #f87171;
+	border-left-color: #f87171;
+}
+
+[data-theme="dark"] .select-en-curso {
+	color: #38bdf8;
+	border-left-color: #38bdf8;
+}
+
+[data-theme="dark"] .select-completada {
+	color: #4ade80;
+	border-left-color: #4ade80;
+}
+
+/* ── Barra de filtros de tareas ── */
+[data-theme="dark"] .crm-filters {
+	background: #1e293b;
+	border-color: #334155;
+}
+
+[data-theme="dark"] .crm-filters label {
+	color: #94a3b8;
+}
+
+[data-theme="dark"] .crm-filters input,
+[data-theme="dark"] .crm-filters select {
+	background: #0f172a;
+	color: #e2e8f0;
+	border-color: #334155;
+}
+
+[data-theme="dark"] .btn-clear-filters {
+	background: #1e293b;
+	border-color: #334155;
+	color: #94a3b8;
+}
+
+[data-theme="dark"] .btn-clear-filters:hover {
+	background: #334155;
+	color: #e2e8f0;
+}
+
+/* ── Flash messages ── */
+[data-theme="dark"] .flash-message {
+	background-color: #14532d;
+	color: #bbf7d0;
+}
+
+[data-theme="dark"] .flash-error {
+	background-color: #7f1d1d;
+	color: #fecaca;
 }

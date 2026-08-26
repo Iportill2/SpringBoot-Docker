@@ -6,6 +6,26 @@
     <div class="admin-page">
       <h2 class="admin-title">Gestión de usuarios</h2>
 
+      <section class="admin-filter-section">
+        <h3 class="admin-section-title">Filtro de usuarios</h3>
+        <div class="admin-filters" id="adminFilters">
+          <label>
+            Buscar nombre
+            <input type="text" id="filtroAdminNombre" placeholder="Escribe para buscar…" />
+          </label>
+          <label>
+            Rol
+            <select id="filtroAdminRol">
+              <option value="">Todos</option>
+              <option value="__sinrol__">Sin rol</option>
+              <option th:each="r : ${#sets.toSet(users.![role])}" th:if="${r != null}"
+                      th:value="${r.name}" th:text="${r.name}"></option>
+            </select>
+          </label>
+          <button class="admin-btn-clear-filters" id="btnLimpiarAdmin" type="button">✕ Limpiar</button>
+        </div>
+      </section>
+
       <div class="admin-layout">
         <table class="admin-table">
           <thead>
@@ -18,7 +38,10 @@
           </thead>
 
           <tbody>
-            <tr th:each="u : ${users}">
+            <tr th:each="u : ${users}" th:attr="
+                  data-username=${u.username},
+                  data-rol=${u.role != null ? u.role.name : '__sinrol__'}
+                ">
               <td th:text="${u.username}"></td>
               <td th:text="${u.email}"></td>
               <td>
@@ -44,6 +67,32 @@
         </table>
       </div>
     </div>
+
+    <script>
+      (function () {
+        var filas = Array.from(document.querySelectorAll('.admin-table tbody tr[data-username]'));
+
+        function filtrar() {
+          var nombre = document.getElementById('filtroAdminNombre').value.toLowerCase().trim();
+          var rol = document.getElementById('filtroAdminRol').value;
+
+          filas.forEach(function (fila) {
+            var okNombre = !nombre || fila.dataset.username.toLowerCase().includes(nombre);
+            var okRol = !rol || fila.dataset.rol === rol;
+            fila.style.display = (okNombre && okRol) ? '' : 'none';
+          });
+        }
+
+        document.getElementById('filtroAdminNombre').addEventListener('input', filtrar);
+        document.getElementById('filtroAdminRol').addEventListener('change', filtrar);
+
+        document.getElementById('btnLimpiarAdmin').addEventListener('click', function () {
+          document.getElementById('filtroAdminNombre').value = '';
+          document.getElementById('filtroAdminRol').value = '';
+          filtrar();
+        });
+      })();
+    </script>
   </div>
 </body>
 

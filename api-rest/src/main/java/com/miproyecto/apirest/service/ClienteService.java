@@ -63,6 +63,9 @@ public class ClienteService {
             return null;
         }
         existing.setNombre(cliente.getNombre());
+        existing.setPersonaContacto(cliente.getPersonaContacto());
+        existing.setTelefono(cliente.getTelefono());
+        existing.setDireccion(cliente.getDireccion());
         return clienteRepo.save(existing);
     }
 

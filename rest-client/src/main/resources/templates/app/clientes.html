@@ -3,16 +3,16 @@
 
 <body>
     <div layout:fragment="content">
-        <div class="crm-page-full">
-            <h2 class="admin-title">Clientes</h2>
+        <div class="cliente-page-full">
+            <h2 class="cliente-title">Clientes</h2>
 
             <div th:if="${message}" class="flash-message" th:text="${message}"></div>
             <div th:if="${error}" class="flash-message flash-error" th:text="${error}"></div>
 
             <!-- FILTRO: ancho completo arriba -->
-            <section class="crm-filter-section" th:if="${isAdmin}">
-                <h3 class="crm-section-title">Filtro de clientes</h3>
-                <div class="crm-filters" id="clienteFilters">
+            <section class="cliente-filter-section" th:if="${isAdmin}">
+                <h3 class="cliente-section-title">Filtro de clientes</h3>
+                <div class="cliente-filters" id="clienteFilters">
                     <label>
                         Buscar nombre
                         <input type="text" id="filtroNombre" placeholder="Escribe para buscar…" />
@@ -25,22 +25,22 @@
                         Teléfono
                         <input type="text" id="filtroTelefono" placeholder="Escribe para buscar…" />
                     </label>
-                    <button class="btn-clear-filters" id="btnLimpiarCliente">✕ Limpiar</button>
+                    <button class="cliente-btn-clear-filters" id="btnLimpiarCliente" type="button">✕ Limpiar</button>
                 </div>
             </section>
 
-            <div class="crm-layout">
+            <div class="cliente-layout">
 
                 <!-- FORM: izquierda -->
                 <section class="cliente-form-section">
-                    <h3 class="crm-section-title">Añadir Cliente</h3>
-                    <form th:action="@{/menu/clientes}" th:object="${clienteForm}" method="post" class="crm-form">
+                    <h3 class="cliente-section-title">Añadir Cliente</h3>
+                    <form th:action="@{/menu/clientes}" th:object="${clienteForm}" method="post" class="cliente-form">
                         <input type="text" th:field="*{nombre}" placeholder="Nombre" required />
                         <input type="text" th:field="*{personaContacto}" placeholder="Persona de contacto" />
                         <input type="text" th:field="*{telefono}" placeholder="Teléfono" />
                         <input type="text" th:field="*{direccion}" placeholder="Dirección" />
                         <input type="date" th:field="*{fechaAlta}" />
-                        <button type="submit">Guardar</button>
+                        <button type="submit" class="btn-create">Guardar</button>
                     </form>
                 </section>
 
@@ -59,18 +59,22 @@
                         </thead>
                         <tbody id="clienteTbody">
                             <tr th:each="c : ${clientes}" th:attr="
+                                    data-id=${c.id},
                                     data-nombre=${c.nombre},
                                     data-contacto=${c.personaContacto},
-                                    data-telefono=${c.telefono}
+                                    data-telefono=${c.telefono},
+                                    data-direccion=${c.direccion}
                                   ">
-                                <td th:text="${c.nombre}"></td>
-                                <td th:text="${c.personaContacto != null} ? ${c.personaContacto} : '—'"></td>
-                                <td th:text="${c.telefono != null} ? ${c.telefono} : '—'"></td>
-                                <td th:text="${c.direccion != null} ? ${c.direccion} : '—'"></td>
-                                <td
-                                    th:text="${c.fechaAlta != null} ? ${#temporals.format(c.fechaAlta, 'dd/MM/yyyy')} : '—'">
+                                <td class="editable" data-field="nombre" th:text="${c.nombre}"></td>
+                                <td class="editable" data-field="personaContacto"
+                                    th:text="${c.personaContacto != null} ? ${c.personaContacto} : '—'"></td>
+                                <td class="editable" data-field="telefono"
+                                    th:text="${c.telefono != null} ? ${c.telefono} : '—'"></td>
+                                <td class="editable" data-field="direccion"
+                                    th:text="${c.direccion != null} ? ${c.direccion} : '—'"></td>
+                                <td th:text="${c.fechaAlta != null} ? ${#temporals.format(c.fechaAlta, 'dd/MM/yyyy')} : '—'">
                                 </td>
-                                <td class="admin-actions">
+                                <td class="cliente-actions">
                                     <form th:if="${isAdmin}" th:action="@{/menu/clientes/eliminar/{id}(id=${c.id})}"
                                         method="post"
                                         data-confirm="¿Seguro que quieres eliminar este cliente? Esta acción no se puede deshacer."
@@ -80,7 +84,7 @@
                                 </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(clientes)}">
-                                <td colspan="6" class="crm-empty">No hay clientes</td>
+                                <td colspan="6" class="cliente-empty">No hay clientes</td>
                             </tr>
                         </tbody>
                     </table>
@@ -90,8 +94,9 @@
 
         <script>
             (function () {
-                var rows = Array.from(document.querySelectorAll('#clienteTbody tr[data-nombre]'));
+                var rows = Array.from(document.querySelectorAll('#clienteTbody tr[data-id]'));
 
+                // ===== FILTRO =====
                 function filtrar() {
                     var nombre = document.getElementById('filtroNombre').value.toLowerCase().trim();
                     var contacto = document.getElementById('filtroContacto').value.toLowerCase().trim();
@@ -108,14 +113,108 @@
                 }
 
                 ['filtroNombre', 'filtroContacto', 'filtroTelefono'].forEach(function (id) {
-                    document.getElementById(id).addEventListener('input', filtrar);
+                    var el = document.getElementById(id);
+                    if (el) el.addEventListener('input', filtrar);
                 });
 
-                document.getElementById('btnLimpiarCliente').addEventListener('click', function () {
-                    ['filtroNombre', 'filtroContacto', 'filtroTelefono'].forEach(function (id) {
-                        document.getElementById(id).value = '';
+                var btnLimpiar = document.getElementById('btnLimpiarCliente');
+                if (btnLimpiar) {
+                    btnLimpiar.addEventListener('click', function () {
+                        ['filtroNombre', 'filtroContacto', 'filtroTelefono'].forEach(function (id) {
+                            document.getElementById(id).value = '';
+                        });
+                        filtrar();
                     });
-                    filtrar();
+                }
+
+                // ===== EDICIÓN INLINE =====
+                var tbody = document.getElementById('clienteTbody');
+                if (!tbody) return;
+
+                var datasetKeyPorCampo = {
+                    nombre: 'nombre',
+                    personaContacto: 'contacto',
+                    telefono: 'telefono',
+                    direccion: 'direccion'
+                };
+
+                tbody.addEventListener('click', function (e) {
+                    var celda = e.target.closest('td.editable');
+                    if (!celda || celda.querySelector('input')) return; // ya en edición
+
+                    var valorActual = celda.textContent.trim();
+                    valorActual = valorActual === '—' ? '' : valorActual;
+
+                    var input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = valorActual;
+                    celda.textContent = '';
+                    celda.appendChild(input);
+                    input.focus();
+                    input.select();
+
+                    var yaGuardando = false;
+
+                    function cancelar() {
+                        celda.textContent = valorActual || '—';
+                    }
+
+                    function guardar() {
+                        if (yaGuardando) return;
+                        yaGuardando = true;
+
+                        var fila = celda.closest('tr');
+                        var id = fila.dataset.id;
+                        var campo = celda.dataset.field;
+                        var nuevoValor = input.value.trim();
+
+                        if (nuevoValor === valorActual) {
+                            cancelar();
+                            return;
+                        }
+
+                        // Se manda el objeto completo (menos fechaAlta) para no
+                        // pisar el resto de campos al hacer el PUT.
+                        var payload = {
+                            nombre: fila.dataset.nombre,
+                            personaContacto: fila.dataset.contacto,
+                            telefono: fila.dataset.telefono,
+                            direccion: fila.dataset.direccion
+                        };
+                        payload[campo] = nuevoValor;
+
+                        fetch('/menu/clientes/' + id, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        })
+                            .then(function (res) {
+                                if (!res.ok) throw new Error('Error al guardar');
+                                return res.json();
+                            })
+                            .then(function (clienteActualizado) {
+                                var valorFinal = clienteActualizado[campo];
+                                celda.textContent = (valorFinal === null || valorFinal === undefined || valorFinal === '')
+                                    ? '—' : valorFinal;
+                                fila.dataset[datasetKeyPorCampo[campo]] = valorFinal || '';
+                            })
+                            .catch(function () {
+                                cancelar();
+                                alert('No se pudo guardar el cambio');
+                            });
+                    }
+
+                    input.addEventListener('blur', guardar);
+                    input.addEventListener('keydown', function (ev) {
+                        if (ev.key === 'Enter') {
+                            ev.preventDefault();
+                            input.blur();
+                        }
+                        if (ev.key === 'Escape') {
+                            yaGuardando = true; // evita que el blur posterior guarde
+                            cancelar();
+                        }
+                    });
                 });
             })();
         </script>
