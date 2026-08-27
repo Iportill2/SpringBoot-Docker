@@ -65,13 +65,14 @@ public class UserQuestionController {
 		List<UserQuestion> temp = userQuestionServ.findByUser(id);
 
 		if (temp.isEmpty())
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.ok(List.of());
 
 		List<UserQuestionDTO> dtoList = temp.stream()
 				.map(uq -> new UserQuestionDTO(
+						uq.getId(),
 						uq.getUser().getId(),
 						uq.getQuestion().getId(),
-						uq.getQuestion().getText(), // Ajusta getTexto() al getter real de tu entidad Question
+						uq.getQuestion().getText(),
 						uq.getAnswer()))
 				.toList();
 

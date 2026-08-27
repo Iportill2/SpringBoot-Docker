@@ -42,12 +42,22 @@ public class BackupController {
             return "redirect:/login";
         }
 
-        backupService.createBackup(actorOf(session));
+        try {
 
-        redirectAttributes.addFlashAttribute(
-                "popup",
-                "Backup creado correctamente"
-        );
+            backupService.createBackup(actorOf(session));
+
+            redirectAttributes.addFlashAttribute(
+                    "popup",
+                    "Backup creado correctamente"
+            );
+
+        } catch (RestClientException e) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "No se pudo crear el backup: " + e.getMessage()
+            );
+        }
 
         return "redirect:/menu/backups";
     }
@@ -61,10 +71,21 @@ public class BackupController {
             return "redirect:/login";
         }
 
-        model.addAttribute(
-            "backups",
-            backupService.listBackups()
-        );
+        try {
+
+            model.addAttribute(
+                "backups",
+                backupService.listBackups()
+            );
+
+        } catch (RestClientException e) {
+
+            model.addAttribute("backups", java.util.Collections.emptyList());
+            model.addAttribute(
+                    "error",
+                    "No se pudieron cargar los backups: " + e.getMessage()
+            );
+        }
 
         return "app/backups";
     }
@@ -211,7 +232,14 @@ public class BackupController {
             return "redirect:/login";
         }
 
-        model.addAttribute("log", backupService.getLog());
+        try {
+
+            model.addAttribute("log", backupService.getLog());
+
+        } catch (RestClientException e) {
+
+            model.addAttribute("log", "No se pudo cargar el log: " + e.getMessage());
+        }
 
         return "app/backups-log";
     }
@@ -226,11 +254,20 @@ public class BackupController {
                     .build();
         }
 
-        String log = backupService.getLog();
+        try {
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.TEXT_PLAIN)
-                .body(log != null ? log : "");
+            String log = backupService.getLog();
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(log != null ? log : "");
+
+        } catch (RestClientException e) {
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("No se pudo cargar el log: " + e.getMessage());
+        }
     }
 
     private boolean esAdmin(HttpSession session) {
