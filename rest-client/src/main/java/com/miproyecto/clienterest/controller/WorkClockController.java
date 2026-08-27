@@ -110,17 +110,7 @@ public class WorkClockController {
         return "redirect:/menu/clock-in";
     }
 
-    @PostMapping("/reset")
-    public String reset(HttpSession session) {
-        session.removeAttribute("timeEntryId");
-        session.removeAttribute("breakId");
-        session.removeAttribute("startTime");
-        session.removeAttribute("pauseTime");
-        session.removeAttribute("resumeTime");
-        session.removeAttribute("endTime");
-        session.removeAttribute("breakOpen");
-        return "redirect:/menu/clock-in";
-    }
+    
 
     private String formatDate(String rawDateTime) {
         if (rawDateTime == null) {

@@ -21,12 +21,14 @@
 			</div>
 			<div class="clockin-actions">
 				<form th:if="${(startTime == null or endTime != null) and finishedToday != true}"
-					th:action="@{/menu/clock-in/start}" method="post">
+					th:action="@{/menu/clock-in/start}" method="post"
+					data-confirm="¿Quieres iniciar la jornada?">
 					<button type="submit" class="btn-start">Iniciar jornada</button>
 				</form>
 
 				<form th:if="${startTime != null and endTime == null and breakOpen != true}"
-					th:action="@{/menu/clock-in/pause}" method="post">
+					th:action="@{/menu/clock-in/pause}" method="post"
+					data-confirm="¿Quieres pausar la jornada?">
 					<button type="submit" class="btn-pause">Pausar</button>
 				</form>
 
@@ -34,17 +36,15 @@
 					<button type="submit" class="btn-pause">Reanudar</button>
 				</form>
 
-				<form th:if="${startTime != null and endTime == null}" th:action="@{/menu/clock-in/stop}" method="post">
+				<form th:if="${startTime != null and endTime == null}" th:action="@{/menu/clock-in/stop}" method="post"
+					data-confirm="¿Quieres terminar la jornada?" data-danger="true">
 					<button type="submit" class="btn-stop">Terminar jornada</button>
 				</form>
 				<p th:if="${finishedToday == true}" class="worked-summary">
 					Ya has finalizado tu jornada de hoy. ¡Hasta mañana!
 				</p>
 			</div>
-			<form th:action="@{/menu/clock-in/reset}" method="post">
-				<button type="submit" class="btn-reset">Resetear horas</button>
-			</form>
-		</div>
+			</div>
 	</div>
 </body>
 
