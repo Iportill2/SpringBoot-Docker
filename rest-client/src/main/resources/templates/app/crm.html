@@ -331,11 +331,21 @@
         poblarSelect('filtroResponsable', 'responsable');
         poblarSelect('filtroCliente', 'cliente');
 
+        var selectResponsable = document.getElementById('filtroResponsable');
+        var opcionSinAsignar = document.createElement('option');
+        opcionSinAsignar.value = '';
+        opcionSinAsignar.textContent = 'Sin asignar';
+        opcionSinAsignar.setAttribute('data-sin-asignar', 'true');
+        selectResponsable.appendChild(opcionSinAsignar);
+
         function filtrar() {
           var titulo = document.getElementById('filtroTitulo').value.toLowerCase().trim();
           var estado = document.getElementById('filtroEstado').value;
           var prioridad = document.getElementById('filtroPrioridad').value;
-          var responsable = document.getElementById('filtroResponsable').value;
+          var selResponsable = document.getElementById('filtroResponsable');
+          var opcionResponsable = selResponsable.options[selResponsable.selectedIndex];
+          var sinAsignar = opcionResponsable && opcionResponsable.getAttribute('data-sin-asignar') === 'true';
+          var responsable = selResponsable.value;
           var cliente = document.getElementById('filtroCliente').value;
 
           var visibles = 0;
@@ -344,7 +354,7 @@
               (!titulo || row.dataset.titulo.toLowerCase().includes(titulo)) &&
               (!estado || row.dataset.estado === estado) &&
               (!prioridad || row.dataset.prioridad === prioridad) &&
-              (!responsable || row.dataset.responsable === responsable) &&
+              ((!responsable && !sinAsignar) || (sinAsignar ? !row.dataset.responsable : row.dataset.responsable === responsable)) &&
               (!cliente || row.dataset.cliente === cliente);
 
             row.style.display = ok ? '' : 'none';
