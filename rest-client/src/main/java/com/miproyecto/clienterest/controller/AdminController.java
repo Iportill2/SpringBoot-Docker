@@ -119,6 +119,18 @@ public class AdminController {
         return "redirect:/menu/admin";
     }
 
+    @PostMapping("/block/{id}")
+    public String block(@PathVariable Integer id) {
+        adminServ.block(id);
+        return "redirect:/menu/admin";
+    }
+
+    @PostMapping("/reactivate/{id}")
+    public String reactivate(@PathVariable Integer id) {
+        adminServ.reactivate(id);
+        return "redirect:/menu/admin";
+    }
+
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Integer id) {
         adminServ.delete(id);

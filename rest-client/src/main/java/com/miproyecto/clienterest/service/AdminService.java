@@ -57,6 +57,26 @@ public class AdminService {
 		return Boolean.TRUE.equals(result);
 	}
 
+	public Boolean block(Integer id) {
+		Boolean result = restClient.patch()
+				.uri("/api/user/{id}", id)
+				.body(Map.of("role", Map.of("id", 4)))
+				.retrieve()
+				.body(Boolean.class);
+
+		return Boolean.TRUE.equals(result);
+	}
+
+	public Boolean reactivate(Integer id) {
+		Boolean result = restClient.patch()
+				.uri("/api/user/{id}", id)
+				.body(Map.of("role", Map.of("id", 1)))
+				.retrieve()
+				.body(Boolean.class);
+
+		return Boolean.TRUE.equals(result);
+	}
+
 	public Boolean delete(Integer id) {
 
 		List<UserQuestionReadDTO> userQuestions = restClient.get()

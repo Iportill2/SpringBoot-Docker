@@ -45,6 +45,11 @@ public class AuthController {
                     .body(Map.of("error", "Usuario o contraseña incorrectos"));
         }
 
+        if (user.getRole() != null && user.getRole().getId() == 4) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Tu cuenta ha sido bloqueada"));
+        }
+
         if (user.getRole() == null || (user.getRole().getId() != 1 && user.getRole().getId() != 2)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "Tu cuenta aún no ha sido aprobada"));

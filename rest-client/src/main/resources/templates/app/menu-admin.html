@@ -50,6 +50,9 @@
                   <span class="badge badge-blocked" th:if="${u.role == null or u.role.name == 'PENDIENTE'}"
                     th:text="'PENDIENTE'">
                   </span>
+                  <span class="badge badge-blocked" th:if="${u.role != null and u.role.name == 'BLOQUEADO'}"
+                    th:text="'BLOQUEADO'">
+                  </span>
                 </td>
                 <td class="admin-actions">
                   <form th:action="@{/menu/admin/approve/{id}(id=${u.id})}" method="post"
@@ -57,10 +60,16 @@
                     data-confirm="¿Confirmas que quieres aprobar a este usuario?">
                     <button type="submit" class="btn-approve">Aprobar</button>
                   </form>
-                  <form th:action="@{/menu/admin/delete/{id}(id=${u.id})}" method="post"
-                    data-confirm="¿Seguro que quieres eliminar este usuario? Esta acción no se puede deshacer."
+                  <form th:action="@{/menu/admin/reactivate/{id}(id=${u.id})}" method="post"
+                    th:if="${u.role != null and u.role.name == 'BLOQUEADO'}"
+                    data-confirm="¿Seguro que quieres reactivar a este usuario?">
+                    <button type="submit" class="btn-approve">Reactivar</button>
+                  </form>
+                  <form th:action="@{/menu/admin/block/{id}(id=${u.id})}" method="post"
+                    th:if="${u.role != null and u.role.name != 'BLOQUEADO' and u.role.name != 'PENDIENTE'}"
+                    data-confirm="¿Seguro que quieres bloquear a este usuario?"
                     data-danger="true">
-                    <button type="submit" class="btn-delete">Eliminar</button>
+                    <button type="submit" class="btn-delete">Bloquear</button>
                   </form>
                 </td>
               </tr>
@@ -85,7 +94,7 @@
           var presentes = rows
             .map(function (r) { return r.dataset[dataKey]; })
             .filter(Boolean);
-          var valores = [...new Set([...presentes, 'EMPLEADO', 'ADMIN', 'PENDIENTE'])].sort();
+          var valores = [...new Set([...presentes, 'EMPLEADO', 'ADMIN', 'PENDIENTE', 'BLOQUEADO'])].sort();
           valores.forEach(function (v) {
             var opt = document.createElement('option');
             opt.value = v;

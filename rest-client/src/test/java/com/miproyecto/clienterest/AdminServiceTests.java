@@ -82,22 +82,45 @@ class AdminServiceTests {
     }
 
     @Test
-    void blockPatchesBlockedFlag() {
+    void blockPatchesRoleToFour() {
         RestClient.Builder builder = RestClient.builder().baseUrl(BASE);
         MockRestServiceServer server = RestClientTestSupport.bindServer(builder);
         RestClient client = RestClientTestSupport.apiRestClient(builder);
 
         RestClientTestSupport.loginSession("token-admin");
 
-        server.expect(requestTo(BASE + "/api/user/2"))
+        server.expect(requestTo(BASE + "/api/user/4"))
                 .andExpect(method(HttpMethod.PATCH))
                 .andExpect(content().json("""
-                        {"blocked": true}
+                        {"role": {"id": 4}}
                         """))
                 .andRespond(withSuccess("true", MediaType.APPLICATION_JSON));
 
         AdminService service = new AdminService(client);
 
+        assertTrue(service.block(4));
+
+        server.verify();
+    }
+
+    @Test
+    void reactivatePatchesRoleToOne() {
+        RestClient.Builder builder = RestClient.builder().baseUrl(BASE);
+        MockRestServiceServer server = RestClientTestSupport.bindServer(builder);
+        RestClient client = RestClientTestSupport.apiRestClient(builder);
+
+        RestClientTestSupport.loginSession("token-admin");
+
+        server.expect(requestTo(BASE + "/api/user/4"))
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(content().json("""
+                        {"role": {"id": 1}}
+                        """))
+                .andRespond(withSuccess("true", MediaType.APPLICATION_JSON));
+
+        AdminService service = new AdminService(client);
+
+        assertTrue(service.reactivate(4));
 
         server.verify();
     }

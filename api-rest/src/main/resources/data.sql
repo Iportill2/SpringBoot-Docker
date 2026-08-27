@@ -1,8 +1,9 @@
-/* ===== ROLES (se mantienen los 3) ===== */
+/* ===== ROLES (se mantienen los 3, se añade BLOQUEADO) ===== */
 INSERT IGNORE INTO roles (id, name) VALUES
   (1, 'EMPLEADO'),
   (2, 'ADMIN'),
-  (3, 'PENDIENTE');
+  (3, 'PENDIENTE'),
+  (4, 'BLOQUEADO');
 
 /* ===== PREGUNTAS DE SEGURIDAD (20) ===== */
 INSERT IGNORE INTO questions (id, text) VALUES

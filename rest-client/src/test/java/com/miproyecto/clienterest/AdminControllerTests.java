@@ -41,12 +41,12 @@ class AdminControllerTests {
     private BackupClientService backupService;
 
     @Test
-    void listUsersShowsPendingUsers() throws Exception {
+    void listUsersShowsAllUsers() throws Exception {
         AdminUserDTO user = new AdminUserDTO();
         user.setId(1);
         user.setUsername("nuevo");
 
-        when(adminService.findPendingUsers()).thenReturn(List.of(user));
+        when(adminService.findAllUsers()).thenReturn(List.of(user));
 
         mockMvc.perform(get("/menu/admin")
                         .sessionAttr("userId", 1))
@@ -117,6 +117,18 @@ class AdminControllerTests {
                         .sessionAttr("userId", 1))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/menu/admin"));
+
+        verify(adminService).block(3);
+    }
+
+    @Test
+    void reactivateRedirectsAndCallsService() throws Exception {
+        mockMvc.perform(post("/menu/admin/reactivate/3")
+                        .sessionAttr("userId", 1))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/menu/admin"));
+
+        verify(adminService).reactivate(3);
     }
 
     @Test
