@@ -7,9 +7,10 @@
             <div class="profile-card">
                 <h2>Mi perfil</h2>
 
-                <div th:each="uq : ${userQuestions}" class="profile-field">
-                    <span class="profile-label" th:text="${uq.questionText}"></span>
-                    <span class="profile-value" th:text="${uq.answer}"></span>
+                <div th:each="uq : ${userQuestions}" class="profile-field profile-question">
+                    <button type="button" class="btn-reveal-question">Mostrar pregunta</button>
+                    <span class="profile-label" th:text="${uq.questionText}" hidden></span>
+                    <span class="profile-value" th:text="${uq.answer}" hidden></span>
                 </div>
 
 
@@ -32,9 +33,7 @@
                     </span>
                 </div>
 
-                <form th:action="@{/logout}" method="post">
-                    <button type="submit" class="btn-logout-profile">Cerrar sesión</button>
-                </form>
+                
             </div>
         </div>
         <script>
@@ -59,6 +58,18 @@
                     hidden = !hidden;
                     emailValue.textContent = hidden ? mask(realEmail) : realEmail;
                     eyeIcon.innerHTML = hidden ? eyeOpenPath : eyeClosedPath;
+                });
+
+                document.querySelectorAll('.btn-reveal-question').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var field = btn.closest('.profile-field');
+                        var label = field.querySelector('.profile-label');
+                        var value = field.querySelector('.profile-value');
+                        var oculto = label.hidden;
+                        label.hidden = !oculto;
+                        value.hidden = !oculto;
+                        btn.textContent = oculto ? 'Ocultar pregunta' : 'Mostrar pregunta';
+                    });
                 });
             });
         </script>
