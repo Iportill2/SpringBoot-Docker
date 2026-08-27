@@ -37,6 +37,16 @@ public class AdminService {
 				.toList();
 	}
 
+	public List<AdminUserDTO> findAllUsers() {
+		ResponseEntity<List<AdminUserDTO>> response = restClient.get()
+				.uri("/api/user")
+				.retrieve()
+				.toEntity(new ParameterizedTypeReference<List<AdminUserDTO>>() {
+				});
+
+		return response.getBody();
+	}
+
 	public Boolean approve(Integer id) {
 		Boolean result = restClient.patch()
 				.uri("/api/user/{id}", id)

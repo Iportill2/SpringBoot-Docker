@@ -38,7 +38,7 @@ public class AdminController {
     public String listUsers(Model model) {
 
         List<AdminUserDTO> users =
-                adminServ.findPendingUsers();
+                adminServ.findAllUsers();
 
 
         model.addAttribute(

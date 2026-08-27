@@ -932,6 +932,11 @@ body {
 	color: #16a34a;
 }
 
+.badge-plain {
+	background-color: #f1f5f9;
+	color: #475569;
+}
+
 .btn-block,
 .btn-delete {
 	color: white;
@@ -1801,6 +1806,11 @@ html.dark-mode .badge-blocked {
 html.dark-mode .badge-active {
 	background-color: #14532d;
 	color: #bbf7d0;
+}
+
+html.dark-mode .badge-plain {
+	background-color: #334155;
+	color: #cbd5e1;
 }
 
 html.dark-mode .clockin-times,
