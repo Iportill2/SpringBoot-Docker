@@ -36,7 +36,7 @@
             <tbody id="adminTbody">
               <tr th:each="u : ${users}" th:attr="
                 data-username=${u.username != null ? u.username : ''},
-                data-rol=${u.role != null ? u.role.name : ''}
+                data-rol=${(u.role != null and u.role.name != 'PENDIENTE') ? u.role.name : 'PENDIENTE'}
               ">
                 <td th:text="${u.username}"></td>
                 <td th:text="${u.email}"></td>
@@ -47,10 +47,8 @@
                   <span class="badge badge-active" th:if="${u.role != null and u.role.name == 'ADMIN'}"
                     th:text="'ADMIN'">
                   </span>
-                  <span class="badge badge-blocked" th:if="${u.role != null and u.role.name != 'EMPLEADO' and u.role.name != 'ADMIN'}"
-                    th:text="${u.role.name}">
-                  </span>
-                  <span class="badge badge-plain" th:if="${u.role == null}" th:text="'Sin rol'">
+                  <span class="badge badge-blocked" th:if="${u.role == null or u.role.name == 'PENDIENTE'}"
+                    th:text="'PENDIENTE'">
                   </span>
                 </td>
                 <td class="admin-actions">
@@ -94,25 +92,15 @@
         }
         poblarSelect('filtroRol', 'rol');
 
-        var selectRol = document.getElementById('filtroRol');
-        var opcionSinRol = document.createElement('option');
-        opcionSinRol.value = '';
-        opcionSinRol.textContent = 'Sin rol';
-        opcionSinRol.setAttribute('data-sin-rol', 'true');
-        selectRol.appendChild(opcionSinRol);
-
         function filtrar() {
           var nombre = document.getElementById('filtroNombre').value.toLowerCase().trim();
-          var selRol = document.getElementById('filtroRol');
-          var opcionRol = selRol.options[selRol.selectedIndex];
-          var sinRol = opcionRol && opcionRol.getAttribute('data-sin-rol') === 'true';
-          var rol = selRol.value;
+          var rol = document.getElementById('filtroRol').value;
 
           var visibles = 0;
           rows.forEach(function (row) {
             var ok =
               (!nombre || (row.dataset.username || '').toLowerCase().includes(nombre)) &&
-              ((!rol && !sinRol) || (sinRol ? !row.dataset.rol : row.dataset.rol === rol));
+              (!rol || row.dataset.rol === rol);
 
             row.style.display = ok ? '' : 'none';
             if (ok) visibles++;
