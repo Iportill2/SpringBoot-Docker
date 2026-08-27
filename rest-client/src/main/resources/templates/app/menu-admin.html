@@ -82,7 +82,10 @@
 
         function poblarSelect(id, dataKey) {
           var select = document.getElementById(id);
-          var valores = [...new Set(rows.map(function (r) { return r.dataset[dataKey]; }).filter(Boolean))].sort();
+          var presentes = rows
+            .map(function (r) { return r.dataset[dataKey]; })
+            .filter(Boolean);
+          var valores = [...new Set([...presentes, 'EMPLEADO', 'ADMIN', 'PENDIENTE'])].sort();
           valores.forEach(function (v) {
             var opt = document.createElement('option');
             opt.value = v;
