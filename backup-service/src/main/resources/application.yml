@@ -4,6 +4,15 @@ spring:
 
 server:
   port: 8082
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: /dev
+      prefix: stdout
+      buffered: false
+      suffix: ""
+      file-date-format: ""
+      pattern: "%h %l %u %t \"%r\" %s %b"
 
 management:
   endpoints:
