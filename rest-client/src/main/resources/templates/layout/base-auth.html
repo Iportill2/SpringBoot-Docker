@@ -8,7 +8,8 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script th:inline="javascript">
       try {
-        if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
+        var t = localStorage.getItem("theme");
+        if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches))
           document.documentElement.classList.add("dark-mode");
       } catch (e) {}
     </script>

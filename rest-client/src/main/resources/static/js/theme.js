@@ -1,8 +1,15 @@
 (function () {
   var DARK_CLASS = "dark-mode";
+  var KEY = "theme";
 
   function isDark() {
     return document.documentElement.classList.contains(DARK_CLASS);
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem(KEY, isDark() ? "dark" : "light");
+    } catch (e) {}
   }
 
   function updateButtons() {
@@ -23,11 +30,21 @@
 
   function toggle() {
     document.documentElement.classList.toggle(DARK_CLASS);
+    persist();
     updateButtons();
   }
 
+  function savedTheme() {
+    try {
+      return localStorage.getItem(KEY);
+    } catch (e) {
+      return null;
+    }
+  }
+
   window.addEventListener("DOMContentLoaded", function () {
-    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    var saved = savedTheme();
+    if (saved === "dark" || (saved === null && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
       document.documentElement.classList.add(DARK_CLASS);
     }
     document.querySelectorAll(".theme-toggle").forEach(function (btn) {
