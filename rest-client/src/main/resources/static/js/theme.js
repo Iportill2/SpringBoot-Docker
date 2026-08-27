@@ -1,28 +1,12 @@
 (function () {
-  var KEY = "theme";
-  var DARK = "dark";
-  var LIGHT = "light";
+  var DARK_CLASS = "dark-mode";
 
-  function current() {
-    return document.documentElement.getAttribute("data-theme") === DARK
-      ? DARK
-      : LIGHT;
+  function isDark() {
+    return document.documentElement.classList.contains(DARK_CLASS);
   }
 
-  function apply(theme) {
-    document.documentElement.setAttribute("data-theme", theme);
-    try {
-      localStorage.setItem(KEY, theme);
-    } catch (e) {}
-    updateButtons(theme);
-  }
-
-  function toggle() {
-    apply(current() === DARK ? LIGHT : DARK);
-  }
-
-  function updateButtons(theme) {
-    var dark = theme === DARK;
+  function updateButtons() {
+    var dark = isDark();
     document.querySelectorAll(".theme-toggle").forEach(function (btn) {
       var on = btn.querySelector(".theme-toggle-icon");
       if (on) {
@@ -33,11 +17,23 @@
     });
   }
 
+  function apply() {
+    updateButtons();
+  }
+
+  function toggle() {
+    document.documentElement.classList.toggle(DARK_CLASS);
+    updateButtons();
+  }
+
   window.addEventListener("DOMContentLoaded", function () {
+    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.documentElement.classList.add(DARK_CLASS);
+    }
     document.querySelectorAll(".theme-toggle").forEach(function (btn) {
       btn.addEventListener("click", toggle);
     });
-    updateButtons(current());
+    updateButtons();
   });
 
   window.Theme = { apply: apply, toggle: toggle };

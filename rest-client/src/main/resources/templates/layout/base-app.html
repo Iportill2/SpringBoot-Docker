@@ -10,8 +10,8 @@
   <link rel="stylesheet" th:href="@{/css/styles.css}" />
   <script th:inline="javascript">
     try {
-      var t = localStorage.getItem("theme");
-      document.documentElement.setAttribute("data-theme", t === "dark" ? "dark" : "light");
+      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
+        document.documentElement.classList.add("dark-mode");
     } catch (e) { }
   </script>
 </head>
