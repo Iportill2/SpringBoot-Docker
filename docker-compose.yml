@@ -49,6 +49,8 @@ services:
       BACKUP_RETENTION_DAILY: ${BACKUP_RETENTION_DAILY:-7}
       BACKUP_RETENTION_WEEKLY: ${BACKUP_RETENTION_WEEKLY:-4}
       BACKUP_RETENTION_MONTHLY: ${BACKUP_RETENTION_MONTHLY:-12}
+      BACKUP_SERVICE_USER: ${BACKUP_SERVICE_USER:-backup_service}
+      BACKUP_SERVICE_PASSWORD: ${BACKUP_SERVICE_PASSWORD:-change_me_backup}
       TZ: ${TZ:-Europe/Madrid}
 
     depends_on:
@@ -122,6 +124,8 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: ${TZ:-Europe/Madrid}
+      BACKUP_SERVICE_USER: ${BACKUP_SERVICE_USER:-backup_service}
+      BACKUP_SERVICE_PASSWORD: ${BACKUP_SERVICE_PASSWORD:-change_me_backup}
 
     depends_on:
       api-rest:

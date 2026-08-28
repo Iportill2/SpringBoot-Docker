@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -48,6 +49,7 @@ public class UserController {
     }
     //Read
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Users>> findAll()
     {
         List<Users> temp = userService.findAll();
@@ -57,6 +59,7 @@ public class UserController {
         return ResponseEntity.ok(temp);
     }
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Users> findByIdOptional(@PathVariable Integer id)
     {
     	if(id < 1)
@@ -67,6 +70,7 @@ public class UserController {
         return ResponseEntity.ok(temp.get());
     }
     @GetMapping("/email/{email}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Users>findByEmail(@PathVariable String email)
     {
     	if(email == null || email.isBlank())
@@ -139,6 +143,7 @@ public class UserController {
     }
     //Update
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> patchUpdate(
             @PathVariable Integer id,
             @RequestBody Users user) {
@@ -155,6 +160,7 @@ public class UserController {
     }
     //Delete
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> delete(@PathVariable Integer id)
     {
         Boolean deleted = userService.delete(id);

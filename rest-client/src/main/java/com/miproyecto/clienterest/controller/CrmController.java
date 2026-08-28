@@ -56,7 +56,7 @@ public class CrmController {
         }
 
         model.addAttribute("tareas", tareas);
-        model.addAttribute("usuarios", crmService.findAllUsuarios());
+        model.addAttribute("usuarios", isAdmin ? crmService.findAllUsuarios() : new ArrayList<AdminUserDTO>());
         model.addAttribute("clientes", clienteServ.findAllClientes());
         model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("tareaForm", emptyForm());

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.miproyecto.apirest.model.Roles;
@@ -20,6 +21,7 @@ public class RolesController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Roles>> findAll() {
 
         List<Roles> temp = roleServ.findAll();
@@ -47,6 +49,7 @@ public class RolesController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Roles> create(@RequestBody Roles role) {
 
         if (role == null)
@@ -59,6 +62,7 @@ public class RolesController {
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> delete(@PathVariable Integer id) {
 
         if (id == null)

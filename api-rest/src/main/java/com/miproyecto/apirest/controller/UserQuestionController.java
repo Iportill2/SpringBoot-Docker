@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import com.miproyecto.apirest.dto.CheckAnswerRequest;
 import com.miproyecto.apirest.dto.UserQuestionDTO;
 import com.miproyecto.apirest.model.UserQuestion;
@@ -49,6 +51,7 @@ public class UserQuestionController {
 
 	// Read
 	@GetMapping
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<List<UserQuestion>> findAll() {
 		List<UserQuestion> temp = userQuestionServ.findAll();
 		if (temp == null || temp.isEmpty())
@@ -106,6 +109,7 @@ public class UserQuestionController {
 	}
 
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Boolean> delete(@PathVariable Integer id) {
 		Boolean result = userQuestionServ.delete(id);
 

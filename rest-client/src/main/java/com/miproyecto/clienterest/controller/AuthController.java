@@ -26,8 +26,18 @@ import com.miproyecto.clienterest.dto.UsersDTO;
 import com.miproyecto.clienterest.service.AuthService;
 import com.miproyecto.clienterest.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 @Controller
 @RequestMapping("/")
@@ -36,6 +46,7 @@ public class AuthController {
     private final AuthService authService;
     private final UserService userService;
     private final ObjectMapper objectMapper;
+    private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
     public AuthController(AuthService authService, UserService userService, ObjectMapper objectMapper) {
         this.authService = authService;
@@ -53,21 +64,24 @@ public class AuthController {
 
     @PostMapping("/login")
     public String loginPost(@Valid @ModelAttribute LoginDTO loginDTO, BindingResult result, Model model,
-            HttpSession session) {
+            HttpServletRequest request, HttpServletResponse response) {
 
         if (result.hasErrors()) {
             return "auth/login";
         }
 
         try {
-            ResponseEntity<AuthResponseDTO> response = authService.login(loginDTO.getUsername(), loginDTO.getPass());
+            ResponseEntity<AuthResponseDTO> authResponse = authService.login(loginDTO.getUsername(), loginDTO.getPass());
 
-            AuthResponseDTO body = response.getBody();
+            AuthResponseDTO body = authResponse.getBody();
 
+            HttpSession session = request.getSession(true);
             session.setAttribute("jwt", body.getToken());
             session.setAttribute("userId", body.getUserId());
             session.setAttribute("username", body.getUsername());
             session.setAttribute("role", body.getRole());
+
+            registerAuthentication(request, response, body);
 
             return "redirect:/menu/crm";
 
@@ -78,6 +92,21 @@ public class AuthController {
             model.addAttribute("error", "No se ha podido iniciar sesión");
             return "auth/login";
         }
+    }
+
+    private void registerAuthentication(HttpServletRequest request, HttpServletResponse response,
+            AuthResponseDTO body) {
+        String role = body.getRole();
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                body.getUsername(),
+                null,
+                java.util.List.of(new SimpleGrantedAuthority("ROLE_" + (role != null ? role.toUpperCase() : "EMPLEADO"))));
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        securityContextRepository.saveContext(context, request, response);
     }
 
     /*

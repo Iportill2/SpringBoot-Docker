@@ -17,6 +17,12 @@ public class RestClientConfig {
     @Value("${backup.base-url}")
     private String backupUrl;
 
+    @Value("${backup.username:}")
+    private String backupUsername;
+
+    @Value("${backup.password:}")
+    private String backupPassword;
+
 
 
     @Bean
@@ -37,6 +43,8 @@ public class RestClientConfig {
 
         return RestClient.builder()
                 .baseUrl(backupUrl)
+                .defaultHeaders(headers ->
+                        headers.setBasicAuth(backupUsername, backupPassword))
                 .build();
     }
 

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,6 +46,7 @@ public class QuestionsController {
 	    return ResponseEntity.ok(temp);
 	}
 	@PutMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Questions> update(@PathVariable Integer id,
 	                                        @RequestBody Questions question) {
 
@@ -63,6 +65,7 @@ public class QuestionsController {
 	
 	
 	@PostMapping
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Questions> create(@RequestBody Questions question) {
 
 	    if (question == null) {
@@ -74,6 +77,7 @@ public class QuestionsController {
 	    return ResponseEntity.ok(temp);
 	}
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Boolean> delete(@PathVariable Integer id)
 	{
 		if(id == null || id < 1)

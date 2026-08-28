@@ -24,6 +24,9 @@ backup:
   directory: ${BACKUP_DIRECTORY:/backup}
   cron: ${BACKUP_CRON:0 0 2 * * *}
   enabled: ${BACKUP_ENABLED:true}
+  security:
+    user: ${BACKUP_SERVICE_USER:backup_service}
+    password: ${BACKUP_SERVICE_PASSWORD:change_me_backup}
   retention:
     enabled: ${BACKUP_RETENTION_ENABLED:true}
     daily: ${BACKUP_RETENTION_DAILY:7}

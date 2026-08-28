@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.miproyecto.apirest.dto.UserCreateDTO;
@@ -20,10 +21,13 @@ public class UserService {
 
     private final UsersRepository userRepo;
     private final RolesRepository roleRepo;
-    public UserService(UsersRepository userRepository, RolesRepository roleRepository) 
+    private final PasswordEncoder passwordEncoder;
+    public UserService(UsersRepository userRepository, RolesRepository roleRepository,
+            PasswordEncoder passwordEncoder) 
     {
     	this.userRepo = userRepository;
     	this.roleRepo = roleRepository;
+    	this.passwordEncoder = passwordEncoder;
     }
     //Create
     public Users create(UserCreateDTO userDTO) {
@@ -32,7 +36,7 @@ public class UserService {
         Users user = new Users();
 
         user.setUsername(userDTO.username());
-        user.setPass(userDTO.pass());
+        user.setPass(passwordEncoder.encode(userDTO.pass()));
         user.setEmail(userDTO.email());
 
         user.setSalt("salt_generada");
@@ -98,6 +102,12 @@ public class UserService {
     		return null;
         return userRepo.existsByEmail(email);
     }
+
+    public void persist(Users user) {
+        if (user != null && user.getId() != null) {
+            userRepo.save(user);
+        }
+    }
     public Boolean isBlocked(Users user)
     {
     	Optional<Users> temp = userRepo.findById(user.getId());
@@ -131,7 +141,7 @@ public class UserService {
         }
 
         if (user.getPass() != null) {
-            current.setPass(user.getPass());
+            current.setPass(passwordEncoder.encode(user.getPass()));
         }
 
         if (user.getSalt() != null) {

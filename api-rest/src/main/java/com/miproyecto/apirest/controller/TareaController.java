@@ -3,6 +3,7 @@ package com.miproyecto.apirest.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,6 +67,7 @@ public class TareaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Tarea> create(@RequestBody Tarea tarea) {
         Tarea temp = tareaServ.create(tarea);
         if (temp == null) {
@@ -75,6 +77,7 @@ public class TareaController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Tarea> update(@PathVariable Integer id, @RequestBody Tarea tarea) {
         if (id == null || id < 1 || tarea == null) {
             return ResponseEntity.badRequest().build();
@@ -111,6 +114,7 @@ public class TareaController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> delete(@PathVariable Integer id) {
         if (id == null || id < 1) {
             return ResponseEntity.badRequest().build();

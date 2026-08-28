@@ -19,3 +19,8 @@ server:
       suffix: ""
       file-date-format: ""
       pattern: "%h %l %u %t \"%r\" %s %b"
+
+backup:
+  username: ${BACKUP_SERVICE_USER:backup_service}
+  password: ${BACKUP_SERVICE_PASSWORD:change_me_backup}
+

@@ -3,6 +3,7 @@ package com.miproyecto.apirest.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +48,7 @@ public class ClienteController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Cliente> create(@RequestBody Cliente cliente) {
         Cliente temp = clienteServ.create(cliente);
         if (temp == null) {
@@ -56,6 +58,7 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Cliente> update(@PathVariable Integer id, @RequestBody Cliente cliente) {
         if (id == null || id < 1 || cliente == null) {
             return ResponseEntity.badRequest().build();
@@ -68,6 +71,7 @@ public class ClienteController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> delete(@PathVariable Integer id) {
         if (id == null || id < 1) {
             return ResponseEntity.badRequest().build();

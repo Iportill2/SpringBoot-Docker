@@ -15,16 +15,21 @@ import com.miproyecto.apirest.model.Users;
 import com.miproyecto.apirest.security.JwtService;
 import com.miproyecto.apirest.service.UserService;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final UserService userService;
     private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthController(UserService userService, JwtService jwtService) {
+    public AuthController(UserService userService, JwtService jwtService,
+            PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
@@ -40,9 +45,28 @@ public class AuthController {
 
         Users user = userService.findByUsername(username);
 
-        if (user == null || user.getPass() == null || !user.getPass().equals(pass)) {
+        if (user == null || user.getPass() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Usuario o contraseña incorrectos"));
+        }
+
+        boolean passwordMatches;
+        if (isBcrypt(user.getPass())) {
+            passwordMatches = passwordEncoder.matches(pass, user.getPass());
+        } else {
+            // Contraseña almacenada aún en texto plano (migración pendiente).
+            passwordMatches = user.getPass().equals(pass);
+        }
+
+        if (!passwordMatches) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Usuario o contraseña incorrectos"));
+        }
+
+        // Migración BCrypt: re-hashear y persistir si aún no era un hash.
+        if (!isBcrypt(user.getPass())) {
+            user.setPass(passwordEncoder.encode(pass));
+            userService.persist(user);
         }
 
         if (user.getRole() != null && user.getRole().getId() == 4) {
@@ -65,5 +89,12 @@ public class AuthController {
                 user.getRole().getName());
 
         return ResponseEntity.ok(response);
+    }
+
+    private boolean isBcrypt(String encoded) {
+        return encoded != null
+                && (encoded.startsWith("$2a$")
+                        || encoded.startsWith("$2b$")
+                        || encoded.startsWith("$2y$"));
     }
 }
