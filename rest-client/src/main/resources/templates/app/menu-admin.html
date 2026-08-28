@@ -10,6 +10,7 @@
         <div style="width:100%;max-width:850px;">
           <!-- BARRA DE FILTROS -->
           <div class="crm-filters" id="adminFilters">
+            <h3 class="crm-section-title">Filtro de Usuarios</h3>
             <label>
               Buscar nombre
               <input type="text" id="filtroNombre" placeholder="Escribe para buscar…" />
@@ -23,7 +24,10 @@
             <button class="btn-clear-filters" id="btnLimpiar">✕ Limpiar</button>
           </div>
 
-          <table class="admin-table">
+          <div class="crm-list-box">
+            <h3 class="crm-section-title">Lista de Usuarios</h3>
+
+            <table class="admin-table">
             <thead>
               <tr>
                 <th>Usuario</th>
@@ -78,6 +82,7 @@
               </tr>
             </tfoot>
           </table>
+          </div>
         </div>
       </div>
     </div>
