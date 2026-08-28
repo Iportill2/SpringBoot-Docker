@@ -1,5 +1,7 @@
 package com.miproyecto.clienterest.controller;
 
+import java.time.LocalDate;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/menu")
@@ -45,11 +48,34 @@ public class ClienteController {
         return "redirect:/menu/clientes";
     }
 
-    @PostMapping("/clientes/eliminar/{id}")
-    public String deleteClient(@PathVariable Integer id) {
+    @PostMapping("/clientes/editar/{id}")
+    public String editClient(@PathVariable Integer id,
+            @RequestParam String nombre,
+            @RequestParam(required = false) String personaContacto,
+            @RequestParam(required = false) String telefono,
+            @RequestParam(required = false) String direccion,
+            @RequestParam(required = false) String fechaAlta,
+            RedirectAttributes redirectAttributes) {
 
-        clienteServ.deleteCliente(id);
-        
+        try {
+            ClienteDTO dto = clienteServ.findById(id);
+            if (dto == null) {
+                redirectAttributes.addFlashAttribute("error", "Cliente no encontrado");
+                return "redirect:/menu/clientes";
+            }
+
+            dto.setNombre(nombre);
+            dto.setPersonaContacto(personaContacto != null && !personaContacto.isBlank() ? personaContacto : null);
+            dto.setTelefono(telefono != null && !telefono.isBlank() ? telefono : null);
+            dto.setDireccion(direccion != null && !direccion.isBlank() ? direccion : null);
+            dto.setFechaAlta(fechaAlta != null && !fechaAlta.isBlank() ? LocalDate.parse(fechaAlta) : null);
+
+            clienteServ.update(id, dto);
+            redirectAttributes.addFlashAttribute("message", "Cliente actualizado correctamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "No se pudo actualizar el cliente: " + e.getMessage());
+        }
+
         return "redirect:/menu/clientes";
     }
 

@@ -958,6 +958,20 @@ body {
 	background-color: #b91c1c;
 }
 
+.btn-edit {
+	background-color: #3b82f6;
+	color: white;
+	border: none;
+	padding: 0.35rem 0.7rem;
+	border-radius: 6px;
+	font-size: 0.75rem;
+	cursor: pointer;
+}
+
+.btn-edit:hover {
+	background-color: #2563eb;
+}
+
 /* ===== BACKUPS ===== */
 
 .backup-table {
@@ -1412,6 +1426,9 @@ body {
 	flex-wrap: wrap;
 	gap: 0.6rem;
 	align-items: center;
+	width: 100%;
+	max-width: 950px;
+	margin: 0 auto;
 }
 
 .cliente-form input {
@@ -1435,9 +1452,110 @@ body {
 	flex: 0 0 150px;
 }
 
+.cliente-form button[type="submit"] {
+	flex: 0 0 auto;
+	padding: 0.45rem 1rem;
+	background-color: #3b82f6;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.cliente-form button[type="submit"]:hover {
+	background-color: #2563eb;
+}
+
 .cliente-form .btn-create {
 	flex: 0 0 auto;
 	margin-top: 0;
+}
+
+.cliente-form + .cliente-table {
+	margin-top: 1.25rem;
+}
+
+#clienteFilters {
+	width: 100%;
+	max-width: 950px;
+	margin: 1rem auto;
+	box-sizing: border-box;
+}
+
+.cliente-filter-title {
+	flex-basis: 100%;
+	margin: 0 0 0.5rem;
+	font-size: 0.9rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	color: #1e293b;
+}
+
+html.dark-mode .cliente-filter-title {
+	color: #e2e8f0;
+}
+
+#btnLimpiarClientes {
+	background-color: #3b82f6;
+	color: white;
+	border: none;
+	padding: 0.45rem 1rem;
+	border-radius: 6px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+#btnLimpiarClientes:hover {
+	background-color: #2563eb;
+}
+
+.cliente-create-section {
+	width: 100%;
+	max-width: 950px;
+	margin: 0 auto 1rem;
+	padding: 14px 16px;
+	background: #f9f9f9;
+	border: 1px solid #e5e5e5;
+	border-radius: 8px;
+	box-sizing: border-box;
+}
+
+.cliente-create-section .cliente-form {
+	margin: 0;
+	flex-wrap: nowrap;
+}
+
+.cliente-create-section .cliente-form input {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.cliente-create-section .cliente-section-title {
+	margin: 0 0 0.75rem;
+}
+
+html.dark-mode .cliente-create-section {
+	background: #1e293b;
+	border-color: #334155;
+}
+
+.cliente-section-title {
+	width: 100%;
+	max-width: 950px;
+	margin: 1.25rem auto 0;
+	font-size: 0.9rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	color: #1e293b;
+}
+
+html.dark-mode .cliente-section-title {
+	color: #e2e8f0;
 }
 
 .cliente-table-title {
@@ -1783,6 +1901,142 @@ html.dark-mode .admin-table tbody tr:hover {
 	background-color: #334155;
 }
 
+html.dark-mode .cliente-form-section,
+html.dark-mode .crm-form-section,
+html.dark-mode .crm-table-section,
+html.dark-mode .cliente-table {
+	background-color: #1e293b;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+html.dark-mode .crm-form-section .crm-section-title {
+	color: #e2e8f0;
+}
+
+html.dark-mode .crm-form-section .flash-message {
+	color: #16a34a;
+	background-color: #14532d;
+}
+
+html.dark-mode .crm-form-section .flash-error {
+	color: #fecaca;
+	background-color: #7f1d1d;
+}
+
+/* ── CRM TAREAS dark mode ── */
+html.dark-mode .admin-title,
+html.dark-mode .crm-filters h3,
+html.dark-mode .crm-page-full h3.crm-section-title,
+html.dark-mode .crm-table-section h3.crm-section-title {
+	color: #e2e8f0;
+}
+
+html.dark-mode .crm-form label,
+html.dark-mode .crm-filters label {
+	color: #94a3b8;
+}
+
+html.dark-mode .crm-form input,
+html.dark-mode .crm-form select,
+html.dark-mode .crm-form textarea {
+	background-color: #0f172a;
+	color: #e2e8f0;
+	border-color: #334155;
+}
+
+html.dark-mode .crm-form input:focus,
+html.dark-mode .crm-form select:focus,
+html.dark-mode .crm-form textarea:focus {
+	border-color: #3b82f6;
+}
+
+/* Barra de filtros */
+html.dark-mode .crm-filters {
+	background: #1e293b;
+	border: 1px solid #334155;
+}
+
+html.dark-mode .crm-filters input,
+html.dark-mode .crm-filters select {
+	background-color: #0f172a;
+	color: #e2e8f0;
+	border-color: #334155;
+}
+
+/* Inputs/selects inline de la tabla */
+html.dark-mode .crm-inline-input,
+html.dark-mode .crm-inline-select {
+	background-color: #0f172a;
+	color: #e2e8f0;
+	border-color: #334155;
+}
+
+html.dark-mode .crm-inline-input:hover,
+html.dark-mode .crm-inline-input:focus,
+html.dark-mode .crm-inline-select:hover,
+html.dark-mode .crm-inline-select:focus {
+	background-color: #0f172a;
+	border-color: #3b82f6;
+}
+
+/* Colores semánticos en dark (se mantienen vivos) */
+html.dark-mode .select-pendiente {
+	color: #f87171;
+	border-left-color: #f87171;
+}
+
+html.dark-mode .select-en-curso {
+	color: #38bdf8;
+	border-left-color: #38bdf8;
+}
+
+html.dark-mode .select-completada {
+	color: #4ade80;
+	border-left-color: #4ade80;
+}
+
+html.dark-mode .select-alta {
+	border-left-color: #f87171;
+}
+
+html.dark-mode .select-media {
+	border-left-color: #38bdf8;
+}
+
+html.dark-mode .select-baja {
+	border-left-color: #4ade80;
+}
+
+html.dark-mode .cliente-table td {
+	border-bottom: 1px solid #334155;
+	color: #cbd5e1;
+}
+
+html.dark-mode .cliente-table tbody tr:hover {
+	background-color: #334155;
+}
+
+html.dark-mode .cliente-form-section h3,
+html.dark-mode .cliente-table-title {
+	color: #e2e8f0;
+}
+
+html.dark-mode .cliente-form-section input,
+html.dark-mode .cliente-create-section input {
+	background-color: #0f172a;
+	color: #e2e8f0;
+	border-color: #334155;
+}
+
+html.dark-mode .cliente-form-section input:focus,
+html.dark-mode .cliente-create-section input:focus {
+	border-color: #3b82f6;
+}
+
+html.dark-mode .cliente-form-section label {
+	color: #94a3b8;
+}
+
 html.dark-mode .badge-admin {
 	background-color: #4c1d95;
 	color: #ddd6fe;
@@ -1875,6 +2129,20 @@ html.dark-mode .alert-box-error {
 
 html.dark-mode .modal-overlay {
 	background-color: rgba(2, 6, 23, 0.6);
+}
+
+html.dark-mode #editClienteForm input {
+	background-color: #0f172a;
+	color: #e2e8f0;
+	border-color: #334155;
+}
+
+html.dark-mode #editClienteForm label {
+	color: #cbd5e1;
+}
+
+html.dark-mode #editClienteForm input:focus {
+	border-color: #3b82f6;
 }
 
 html.dark-mode .backup-log-status,

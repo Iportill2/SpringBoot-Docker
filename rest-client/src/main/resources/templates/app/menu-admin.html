@@ -27,7 +27,6 @@
             <thead>
               <tr>
                 <th>Usuario</th>
-                <th>Email</th>
                 <th>Rol</th>
                 <th>Acciones</th>
               </tr>
@@ -39,7 +38,6 @@
                 data-rol=${(u.role != null and u.role.name != 'PENDIENTE') ? u.role.name : 'PENDIENTE'}
               ">
                 <td th:text="${u.username}"></td>
-                <td th:text="${u.email}"></td>
                 <td>
                   <span class="badge badge-user" th:if="${u.role != null and u.role.name == 'EMPLEADO'}"
                     th:text="'EMPLEADO'">
@@ -76,7 +74,7 @@
             </tbody>
             <tfoot>
               <tr id="noResultsRow" style="display:none;">
-                <td colspan="4" class="crm-empty">No hay usuarios que coincidan con los filtros</td>
+                <td colspan="3" class="crm-empty">No hay usuarios que coincidan con los filtros</td>
               </tr>
             </tfoot>
           </table>

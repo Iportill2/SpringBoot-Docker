@@ -5,6 +5,10 @@ spring:
     active: local
 
 server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
   port: 8081
   tomcat:
     accesslog:

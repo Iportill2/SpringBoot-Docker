@@ -35,6 +35,23 @@ public class ClienteService {
                 });
     }
 
+    public ClienteDTO findById(Integer id) {
+        return restClient.get()
+                .uri("/api/cliente/{id}", id)
+                .retrieve()
+                .body(new ParameterizedTypeReference<ClienteDTO>() {
+                });
+    }
+
+    public ClienteDTO update(Integer id, ClienteDTO clienteDTO) {
+        return restClient.put()
+                .uri("/api/cliente/{id}", id)
+                .body(clienteDTO)
+                .retrieve()
+                .body(new ParameterizedTypeReference<ClienteDTO>() {
+                });
+    }
+
     public boolean deleteCliente(Integer id) {
         restClient.delete()
                 .uri("/api/cliente/{id}", id)
