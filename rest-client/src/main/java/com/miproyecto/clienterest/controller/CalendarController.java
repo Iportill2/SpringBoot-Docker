@@ -66,6 +66,8 @@ public class CalendarController {
 	    model.addAttribute("prevMonth", previous.getMonthValue());
 	    model.addAttribute("nextYear", next.getYear());
 	    model.addAttribute("nextMonth", next.getMonthValue());
+		model.addAttribute("currentYear", current.getYear());
+		model.addAttribute("currentMonth", current.getMonthValue());
 
 	    return "app/calendar";
 	}

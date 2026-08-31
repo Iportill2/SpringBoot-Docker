@@ -3,190 +3,278 @@
 
 <body>
     <div layout:fragment="content">
+        <div class="crm-page-full">
 
-        <!-- TABLA DE CLIENTES (solo admin) -->
-        <div th:if="${isAdmin}" style="margin-top: 1.5rem;">
-            <h3 class="cliente-table-title">Clientes</h3>
+            <!-- TABLA DE CLIENTES (solo admin) -->
+            <div th:if="${isAdmin}">
+                <h2 class="admin-title">Clientes</h2>
 
-            <div th:if="${message}" class="flash-message" th:text="${message}"></div>
-            <div th:if="${error}" class="flash-message flash-error" th:text="${error}"></div>
+                <div th:if="${message}" class="flash-message" th:text="${message}"></div>
+                <div th:if="${error}" class="flash-message flash-error" th:text="${error}"></div>
 
-            <div class="cliente-create-section">
-                <h3 class="crm-section-title cliente-section-title">Crear clientes</h3>
+                <div class="cliente-create-section">
+                    <h3 class="crm-section-title">Crear clientes</h3>
 
-                <form class="cliente-form" th:action="@{/menu/clientes}" th:object="${clienteForm}" method="post" accept-charset="UTF-8">
-                    <input type="text" th:field="*{nombre}" placeholder="Nombre" required />
-                    <input type="text" th:field="*{personaContacto}" placeholder="Persona de contacto" />
-                    <input type="text" th:field="*{telefono}" placeholder="Teléfono" />
-                    <input type="text" th:field="*{direccion}" placeholder="Dirección" />
-                    <input type="date" th:field="*{fechaAlta}" />
-                    <button type="submit">Guardar</button>
-                </form>
+                    <form class="cliente-form" th:action="@{/menu/clientes}" th:object="${clienteForm}" method="post"
+                        accept-charset="UTF-8">
+                        <input type="text" th:field="*{nombre}" placeholder="Nombre" required />
+                        <input type="text" th:field="*{personaContacto}" placeholder="Persona de contacto" />
+                        <input type="text" th:field="*{telefono}" placeholder="Teléfono" />
+                        <input type="text" th:field="*{direccion}" placeholder="Dirección" />
+                        <input type="date" th:field="*{fechaAlta}" />
+                        <button type="submit">Guardar</button>
+                    </form>
+                </div>
+
+                <div class="crm-filters" id="clienteFilters">
+                    <h3 class="crm-section-title">Filtro de clientes</h3>
+                    <label>Buscar nombre
+                        <input type="text" id="filtroNombre" placeholder="Escribe para buscar…" />
+                    </label>
+                    <label>Contacto
+                        <input type="text" id="filtroContacto" placeholder="Buscar contacto…" />
+                    </label>
+                    <label>Teléfono
+                        <input type="text" id="filtroTelefono" placeholder="Buscar teléfono…" />
+                    </label>
+                    <label>Dirección
+                        <input type="text" id="filtroDireccion" placeholder="Buscar dirección…" />
+                    </label>
+                    <button class="btn-clear-filters" id="btnLimpiarClientes">✕ Limpiar</button>
+                </div>
+
+                <div class="crm-list-box">
+                    <h3 class="crm-section-title">Lista de tareas</h3>
+
+                    <table class="admin-table cliente-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Contacto</th>
+                                <th>Teléfono</th>
+                                <th>Dirección</th>
+                                <th>Alta</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clienteTbody">
+                            <tr th:each="c : ${clientes}"
+                                th:attr="data-nombre=${c.nombre}, data-contacto=${c.personaContacto}, data-telefono=${c.telefono}, data-direccion=${c.direccion}">
+                                <td th:text="${c.nombre}"></td>
+                                <td th:text="${c.personaContacto != null} ? ${c.personaContacto} : '&mdash;'"></td>
+                                <td th:text="${c.telefono != null} ? ${c.telefono} : '&mdash;'"></td>
+                                <td th:text="${c.direccion != null} ? ${c.direccion} : '&mdash;'"></td>
+                                <td
+                                    th:text="${c.fechaAlta != null} ? ${#temporals.format(c.fechaAlta, 'dd/MM/yyyy')} : '&mdash;'">
+                                </td>
+                                <td>
+                                    <div class="admin-actions">
+                                    <button type="button" class="btn-edit" th:data-id="${c.id}"
+                                        th:data-nombre="${c.nombre}" th:data-contacto="${c.personaContacto}"
+                                        th:data-telefono="${c.telefono}" th:data-direccion="${c.direccion}"
+                                        th:data-alta="${c.fechaAlta}" onclick="openEditModal(this)">
+                                        Editar
+                                    </button>
+                                </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(clientes)}">
+                                <td colspan="6" class="crm-empty">No hay clientes</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr id="noResultsClientes" style="display:none;">
+                                <td colspan="6" class="crm-empty">No hay clientes que coincidan con los filtros</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- PAGINACIÓN -->
+                    <div class="pagination-controls" id="paginacionClientes"></div>
+                </div>
             </div>
 
-            <div class="crm-filters" id="clienteFilters">
-                <h3 class="crm-section-title cliente-filter-title">Filtro de clientes</h3>
-                <label>Buscar nombre
-                    <input type="text" id="filtroNombre" placeholder="Escribe para buscar…" />
-                </label>
-                <label>Contacto
-                    <input type="text" id="filtroContacto" placeholder="Buscar contacto…" />
-                </label>
-                <label>Teléfono
-                    <input type="text" id="filtroTelefono" placeholder="Buscar teléfono…" />
-                </label>
-                <label>Dirección
-                    <input type="text" id="filtroDireccion" placeholder="Buscar dirección…" />
-                </label>
-                <button class="btn-clear-filters" id="btnLimpiarClientes">✕ Limpiar</button>
+            <!-- MODAL EDITAR CLIENTE -->
+            <div class="modal-overlay" id="editClienteModal">
+                <div class="modal-box">
+                    <h3 class="modal-title">Editar Cliente</h3>
+                    <form id="editClienteForm" method="post" th:action="@{/menu/clientes/editar/__id__}"
+                        accept-charset="UTF-8">
+                        <div
+                            style="display:flex; flex-direction:column; gap:0.7rem; text-align:left; margin-bottom:1.2rem;">
+                            <label style="font-size:0.8rem; color:#334155; font-weight:600;">
+                                Nombre
+                                <input type="text" id="editNombre" name="nombre" required
+                                    style="width:100%; padding:0.45rem 0.6rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem; box-sizing:border-box; margin-top:0.2rem;" />
+                            </label>
+                            <label style="font-size:0.8rem; color:#334155; font-weight:600;">
+                                Persona de contacto
+                                <input type="text" id="editContacto" name="personaContacto"
+                                    style="width:100%; padding:0.45rem 0.6rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem; box-sizing:border-box; margin-top:0.2rem;" />
+                            </label>
+                            <label style="font-size:0.8rem; color:#334155; font-weight:600;">
+                                Teléfono
+                                <input type="text" id="editTelefono" name="telefono"
+                                    style="width:100%; padding:0.45rem 0.6rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem; box-sizing:border-box; margin-top:0.2rem;" />
+                            </label>
+                            <label style="font-size:0.8rem; color:#334155; font-weight:600;">
+                                Dirección
+                                <input type="text" id="editDireccion" name="direccion"
+                                    style="width:100%; padding:0.45rem 0.6rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem; box-sizing:border-box; margin-top:0.2rem;" />
+                            </label>
+                            <label style="font-size:0.8rem; color:#334155; font-weight:600;">
+                                Fecha de alta
+                                <input type="date" id="editAlta" name="fechaAlta"
+                                    style="width:100%; padding:0.45rem 0.6rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem; box-sizing:border-box; margin-top:0.2rem;" />
+                            </label>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancelar</button>
+                            <button type="submit" class="btn-confirm">Guardar</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <table class="cliente-table">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Contacto</th>
-                        <th>Teléfono</th>
-                        <th>Dirección</th>
-                        <th>Alta</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="clienteTbody">
-                    <tr th:each="c : ${clientes}"
-                        th:attr="data-nombre=${c.nombre}, data-contacto=${c.personaContacto}, data-telefono=${c.telefono}, data-direccion=${c.direccion}">
-                        <td th:text="${c.nombre}"></td>
-                        <td th:text="${c.personaContacto != null} ? ${c.personaContacto} : '&mdash;'"></td>
-                        <td th:text="${c.telefono != null} ? ${c.telefono} : '&mdash;'"></td>
-                        <td th:text="${c.direccion != null} ? ${c.direccion} : '&mdash;'"></td>
-                        <td th:text="${c.fechaAlta != null} ? ${#temporals.format(c.fechaAlta, 'dd/MM/yyyy')} : '&mdash;'">
-                        </td>
-                        <td class="admin-actions">
-                            <button type="button" class="btn-edit"
-                                th:data-id="${c.id}"
-                                th:data-nombre="${c.nombre}"
-                                th:data-contacto="${c.personaContacto}"
-                                th:data-telefono="${c.telefono}"
-                                th:data-direccion="${c.direccion}"
-                                th:data-alta="${c.fechaAlta}"
-                                onclick="openEditModal(this)">
-                                Editar
-                            </button>
-                        </td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(clientes)}">
-                        <td colspan="6" class="crm-empty">No hay clientes</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr id="noResultsClientes" style="display:none;">
-                        <td colspan="6" class="crm-empty">No hay clientes que coincidan con los filtros</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
+            <script>
+                function openEditModal(btn) {
+                    var form = document.getElementById('editClienteForm');
+                    form.action = '/menu/clientes/editar/' + btn.dataset.id;
 
-        <!-- MODAL EDITAR CLIENTE -->
-        <div class="modal-overlay" id="editClienteModal">
-            <div class="modal-box">
-                <h3 class="modal-title">Editar Cliente</h3>
-                <form id="editClienteForm" method="post" th:action="@{/menu/clientes/editar/__id__}" accept-charset="UTF-8">
-                    <div style="display:flex; flex-direction:column; gap:0.7rem; text-align:left; margin-bottom:1.2rem;">
-                        <label style="font-size:0.8rem; color:#334155; font-weight:600;">
-                            Nombre
-                            <input type="text" id="editNombre" name="nombre" required
-                                style="width:100%; padding:0.45rem 0.6rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem; box-sizing:border-box; margin-top:0.2rem;" />
-                        </label>
-                        <label style="font-size:0.8rem; color:#334155; font-weight:600;">
-                            Persona de contacto
-                            <input type="text" id="editContacto" name="personaContacto"
-                                style="width:100%; padding:0.45rem 0.6rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem; box-sizing:border-box; margin-top:0.2rem;" />
-                        </label>
-                        <label style="font-size:0.8rem; color:#334155; font-weight:600;">
-                            Teléfono
-                            <input type="text" id="editTelefono" name="telefono"
-                                style="width:100%; padding:0.45rem 0.6rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem; box-sizing:border-box; margin-top:0.2rem;" />
-                        </label>
-                        <label style="font-size:0.8rem; color:#334155; font-weight:600;">
-                            Dirección
-                            <input type="text" id="editDireccion" name="direccion"
-                                style="width:100%; padding:0.45rem 0.6rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem; box-sizing:border-box; margin-top:0.2rem;" />
-                        </label>
-                        <label style="font-size:0.8rem; color:#334155; font-weight:600;">
-                            Fecha de alta
-                            <input type="date" id="editAlta" name="fechaAlta"
-                                style="width:100%; padding:0.45rem 0.6rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem; box-sizing:border-box; margin-top:0.2rem;" />
-                        </label>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancelar</button>
-                        <button type="submit" class="btn-confirm">Guardar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    document.getElementById('editNombre').value = btn.dataset.nombre || '';
+                    document.getElementById('editContacto').value = btn.dataset.contacto || '';
+                    document.getElementById('editTelefono').value = btn.dataset.telefono || '';
+                    document.getElementById('editDireccion').value = btn.dataset.direccion || '';
+                    document.getElementById('editAlta').value = btn.dataset.alta || '';
 
-        <script>
-            function openEditModal(btn) {
-                var form = document.getElementById('editClienteForm');
-                form.action = '/menu/clientes/editar/' + btn.dataset.id;
-
-                document.getElementById('editNombre').value = btn.dataset.nombre || '';
-                document.getElementById('editContacto').value = btn.dataset.contacto || '';
-                document.getElementById('editTelefono').value = btn.dataset.telefono || '';
-                document.getElementById('editDireccion').value = btn.dataset.direccion || '';
-                document.getElementById('editAlta').value = btn.dataset.alta || '';
-
-                document.getElementById('editClienteModal').classList.add('show');
-            }
-
-            function closeEditModal() {
-                document.getElementById('editClienteModal').classList.remove('show');
-            }
-
-            document.getElementById('editClienteModal').addEventListener('click', function(e) {
-                if (e.target === this) closeEditModal();
-            });
-
-            /* ---------- FILTROS CLIENTES ---------- */
-            (function () {
-                var rows = Array.from(document.querySelectorAll('#clienteTbody tr[data-nombre]'));
-                var noResults = document.getElementById('noResultsClientes');
-
-                function filtrar() {
-                    var nombre = document.getElementById('filtroNombre').value.toLowerCase().trim();
-                    var contacto = document.getElementById('filtroContacto').value.toLowerCase().trim();
-                    var telefono = document.getElementById('filtroTelefono').value.toLowerCase().trim();
-                    var direccion = document.getElementById('filtroDireccion').value.toLowerCase().trim();
-
-                    var visibles = 0;
-                    rows.forEach(function (row) {
-                        var ok =
-                            (!nombre || (row.dataset.nombre || '').toLowerCase().includes(nombre)) &&
-                            (!contacto || (row.dataset.contacto || '').toLowerCase().includes(contacto)) &&
-                            (!telefono || (row.dataset.telefono || '').toLowerCase().includes(telefono)) &&
-                            (!direccion || (row.dataset.direccion || '').toLowerCase().includes(direccion));
-
-                        row.style.display = ok ? '' : 'none';
-                        if (ok) visibles++;
-                    });
-
-                    row = rows.length === 0 ? 'none' : (visibles === 0 ? '' : 'none');
-                    if (noResults) noResults.style.display = row;
+                    document.getElementById('editClienteModal').classList.add('show');
                 }
 
-                ['filtroNombre', 'filtroContacto', 'filtroTelefono', 'filtroDireccion']
-                    .forEach(function (id) {
-                        document.getElementById(id).addEventListener('input', filtrar);
+                function closeEditModal() {
+                    document.getElementById('editClienteModal').classList.remove('show');
+                }
+
+                document.getElementById('editClienteModal').addEventListener('click', function (e) {
+                    if (e.target === this) closeEditModal();
+                });
+
+                /* ---------- PAGINACIÓN (genérica, 10 por página) ---------- */
+                function crearPaginador(config) {
+                    var paginaActual = 1;
+                    var porPagina = 10;
+
+                    function getFilasFiltradas() {
+                        return config.rows.filter(function (r) {
+                            return r.dataset.filtradoOculto !== 'true';
+                        });
+                    }
+
+                    function render() {
+                        var filtradas = getFilasFiltradas();
+                        var totalPaginas = Math.max(1, Math.ceil(filtradas.length / porPagina));
+
+                        if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+
+                        filtradas.forEach(function (r, i) {
+                            var enPagina = i >= (paginaActual - 1) * porPagina && i < paginaActual * porPagina;
+                            r.style.display = enPagina ? '' : 'none';
+                        });
+
+                        config.rows.forEach(function (r) {
+                            if (r.dataset.filtradoOculto === 'true') r.style.display = 'none';
+                        });
+
+                        pintarControles(totalPaginas);
+                    }
+
+                    function pintarControles(totalPaginas) {
+                        var cont = document.getElementById(config.controlsId);
+                        if (!cont) return;
+                        cont.innerHTML = '';
+
+                        if (totalPaginas <= 1) return;
+
+                        var btnPrev = document.createElement('button');
+                        btnPrev.type = 'button';
+                        btnPrev.textContent = '‹ Anterior';
+                        btnPrev.disabled = paginaActual === 1;
+                        btnPrev.addEventListener('click', function () {
+                            paginaActual--;
+                            render();
+                        });
+                        cont.appendChild(btnPrev);
+
+                        var info = document.createElement('span');
+                        info.textContent = ' Página ' + paginaActual + ' de ' + totalPaginas + ' ';
+                        cont.appendChild(info);
+
+                        var btnNext = document.createElement('button');
+                        btnNext.type = 'button';
+                        btnNext.textContent = 'Siguiente ›';
+                        btnNext.disabled = paginaActual === totalPaginas;
+                        btnNext.addEventListener('click', function () {
+                            paginaActual++;
+                            render();
+                        });
+                        cont.appendChild(btnNext);
+                    }
+
+                    return {
+                        render: render,
+                        resetPagina: function () { paginaActual = 1; }
+                    };
+                }
+
+                /* ---------- FILTROS CLIENTES ---------- */
+                (function () {
+                    var rows = Array.from(document.querySelectorAll('#clienteTbody tr[data-nombre]'));
+                    var noResults = document.getElementById('noResultsClientes');
+                    var paginadorClientes = crearPaginador({ rows: rows, controlsId: 'paginacionClientes' });
+
+                    function filtrar() {
+                        var nombre = document.getElementById('filtroNombre').value.toLowerCase().trim();
+                        var contacto = document.getElementById('filtroContacto').value.toLowerCase().trim();
+                        var telefono = document.getElementById('filtroTelefono').value.toLowerCase().trim();
+                        var direccion = document.getElementById('filtroDireccion').value.toLowerCase().trim();
+
+                        var visibles = 0;
+                        rows.forEach(function (row) {
+                            var ok =
+                                (!nombre || (row.dataset.nombre || '').toLowerCase().includes(nombre)) &&
+                                (!contacto || (row.dataset.contacto || '').toLowerCase().includes(contacto)) &&
+                                (!telefono || (row.dataset.telefono || '').toLowerCase().includes(telefono)) &&
+                                (!direccion || (row.dataset.direccion || '').toLowerCase().includes(direccion));
+
+                            row.dataset.filtradoOculto = ok ? 'false' : 'true';
+                            if (ok) visibles++;
+                        });
+
+                        var mostrarVacio = rows.length === 0 ? true : (visibles === 0);
+                        if (noResults) noResults.style.display = mostrarVacio ? '' : 'none';
+
+                        paginadorClientes.resetPagina();
+                        paginadorClientes.render();
+                    }
+
+                    ['filtroNombre', 'filtroContacto', 'filtroTelefono', 'filtroDireccion']
+                        .forEach(function (id) {
+                            document.getElementById(id).addEventListener('input', filtrar);
+                        });
+
+                    document.getElementById('btnLimpiarClientes').addEventListener('click', function () {
+                        ['filtroNombre', 'filtroContacto', 'filtroTelefono', 'filtroDireccion']
+                            .forEach(function (id) { document.getElementById(id).value = ''; });
+                        filtrar();
                     });
 
-                document.getElementById('btnLimpiarClientes').addEventListener('click', function () {
-                    ['filtroNombre', 'filtroContacto', 'filtroTelefono', 'filtroDireccion']
-                        .forEach(function (id) { document.getElementById(id).value = ''; });
-                    filtrar();
-                });
-            })();
-        </script>
+                    // Estado inicial: todas sin filtrar, paginadas desde el principio
+                    rows.forEach(function (row) {
+                        row.dataset.filtradoOculto = 'false';
+                    });
+                    paginadorClientes.render();
+                })();
+            </script>
+        </div>
     </div>
 </body>
 

@@ -20,7 +20,7 @@
 				<p th:if="${endTime}">Fin: <span th:text="${endTime}"></span></p>
 			</div>
 			<div class="clockin-actions">
-				<form th:if="${(startTime == null or endTime != null) and finishedToday != true}"
+				<form th:if="${finishedToday != true and startTime == null}"
 					th:action="@{/menu/clock-in/start}" method="post"
 					data-confirm="¿Quieres iniciar la jornada?">
 					<button type="submit" class="btn-start">Iniciar jornada</button>

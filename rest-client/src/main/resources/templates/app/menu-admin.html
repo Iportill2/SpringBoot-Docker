@@ -7,7 +7,7 @@
       <h2 class="admin-title">Gestión de usuarios</h2>
 
       <div class="admin-layout">
-        <div style="width:100%;max-width:850px;">
+        <div>
           <!-- BARRA DE FILTROS -->
           <div class="crm-filters" id="adminFilters">
             <h3 class="crm-section-title">Filtro de Usuarios</h3>
@@ -56,23 +56,25 @@
                     th:text="'BLOQUEADO'">
                   </span>
                 </td>
-                <td class="admin-actions">
-                  <form th:action="@{/menu/admin/approve/{id}(id=${u.id})}" method="post"
-                    th:if="${u.role == null or u.role.name == 'PENDIENTE'}"
-                    data-confirm="¿Confirmas que quieres aprobar a este usuario?">
-                    <button type="submit" class="btn-approve">Aprobar</button>
-                  </form>
-                  <form th:action="@{/menu/admin/reactivate/{id}(id=${u.id})}" method="post"
-                    th:if="${u.role != null and u.role.name == 'BLOQUEADO'}"
-                    data-confirm="¿Seguro que quieres reactivar a este usuario?">
-                    <button type="submit" class="btn-approve">Reactivar</button>
-                  </form>
-                  <form th:action="@{/menu/admin/block/{id}(id=${u.id})}" method="post"
-                    th:if="${u.role != null and u.role.name != 'BLOQUEADO' and u.role.name != 'PENDIENTE'}"
-                    data-confirm="¿Seguro que quieres bloquear a este usuario?"
-                    data-danger="true">
-                    <button type="submit" class="btn-delete">Bloquear</button>
-                  </form>
+                <td>
+                  <div class="admin-actions admin-actions--center">
+                    <form th:action="@{/menu/admin/approve/{id}(id=${u.id})}" method="post"
+                      th:if="${u.role == null or u.role.name == 'PENDIENTE'}"
+                      data-confirm="¿Confirmas que quieres aprobar a este usuario?">
+                      <button type="submit" class="btn-approve">Aprobar</button>
+                    </form>
+                    <form th:action="@{/menu/admin/reactivate/{id}(id=${u.id})}" method="post"
+                      th:if="${u.role != null and u.role.name == 'BLOQUEADO'}"
+                      data-confirm="¿Seguro que quieres reactivar a este usuario?">
+                      <button type="submit" class="btn-approve">Reactivar</button>
+                    </form>
+                    <form th:action="@{/menu/admin/block/{id}(id=${u.id})}" method="post"
+                      th:if="${u.role != null and u.role.name != 'BLOQUEADO' and u.role.name != 'PENDIENTE'}"
+                      data-confirm="¿Seguro que quieres bloquear a este usuario?"
+                      data-danger="true">
+                      <button type="submit" class="btn-delete">Bloquear</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -82,6 +84,9 @@
               </tr>
             </tfoot>
           </table>
+
+          <!-- PAGINACIÓN -->
+          <div class="pagination-controls" id="paginacionUsuarios"></div>
           </div>
         </div>
       </div>
@@ -91,6 +96,75 @@
       (function () {
         var rows = Array.from(document.querySelectorAll('#adminTbody tr'));
         var noResults = document.getElementById('noResultsRow');
+
+        /* ---------- PAGINACIÓN (genérica, 10 por página) ---------- */
+        function crearPaginador(config) {
+          var paginaActual = 1;
+          var porPagina = 10;
+
+          function getFilasFiltradas() {
+            return config.rows.filter(function (r) {
+              return r.dataset.filtradoOculto !== 'true';
+            });
+          }
+
+          function render() {
+            var filtradas = getFilasFiltradas();
+            var totalPaginas = Math.max(1, Math.ceil(filtradas.length / porPagina));
+
+            if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+
+            filtradas.forEach(function (r, i) {
+              var enPagina = i >= (paginaActual - 1) * porPagina && i < paginaActual * porPagina;
+              r.style.display = enPagina ? '' : 'none';
+            });
+
+            config.rows.forEach(function (r) {
+              if (r.dataset.filtradoOculto === 'true') r.style.display = 'none';
+            });
+
+            pintarControles(totalPaginas);
+          }
+
+          function pintarControles(totalPaginas) {
+            var cont = document.getElementById(config.controlsId);
+            if (!cont) return;
+            cont.innerHTML = '';
+
+            if (totalPaginas <= 1) return;
+
+            var btnPrev = document.createElement('button');
+            btnPrev.type = 'button';
+            btnPrev.textContent = '‹ Anterior';
+            btnPrev.disabled = paginaActual === 1;
+            btnPrev.addEventListener('click', function () {
+              paginaActual--;
+              render();
+            });
+            cont.appendChild(btnPrev);
+
+            var info = document.createElement('span');
+            info.textContent = ' Página ' + paginaActual + ' de ' + totalPaginas + ' ';
+            cont.appendChild(info);
+
+            var btnNext = document.createElement('button');
+            btnNext.type = 'button';
+            btnNext.textContent = 'Siguiente ›';
+            btnNext.disabled = paginaActual === totalPaginas;
+            btnNext.addEventListener('click', function () {
+              paginaActual++;
+              render();
+            });
+            cont.appendChild(btnNext);
+          }
+
+          return {
+            render: render,
+            resetPagina: function () { paginaActual = 1; }
+          };
+        }
+
+        var paginadorUsuarios = crearPaginador({ rows: rows, controlsId: 'paginacionUsuarios' });
 
         function poblarSelect(id, dataKey) {
           var select = document.getElementById(id);
@@ -117,11 +191,14 @@
               (!nombre || (row.dataset.username || '').toLowerCase().includes(nombre)) &&
               (!rol || row.dataset.rol === rol);
 
-            row.style.display = ok ? '' : 'none';
+            row.dataset.filtradoOculto = ok ? 'false' : 'true';
             if (ok) visibles++;
           });
 
           if (noResults) noResults.style.display = visibles === 0 ? '' : 'none';
+
+          paginadorUsuarios.resetPagina();
+          paginadorUsuarios.render();
         }
 
         document.getElementById('filtroNombre').addEventListener('input', filtrar);
@@ -132,6 +209,12 @@
           document.getElementById('filtroRol').value = '';
           filtrar();
         });
+
+        // Estado inicial: todas sin filtrar, paginadas desde el principio
+        rows.forEach(function (row) {
+          row.dataset.filtradoOculto = 'false';
+        });
+        paginadorUsuarios.render();
       })();
     </script>
   </div>

@@ -33,16 +33,30 @@ public class WorkClockController {
     @GetMapping
     public String clockInGet(Model model, HttpSession session) {
         model.addAttribute("username", session.getAttribute("username"));
-        model.addAttribute("startTime", session.getAttribute("startTime"));
+
+        Integer userId = (Integer) session.getAttribute("userId");
+        TimeEntryDTO todayEntry = timeEntryService.findToday(userId);
+
+        if (todayEntry != null && todayEntry.getEndTime() != null) {
+            // Ya fichó y cerró hoy: no puede volver a iniciar
+            model.addAttribute("startTime", null);
+            model.addAttribute("endTime", formatDate(todayEntry.getEndTime()));
+            model.addAttribute("finishedToday", true);
+        } else if (todayEntry != null) {
+            // Jornada de hoy abierta (con o sin pausa)
+            model.addAttribute("startTime", formatDate(todayEntry.getStartTime()));
+            model.addAttribute("endTime", null);
+            model.addAttribute("finishedToday", false);
+        } else {
+            // No ha fichado hoy todavía
+            model.addAttribute("startTime", null);
+            model.addAttribute("endTime", null);
+            model.addAttribute("finishedToday", false);
+        }
+
         model.addAttribute("pauseTime", session.getAttribute("pauseTime"));
         model.addAttribute("resumeTime", session.getAttribute("resumeTime"));
-        model.addAttribute("endTime", session.getAttribute("endTime"));
         model.addAttribute("breakOpen", session.getAttribute("breakOpen"));
-
-        String lastEntryDate = (String) session.getAttribute("lastEntryDate");
-        boolean finishedToday = lastEntryDate != null
-                && lastEntryDate.equals(java.time.LocalDate.now().toString());
-        model.addAttribute("finishedToday", finishedToday);
 
         return "app/clock-in";
     }
@@ -109,8 +123,6 @@ public class WorkClockController {
 
         return "redirect:/menu/clock-in";
     }
-
-    
 
     private String formatDate(String rawDateTime) {
         if (rawDateTime == null) {

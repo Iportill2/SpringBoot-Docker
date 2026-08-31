@@ -23,6 +23,13 @@ public class TimeEntryController {
     public TimeEntryController(TimeEntryService timeEntryServ) {
         this.timeEntryServ = timeEntryServ;
     }
+
+    @GetMapping("/open/{userId}")
+    public ResponseEntity<TimeEntry> findOpen(@PathVariable Integer userId) {
+        return timeEntryServ.findOpenByUser(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
     
     @PostMapping("/start/{userId}")
     public ResponseEntity<TimeEntry> start(@PathVariable Integer userId) {
@@ -55,5 +62,12 @@ public class TimeEntryController {
         List<TimeEntry> entries = timeEntryServ.findByUserAndMonth(userId, year, month);
         return ResponseEntity.ok(entries);
     }
+
+    @GetMapping("/today/{userId}")
+    public ResponseEntity<TimeEntry> findToday(@PathVariable Integer userId) {
+        return timeEntryServ.findTodayByUser(userId)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.noContent().build());
+}
 
 }
