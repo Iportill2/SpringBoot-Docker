@@ -3,16 +3,15 @@
 
 <body>
     <div layout:fragment="content">
-        <div class="profile-page">
-            <div class="profile-card">
-                <h2>Mi perfil</h2>
+        <div class="crm-page-full">
+            <h2 class="admin-title">Mi perfil</h2>
 
+            <div class="profile-card">
                 <div th:each="uq : ${userQuestions}" class="profile-field profile-question">
                     <button type="button" class="btn-reveal-question">Mostrar pregunta</button>
                     <span class="profile-label" th:text="${uq.questionText}" hidden></span>
                     <span class="profile-value" th:text="${uq.answer}" hidden></span>
                 </div>
-
 
                 <div class="profile-field">
                     <span class="profile-label">Usuario</span>
@@ -32,10 +31,9 @@
                         </button>
                     </span>
                 </div>
-
-                
             </div>
         </div>
+
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const emailValue = document.getElementById('emailValue');

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -20,14 +21,23 @@ public class TimeEntryService {
     private final UsersRepository userRepository;
 
     public TimeEntryService(TimeEntryRepository timeEntryRepository,
-                            UsersRepository userRepository) {
+            UsersRepository userRepository) {
         this.timeEntryRepository = timeEntryRepository;
         this.userRepository = userRepository;
+    }
+
+    public Optional<TimeEntry> findOpenByUser(Integer userId) {
+        return timeEntryRepository.findByUserIdAndEndTimeIsNull(userId);
     }
 
     public TimeEntry startEntry(Integer userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Optional<TimeEntry> jornadaAbierta = timeEntryRepository.findByUserIdAndEndTimeIsNull(userId);
+        if (jornadaAbierta.isPresent()) {
+            throw new RuntimeException("Ya tienes una jornada abierta sin cerrar");
+        }
 
         TimeEntry entry = new TimeEntry();
         entry.setUser(user);
@@ -35,6 +45,10 @@ public class TimeEntryService {
         entry.setStartTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
         return timeEntryRepository.save(entry);
+    }
+
+    public Optional<TimeEntry> findTodayByUser(Integer userId) {
+        return timeEntryRepository.findByUserIdAndDate(userId, LocalDate.now());
     }
 
     public TimeEntry stopEntry(Integer timeEntryId, int pauseMinutes) {

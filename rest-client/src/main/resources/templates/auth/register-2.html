@@ -57,17 +57,32 @@
 			document.addEventListener('DOMContentLoaded', function () {
 				const selects = document.querySelectorAll('.question-select');
 
+				// Guardamos una copia de TODAS las opciones originales (una sola vez)
+				const opcionesOriginales = Array.from(selects[0].querySelectorAll('option'));
+
 				function updateOptions() {
 					const selectedValues = Array.from(selects)
 						.map(s => s.value)
 						.filter(v => v !== '');
 
 					selects.forEach(select => {
-						const currentValue = select.value;
-						select.querySelectorAll('option').forEach(option => {
-							if (option.value === '') return;
-							option.disabled = selectedValues.includes(option.value) && option.value !== currentValue;
+						const valorActual = select.value;
+
+						// Reconstruimos el select desde cero con la lista original
+						select.innerHTML = '';
+						opcionesOriginales.forEach(original => {
+							const esPlaceholder = original.value === '';
+							const elegidaPorOtro = selectedValues.includes(original.value) && original.value !== valorActual;
+
+							// Solo añadimos la opción si es el placeholder, o si nadie más la tiene elegida
+							if (esPlaceholder || !elegidaPorOtro) {
+								const opt = original.cloneNode(true);
+								select.appendChild(opt);
+							}
 						});
+
+						// Restauramos el valor que tenía este select
+						select.value = valorActual;
 					});
 				}
 

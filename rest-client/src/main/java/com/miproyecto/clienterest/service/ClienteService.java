@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import com.miproyecto.clienterest.dto.ClienteDTO;
+import com.miproyecto.clienterest.dto.TimeEntryDTO;
 
 @Service
 public class ClienteService {

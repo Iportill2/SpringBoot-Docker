@@ -1,17 +1,17 @@
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/base-app}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout/base-app}">
+
 <body>
     <div layout:fragment="content">
         <div class="calendar-page">
 
-			<div class="calendar-header">
-			    <a th:href="@{/menu/calendar(year=${prevYear}, month=${prevMonth})}" class="calendar-nav-btn">&larr;</a>
-			    <h2 th:text="${monthLabel}">Mes</h2>
-			    <a th:href="@{/menu/calendar(year=${nextYear}, month=${nextMonth})}" class="calendar-nav-btn">&rarr;</a>
-			</div>
+            <div class="calendar-header">
+                <a th:href="@{/menu/calendar(year=${prevYear}, month=${prevMonth})}" class="calendar-nav-btn">&larr;</a>
+                <h2 th:text="${monthLabel}">Mes</h2>
+                <a th:href="@{/menu/calendar(year=${nextYear}, month=${nextMonth})}" class="calendar-nav-btn">&rarr;</a>
+            </div>
 
-            <div class="calendar-grid-wrapper">
+            <div class="calendar-grid-wrapper" th:attr="data-year=${currentYear}, data-month=${currentMonth}">
                 <div class="weekday-row">
                     <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span>
                     <span>Vie</span><span>Sáb</span><span>Dom</span>
@@ -20,17 +20,65 @@
                 <div class="days-grid">
                     <div class="day-cell empty" th:each="i : ${#numbers.sequence(1, startOffset)}"></div>
 
-                    <div class="day-cell"
-                         th:each="day : ${#numbers.sequence(1, daysInMonth)}"
-                         th:classappend="${hoursByDay.containsKey(day)} ? 'worked' : ''">
+                    <div class="day-cell" th:each="day : ${#numbers.sequence(1, daysInMonth)}"
+                        th:classappend="${hoursByDay.containsKey(day)} ? 'worked' : ''"
+                        th:attr="data-day=${day}, data-hours=${hoursByDay.containsKey(day)} ? ${hoursByDay.get(day)} : ''"
+                        onclick="mostrarDetalleDia(this)">
                         <span class="day-number" th:text="${day}"></span>
                         <span class="day-hours" th:if="${hoursByDay.containsKey(day)}"
-                              th:text="${hoursByDay.get(day)}"></span>
+                            th:text="${hoursByDay.get(day)}"></span>
                     </div>
                 </div>
             </div>
 
         </div>
+
+        <!-- MODAL DETALLE DÍA -->
+        <div class="modal-overlay" id="dayModal">
+            <div class="modal-box">
+                <h3 class="modal-title" id="dayModalTitle">Día</h3>
+                <p class="modal-message" id="dayModalMessage"></p>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" id="dayModalClose">Cerrar</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                var overlay = document.getElementById('dayModal');
+                var title = document.getElementById('dayModalTitle');
+                var message = document.getElementById('dayModalMessage');
+                var closeBtn = document.getElementById('dayModalClose');
+                var grid = document.querySelector('.calendar-grid-wrapper');
+
+                var meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+                window.mostrarDetalleDia = function (cell) {
+                    var dia = cell.dataset.day;
+                    var horas = cell.dataset.hours;
+                    var mes = parseInt(grid.dataset.month, 10);
+                    var anio = grid.dataset.year;
+
+                    title.textContent = 'Día ' + dia + ' de ' + meses[mes - 1] + ' de ' + anio;
+                    message.textContent = horas
+                        ? 'Has trabajado ' + horas
+                        : 'No trabajaste este día';
+
+                    overlay.classList.add('show');
+                };
+
+                closeBtn.addEventListener('click', function () {
+                    overlay.classList.remove('show');
+                });
+
+                overlay.addEventListener('click', function (event) {
+                    if (event.target === overlay) overlay.classList.remove('show');
+                });
+            })();
+        </script>
     </div>
 </body>
+
 </html>

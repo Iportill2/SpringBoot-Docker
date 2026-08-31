@@ -39,4 +39,20 @@ public class TimeEntryService {
                 .body(new ParameterizedTypeReference<List<TimeEntryDTO>>() {
                 });
     }
+
+    public TimeEntryDTO findOpen(Integer userId) {
+        return restClient.get()
+            .uri("/api/time-entry/open/{userId}", userId)
+            .retrieve()
+            .onStatus(status -> status.value() == 204, (req, res) -> {})
+            .body(TimeEntryDTO.class);
+    }
+
+    public TimeEntryDTO findToday(Integer userId) {
+    return restClient.get()
+        .uri("/api/time-entry/today/{userId}", userId)
+        .retrieve()
+        .onStatus(status -> status.value() == 204, (req, res) -> {})
+        .body(TimeEntryDTO.class);
+}
 }

@@ -50,9 +50,10 @@
             </div>
 
 
-            <div>
+            <div class="crm-list-box">
+                <h3 class="crm-section-title">Lista de Usuarios</h3>
+                <table class="admin-table backup-table">
 
-                <table class="backup-table">
 
                     <thead>
 
@@ -66,7 +67,7 @@
                     </thead>
 
 
-                    <tbody>
+                    <tbody id="backupTbody">
 
                         <tr th:each="backup : ${backups}">
 
@@ -122,6 +123,9 @@
 
                     </tbody>
                 </table>
+
+                <!-- PAGINACIÓN -->
+                <div class="pagination-controls" id="paginacionBackups"></div>
             </div>
         </div>
     </div>
@@ -142,6 +146,63 @@
                     toast.classList.remove('show');
                 }, 3000);
             }
+
+            /* ---------- PAGINACIÓN (genérica, 10 por página) ---------- */
+            function crearPaginador(config) {
+                var paginaActual = 1;
+                var porPagina = 10;
+
+                function render() {
+                    var totalPaginas = Math.max(1, Math.ceil(config.rows.length / porPagina));
+
+                    if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+
+                    config.rows.forEach(function (r, i) {
+                        var enPagina = i >= (paginaActual - 1) * porPagina && i < paginaActual * porPagina;
+                        r.style.display = enPagina ? '' : 'none';
+                    });
+
+                    pintarControles(totalPaginas);
+                }
+
+                function pintarControles(totalPaginas) {
+                    var cont = document.getElementById(config.controlsId);
+                    if (!cont) return;
+                    cont.innerHTML = '';
+
+                    if (totalPaginas <= 1) return;
+
+                    var btnPrev = document.createElement('button');
+                    btnPrev.type = 'button';
+                    btnPrev.textContent = '‹ Anterior';
+                    btnPrev.disabled = paginaActual === 1;
+                    btnPrev.addEventListener('click', function () {
+                        paginaActual--;
+                        render();
+                    });
+                    cont.appendChild(btnPrev);
+
+                    var info = document.createElement('span');
+                    info.textContent = ' Página ' + paginaActual + ' de ' + totalPaginas + ' ';
+                    cont.appendChild(info);
+
+                    var btnNext = document.createElement('button');
+                    btnNext.type = 'button';
+                    btnNext.textContent = 'Siguiente ›';
+                    btnNext.disabled = paginaActual === totalPaginas;
+                    btnNext.addEventListener('click', function () {
+                        paginaActual++;
+                        render();
+                    });
+                    cont.appendChild(btnNext);
+                }
+
+                return { render: render };
+            }
+
+            var backupRows = Array.from(document.querySelectorAll('#backupTbody tr'));
+            var paginadorBackups = crearPaginador({ rows: backupRows, controlsId: 'paginacionBackups' });
+            paginadorBackups.render();
 
         })();
     </script>
