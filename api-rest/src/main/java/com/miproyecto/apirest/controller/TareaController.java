@@ -77,7 +77,6 @@ public class TareaController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Tarea> update(@PathVariable Integer id, @RequestBody Tarea tarea) {
         if (id == null || id < 1 || tarea == null) {
             return ResponseEntity.badRequest().build();

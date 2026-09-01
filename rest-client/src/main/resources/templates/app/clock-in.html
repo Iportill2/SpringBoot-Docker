@@ -4,7 +4,7 @@
 <body>
 	<div layout:fragment="content">
 		<div class="clockin-page">
-			<h2>Hola, <span th:text="${username}"></span></h2>
+			<h2>Hola, <span th:text="${#strings.abbreviate(username, 20)}"></span></h2>
 			<p>¿Comenzamos jornada?</p>
 
 			<div class="clockin-times">

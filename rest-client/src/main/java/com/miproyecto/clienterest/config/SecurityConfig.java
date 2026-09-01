@@ -1,5 +1,4 @@
 package com.miproyecto.clienterest.config;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,7 +10,6 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -36,15 +34,14 @@ public class SecurityConfig {
                 .requestMatchers("/menu/admin/**", "/menu/backups/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST,
                         "/menu/crm/crear",
-                        "/menu/crm/editar/**",
                         "/menu/crm/eliminar/**",
                         "/menu/clientes",
                         "/menu/clientes/editar/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/menu/crm/editar/**").hasAnyRole("ADMIN", "EMPLEADO")
                 .requestMatchers("/menu/**").authenticated()
                 .anyRequest().authenticated())
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")));
-
         return http.build();
     }
 }
