@@ -100,11 +100,7 @@ public class CrmController {
 
         String role = (String) session.getAttribute("role");
         boolean isAdmin = "ADMIN".equalsIgnoreCase(role);
-
-        if (!isAdmin) {
-            redirectAttributes.addFlashAttribute("error", "No tienes permisos");
-            return "redirect:/menu/crm";
-        }
+        Integer userId = (Integer) session.getAttribute("userId");
 
         try {
             // 1. Traer la tarea actual
@@ -114,7 +110,27 @@ public class CrmController {
                 return "redirect:/menu/crm";
             }
 
-            // 2. Sobreescribir solo el campo que vino
+            boolean esResponsable = tarea.getResponsable() != null
+                    && tarea.getResponsable().getId().equals(userId);
+
+            if (!isAdmin && !esResponsable) {
+                redirectAttributes.addFlashAttribute("error", "No tienes permisos");
+                return "redirect:/menu/crm";
+            }
+
+            // 2. Si NO es admin, solo puede tocar el estado (y horas, que también editan los empleados)
+            if (!isAdmin) {
+                if (estado != null)
+                    tarea.setEstado(estado);
+                if (horasEmpleadas != null)
+                    tarea.setHorasEmpleadas(horasEmpleadas);
+
+                crmService.actualizarTarea(id, tarea);
+                redirectAttributes.addFlashAttribute("message", "Tarea actualizada");
+                return "redirect:/menu/crm";
+            }
+
+            // 3. Admin: puede tocar todos los campos (lógica original)
             if (titulo != null)
                 tarea.setTitulo(titulo);
             if (estado != null)
@@ -128,7 +144,6 @@ public class CrmController {
             if (horasEmpleadas != null)
                 tarea.setHorasEmpleadas(horasEmpleadas);
 
-            // clienteId y responsableId: se mandan como objetos anidados
             if (clienteId != null) {
                 ClienteDTO c = new ClienteDTO();
                 c.setId(clienteId == 0 ? null : clienteId);
@@ -140,7 +155,6 @@ public class CrmController {
                 tarea.setResponsable(responsableId == 0 ? null : u);
             }
 
-            // 3. Mandar el PUT con la tarea completa
             crmService.actualizarTarea(id, tarea);
             redirectAttributes.addFlashAttribute("message", "Tarea actualizada");
 

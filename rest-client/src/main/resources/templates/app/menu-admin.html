@@ -36,48 +36,48 @@
               </tr>
             </thead>
 
-            <tbody id="adminTbody">
-              <tr th:each="u : ${users}" th:attr="
-                data-username=${u.username != null ? u.username : ''},
-                data-rol=${(u.role != null and u.role.name != 'PENDIENTE') ? u.role.name : 'PENDIENTE'}
-              ">
-                <td th:text="${u.username}"></td>
-                <td>
-                  <span class="badge badge-user" th:if="${u.role != null and u.role.name == 'EMPLEADO'}"
-                    th:text="'EMPLEADO'">
-                  </span>
-                  <span class="badge badge-active" th:if="${u.role != null and u.role.name == 'ADMIN'}"
-                    th:text="'ADMIN'">
-                  </span>
-                  <span class="badge badge-blocked" th:if="${u.role == null or u.role.name == 'PENDIENTE'}"
-                    th:text="'PENDIENTE'">
-                  </span>
-                  <span class="badge badge-blocked" th:if="${u.role != null and u.role.name == 'BLOQUEADO'}"
-                    th:text="'BLOQUEADO'">
-                  </span>
-                </td>
-                <td>
-                  <div class="admin-actions admin-actions--center">
-                    <form th:action="@{/menu/admin/approve/{id}(id=${u.id})}" method="post"
-                      th:if="${u.role == null or u.role.name == 'PENDIENTE'}"
-                      data-confirm="¿Confirmas que quieres aprobar a este usuario?">
-                      <button type="submit" class="btn-approve">Aprobar</button>
-                    </form>
-                    <form th:action="@{/menu/admin/reactivate/{id}(id=${u.id})}" method="post"
-                      th:if="${u.role != null and u.role.name == 'BLOQUEADO'}"
-                      data-confirm="¿Seguro que quieres reactivar a este usuario?">
-                      <button type="submit" class="btn-approve">Reactivar</button>
-                    </form>
-                    <form th:action="@{/menu/admin/block/{id}(id=${u.id})}" method="post"
-                      th:if="${u.role != null and u.role.name != 'BLOQUEADO' and u.role.name != 'PENDIENTE'}"
-                      data-confirm="¿Seguro que quieres bloquear a este usuario?"
-                      data-danger="true">
-                      <button type="submit" class="btn-delete">Bloquear</button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
+			<tbody id="adminTbody">
+			              <tr th:each="u : ${users}" th:attr="
+			                data-username=${u.username != null ? u.username : ''},
+			                data-rol=${(u.role != null and u.role.name != 'PENDIENTE') ? u.role.name : 'PENDIENTE'}
+			              ">
+			                <td th:text="${#strings.abbreviate(u.username, 20)}"></td>
+			                <td>
+			                  <span class="badge badge-user" th:if="${u.role != null and u.role.name == 'EMPLEADO'}"
+			                    th:text="'EMPLEADO'">
+			                  </span>
+			                  <span class="badge badge-active" th:if="${u.role != null and u.role.name == 'ADMIN'}"
+			                    th:text="'ADMIN'">
+			                  </span>
+			                  <span class="badge badge-blocked" th:if="${u.role == null or u.role.name == 'PENDIENTE'}"
+			                    th:text="'PENDIENTE'">
+			                  </span>
+			                  <span class="badge badge-blocked" th:if="${u.role != null and u.role.name == 'BLOQUEADO'}"
+			                    th:text="'BLOQUEADO'">
+			                  </span>
+			                </td>
+			                <td>
+			                  <div class="admin-actions admin-actions--center">
+			                    <form th:action="@{/menu/admin/approve/{id}(id=${u.id})}" method="post"
+			                      th:if="${u.role == null or u.role.name == 'PENDIENTE'}"
+			                      data-confirm="¿Confirmas que quieres aprobar a este usuario?">
+			                      <button type="submit" class="btn-approve">Aprobar</button>
+			                    </form>
+			                    <form th:action="@{/menu/admin/reactivate/{id}(id=${u.id})}" method="post"
+			                      th:if="${u.role != null and u.role.name == 'BLOQUEADO'}"
+			                      data-confirm="¿Seguro que quieres reactivar a este usuario?">
+			                      <button type="submit" class="btn-approve">Reactivar</button>
+			                    </form>
+			                    <form th:action="@{/menu/admin/block/{id}(id=${u.id})}" method="post"
+			                      th:if="${u.role != null and u.role.name != 'BLOQUEADO' and u.role.name != 'PENDIENTE'}"
+			                      data-confirm="¿Seguro que quieres bloquear a este usuario?"
+			                      data-danger="true">
+			                      <button type="submit" class="btn-delete">Bloquear</button>
+			                    </form>
+			                  </div>
+			                </td>
+			              </tr>
+			            </tbody>
             <tfoot>
               <tr id="noResultsRow" style="display:none;">
                 <td colspan="3" class="crm-empty">No hay usuarios que coincidan con los filtros</td>
