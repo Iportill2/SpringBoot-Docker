@@ -49,6 +49,29 @@ Access:
 - Direct API: `http://localhost:8080`
 - Swagger API: `http://localhost:8080/swagger-ui.html`
 
+## HTTPS access from other devices (nginx + self-signed certificate)
+
+nginx serves the app over HTTPS on ports `80` (redirects to 443) and `443`, proxying to `api-rest` and `rest-client`. The `server_name` and the self-signed certificate are both generated dynamically from the `SERVER_IP` variable in the root `.env`.
+
+**Which IP to use?** Your machine's IP on the active adapter (Wi-Fi or Ethernet). Get it with:
+
+```bash
+ipconfig
+```
+
+Look for **IPv4 Address** (`Dirección IPv4`) in the active adapter (Wi-Fi or Ethernet). **Do NOT** use the **Default Gateway** (`Puerta de enlace predeterminada`): that is the router's IP, not your machine's.
+
+**To access from another device on the same network** (e.g. `https://<SERVER_IP>`), or after changing network/adapter/computer:
+
+1. Edit `SERVER_IP` in `.env` to the machine's current IP.
+2. Recreate nginx so it regenerates the configuration and the certificate:
+
+   ```bash
+   docker compose up -d --build --force-recreate nginx
+   ```
+
+Because the certificate is self-signed and bound to that IP, the browser will show a privacy/security warning. It is expected: proceed/continue to access. No changes are needed to access from `https://127.0.0.1` locally.
+
 ## JWT Authentication
 
 The API (`api-rest`) is protected with Spring Security + JWT (stateless, CSRF disabled):

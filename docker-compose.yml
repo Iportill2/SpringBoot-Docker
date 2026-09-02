@@ -159,6 +159,9 @@ services:
       - "80:80"
       - "443:443"
 
+    environment:
+      SERVER_IP: ${SERVER_IP}
+
     depends_on:
       rest-client:
         condition: service_healthy
