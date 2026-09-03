@@ -4,16 +4,20 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 import com.miproyecto.apirest.model.Roles;
-
+import com.miproyecto.apirest.model.Users;
 import com.miproyecto.apirest.repository.RolesRepository;
+import com.miproyecto.apirest.repository.UsersRepository;
 
 @Service
 public class RolesService {
 	private final RolesRepository roleRepo;
-	public RolesService(RolesRepository rolesRepository) {this.roleRepo = rolesRepository;}
+	private final UsersRepository userRepo;
+	public RolesService(RolesRepository rolesRepository, UsersRepository userRepo) {
+		this.roleRepo = rolesRepository;
+		this.userRepo = userRepo;}
 
 	public List<Roles> findAll(){return roleRepo.findAll();}
 	public Optional<Roles> findById(Integer id)
@@ -35,6 +39,8 @@ public class RolesService {
 		return roleRepo.save(role);
 		 
 	}
+	
+	@Transactional
 	public Boolean delete(Integer id)
 	{
 		if (id == null || id < 1)
@@ -42,6 +48,14 @@ public class RolesService {
 		Optional<Roles> temp =  roleRepo.findById(id);
 		if(temp.isEmpty())
 			return false;
+		
+		List<Users> usersConEseRol = userRepo.findByRoleId(id);
+		
+		for (Users u : usersConEseRol) {
+			u.setRole(null);
+			userRepo.save(u);
+		}
+		
 		roleRepo.delete(temp.get());
 		return true;
 

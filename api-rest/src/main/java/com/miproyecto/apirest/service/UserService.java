@@ -6,11 +6,16 @@ import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.miproyecto.apirest.dto.UserCreateDTO;
 import com.miproyecto.apirest.model.Roles;
+import com.miproyecto.apirest.model.Tarea;
 import com.miproyecto.apirest.model.Users;
 import com.miproyecto.apirest.repository.RolesRepository;
+import com.miproyecto.apirest.repository.TareaRepository;
+import com.miproyecto.apirest.repository.TimeEntryRepository;
+import com.miproyecto.apirest.repository.UserQuestionRepository;
 import com.miproyecto.apirest.repository.UsersRepository;
 
 
@@ -22,12 +27,19 @@ public class UserService {
     private final UsersRepository userRepo;
     private final RolesRepository roleRepo;
     private final PasswordEncoder passwordEncoder;
+    private final TareaRepository tareaRepo;
+    private final TimeEntryRepository timeRepo;
+    private final UserQuestionRepository UQRepo;
     public UserService(UsersRepository userRepository, RolesRepository roleRepository,
-            PasswordEncoder passwordEncoder) 
+            PasswordEncoder passwordEncoder, UserQuestionRepository UQRepo, 
+            TareaRepository tareaRepo, TimeEntryRepository timeRepo) 
     {
     	this.userRepo = userRepository;
     	this.roleRepo = roleRepository;
     	this.passwordEncoder = passwordEncoder;
+    	this.tareaRepo = tareaRepo;
+    	this.UQRepo = UQRepo;
+    	this.timeRepo = timeRepo;
     }
     //Create
     public Users create(UserCreateDTO userDTO) {
@@ -163,14 +175,25 @@ public class UserService {
         return userRepo.save(current);
     }
     //Delete
+    
+    @Transactional
     public Boolean delete(Integer id)
     {
-    	 
-    	if(id < 1 )
-    		return false;
     	Optional<Users> temp = userRepo.findById(id);
-    	if(temp.isEmpty())
-    		return null;
+    	
+    	if (id == null || id < 1) return null;
+    	if (temp.isEmpty()) return false; 
+
+    	
+    	List<Tarea> listaTareasUnidasAEseEmpleado = tareaRepo.findByResponsableId(id);
+    	
+    	for (Tarea t : listaTareasUnidasAEseEmpleado) {
+    		t.setResponsable(null);
+    		tareaRepo.save(t);
+    	}
+    	
+    	timeRepo.deleteByUserId(id);
+    	UQRepo.deleteByUserId(id);
     	userRepo.delete(temp.get());//hacemos esto para pasar de Optional<Users> a Users
     	return true;
     }

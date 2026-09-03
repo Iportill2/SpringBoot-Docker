@@ -4,17 +4,21 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.miproyecto.apirest.model.Cliente;
 import com.miproyecto.apirest.repository.ClienteRepository;
+import com.miproyecto.apirest.repository.TareaRepository;
 
 @Service
 public class ClienteService {
 
     private final ClienteRepository clienteRepo;
+    private final TareaRepository tareaRepo;
 
-    public ClienteService(ClienteRepository clienteRepo) {
+    public ClienteService(ClienteRepository clienteRepo, TareaRepository tareaRepo) {
         this.clienteRepo = clienteRepo;
+        this.tareaRepo = tareaRepo;
     }
 
     public List<Cliente> findAll() {
@@ -70,7 +74,9 @@ public class ClienteService {
         return clienteRepo.save(existing);
     }
 
+    @Transactional
     public Boolean delete(Integer id) {
+    	
         if (id == null || id < 1) {
             return null;
         }
@@ -78,6 +84,8 @@ public class ClienteService {
         if (temp.isEmpty()) {
             return false;
         }
+        
+        tareaRepo.deleteByClienteId(id);
         clienteRepo.delete(temp.get());
         return true;
     }

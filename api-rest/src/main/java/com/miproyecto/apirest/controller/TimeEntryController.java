@@ -3,6 +3,7 @@ package com.miproyecto.apirest.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,6 +69,18 @@ public class TimeEntryController {
         return timeEntryServ.findTodayByUser(userId)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.noContent().build());
-}
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> delete(@PathVariable Integer id) {
+        Boolean result = timeEntryServ.delete(id);
+
+        if (result == null)
+            return ResponseEntity.badRequest().build();   
+        if (!result)
+            return ResponseEntity.notFound().build();     
+
+        return ResponseEntity.ok(true);         
+    }
 
 }

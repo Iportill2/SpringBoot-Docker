@@ -68,4 +68,16 @@ public class TimeEntryService {
         LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
         return timeEntryRepository.findByUserIdAndDateBetween(userId, start, end);
     }
+    
+    public Boolean delete(Integer id) {
+        if (id == null || id < 1)
+            return null;
+
+        Optional<TimeEntry> temp = timeEntryRepository.findById(id);
+        if (temp.isEmpty())
+            return false;
+
+        timeEntryRepository.delete(temp.get());
+        return true;
+    }
 }

@@ -15,4 +15,5 @@ public interface TimeEntryRepository extends JpaRepository<TimeEntry, Integer> {
 	List<TimeEntry> findByUserIdAndDateBetween(Integer userId, LocalDate start, LocalDate end);
 	Optional<TimeEntry> findByUserIdAndEndTimeIsNull(Integer userId);
 	Optional<TimeEntry> findByUserIdAndDate(Integer userId, LocalDate date);
+	void deleteByUserId(Integer userId);
 }

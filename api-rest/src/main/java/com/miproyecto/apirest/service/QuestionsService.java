@@ -5,15 +5,20 @@ import java.util.Optional;
 
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.miproyecto.apirest.model.Questions;
 import com.miproyecto.apirest.model.Users;
 import com.miproyecto.apirest.repository.QuestionsRepository;
+import com.miproyecto.apirest.repository.UserQuestionRepository;
 
 @Service
 public class QuestionsService  {
 	private final QuestionsRepository QRepo;
-	public QuestionsService(QuestionsRepository questionsRepository) {this.QRepo = questionsRepository;}
+	private final UserQuestionRepository UQRepo;
+	public QuestionsService(QuestionsRepository questionsRepository, UserQuestionRepository UQRepo) {
+		this.QRepo = questionsRepository;
+		this.UQRepo = UQRepo; }
 
 	public Questions create(Questions question) {
 
@@ -57,15 +62,19 @@ public class QuestionsService  {
 		Optional<Questions> temp = QRepo.findByText(text);
 		return temp.get();
 	}
-	public Boolean delete(Integer Id)
-	{
-		if(Id <1)
-			return null;
-		Optional<Questions> temp = QRepo.findById(Id);
-		if(temp.isEmpty())
-			return false;
-		QRepo.delete(temp.get());
-		return true;
+	
+	@Transactional
+	public Boolean delete(Integer Id) {
+	    
+	     if (Id == null || Id < 1) return null;
+
+	     Optional<Questions> temp = QRepo.findById(Id);
+	     if (temp.isEmpty()) return false;
+
+	     UQRepo.deleteByQuestionId(Id);
+	     QRepo.delete(temp.get());
+
+	     return true;
 	}
 
 }

@@ -19,5 +19,6 @@ public interface UserQuestionRepository extends JpaRepository<UserQuestion, Inte
 //	existsById()
 	List<UserQuestion> findByUserId(Integer userId);
 	Optional<UserQuestion> findByUserIdAndQuestionId(Integer userId, Integer questionId);
-
+	void deleteByQuestionId(Integer questionId);
+	void deleteByUserId(Integer userId);
 }
