@@ -262,49 +262,6 @@ body {
 	color: white;
 }
 
-/* RESPONSIVE MENU SIDEBAR*/
-
-.sidebar-overlay {
-	display: none;
-	position: fixed;
-	inset: 0;
-	background-color: rgba(0, 0, 0, 0.5);
-	z-index: 90;
-}
-
-.sidebar-toggle {
-	display: none;
-	background: none;
-	border: none;
-	font-size: 1.5rem;
-	cursor: pointer;
-	color: #cbd5e1;
-}
-
-@media (max-width: 768px) {
-	.sidebar-toggle {
-		display: block;
-	}
-
-	.sidebar {
-		position: fixed;
-		top: 0;
-		left: 0;
-		height: 100vh;
-		z-index: 100;
-		transform: translateX(-100%);
-		transition: transform 0.25s ease;
-	}
-
-	.sidebar.is-open {
-		transform: translateX(0);
-	}
-
-	.sidebar-overlay.show {
-		display: block;
-	}
-}
-
 /* ===== APP-BASE-FOOTER ===== */
 
 .app-footer {
@@ -2331,4 +2288,91 @@ html.dark-mode .backup-log-content {
 
 .dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
+}
+
+/* ===== SIDEBAR TOGGLE (menú móvil y escritorio) ===== */
+
+.sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  margin-right: 0.5rem;
+}
+
+.sidebar-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.28);
+}
+
+.sidebar-toggle-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.sidebar {
+  transition: transform 0.25s ease, margin-left 0.25s ease;
+}
+
+/* Escritorio: ocultar/mostrar el sidebar completo */
+body.sidebar-collapsed .sidebar {
+  margin-left: -220px;
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body.sidebar-collapsed .app-main {
+  width: 100%;
+}
+
+/* Overlay (usado en móvil) */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  top: 65px;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+}
+
+html.dark-mode .sidebar-overlay {
+  background-color: rgba(2, 6, 23, 0.6);
+}
+
+/* Móvil: el sidebar pasa a ser un panel deslizante */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    top: 65px;
+    bottom: 0;
+    left: 0;
+    width: 220px;
+    padding: 2rem 1rem;
+    margin-left: 0;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 999;
+    overflow-y: auto;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
+  }
+
+  body.sidebar-collapsed .sidebar {
+    margin-left: 0;
+    width: 220px;
+    padding: 2rem 1rem;
+  }
+
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  body.sidebar-open .sidebar-overlay {
+    display: block;
+  }
 }
