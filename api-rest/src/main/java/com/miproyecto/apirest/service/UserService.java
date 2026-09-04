@@ -169,7 +169,23 @@ public class UserService {
         }
 
         if (user.getRole() != null) {
-            current.setRole(user.getRole());
+            // Validar el rol solicitado: solo se permiten roles conocidos (1..4).
+            Roles requestedRole = roleRepo.findById(user.getRole().getId()).orElse(null);
+            if (requestedRole == null) {
+                throw new IllegalArgumentException("Rol invalido: " + user.getRole().getId());
+            }
+
+            // Anti-auto-elevacion: un usuario no puede elevarse a ADMIN (id 2)
+            // a traves de este endpoint de actualizacion generico.
+            Users operator = com.miproyecto.apirest.security.SecurityUtils.currentUser();
+            boolean targetingSelf = operator != null
+                    && operator.getId() != null
+                    && operator.getId().equals(current.getId());
+            if (targetingSelf && requestedRole.getId() == 2) {
+                throw new SecurityException("No puedes elevarte a rol ADMIN");
+            }
+
+            current.setRole(requestedRole);
         }
 
         return userRepo.save(current);

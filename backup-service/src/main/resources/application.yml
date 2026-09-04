@@ -37,4 +37,4 @@ mysql:
   port: ${MYSQL_PORT:3306}
   database: ${MYSQL_DATABASE:aplicacion}
   user: ${MYSQL_USER:api_user}
-  password: ${MYSQL_PASSWORD:api_password}
+  password: ${MYSQL_PASSWORD:}

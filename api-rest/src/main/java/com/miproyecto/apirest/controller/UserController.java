@@ -148,12 +148,19 @@ public class UserController {
             @PathVariable Integer id,
             @RequestBody Users user) {
 
-        Users updatedUser = userService.update(id, user);
+        try {
+            Users updatedUser = userService.update(id, user);
 
-        if (updatedUser == null)
-            return ResponseEntity.notFound().build();
+            if (updatedUser == null)
+                return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(true);
+            return ResponseEntity.ok(true);
+
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
     //Delete
     @DeleteMapping("/{id}")

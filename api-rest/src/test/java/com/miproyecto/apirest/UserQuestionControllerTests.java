@@ -79,6 +79,40 @@ class UserQuestionControllerTests {
                 .andExpect(jsonPath("$.answer").value("mi respuesta"));
     }
 
+    // Un usuario no-admin NO puede fijar las preguntas de seguridad de otra
+    // cuenta (IDOR / account takeover). El endpoint exige que el usuario
+    // objetivo sea el propio (o un ADMIN).
+    @Test
+    void createForAnotherUserByNonAdminIsForbidden() throws Exception {
+        Users attacker = saveUserWithRole("attacker", 1);
+        Users victim = saveUserWithRole("victim", 1);
+        String token = jwtService.generateToken(attacker);
+        Questions question = questionRepo.save(new Questions(null, "¿Pregunta?"));
+
+        mockMvc.perform(post("/api/userquestion")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"user": {"id": %d}, "question": {"id": %d}, "answer": "clave"}
+                                """.formatted(victim.getId(), question.getId())))
+                .andExpect(status().isForbidden());
+    }
+
+    // Sin autenticacion, el endpoint POST /api/userquestion queda fuera de la
+    // regla permitAll() y de vuelve 401 (unauthenticated).
+    @Test
+    void createWithoutAuthIsUnauthorized() throws Exception {
+        Users user = saveUser("testuser");
+        Questions question = questionRepo.save(new Questions(null, "¿Pregunta?"));
+
+        mockMvc.perform(post("/api/userquestion")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"user": {"id": %d}, "question": {"id": %d}, "answer": "mi respuesta"}
+                                """.formatted(user.getId(), question.getId())))
+                .andExpect(status().isUnauthorized());
+    }
+
     @Test
     void findAllRequiresAuth() throws Exception {
         mockMvc.perform(get("/api/userquestion"))
@@ -197,7 +231,11 @@ class UserQuestionControllerTests {
     // isAdminOrSelf requieren rol ADMIN para consultar/borrar de otros
     // usuarios. Se usa el rol 2 (ADMIN) para acceder a todo el controlador.
     private Users saveUser(String username) {
-        Roles role = roleRepo.findById(2).orElseThrow();
+        return saveUserWithRole(username, 2);
+    }
+
+    private Users saveUserWithRole(String username, Integer roleId) {
+        Roles role = roleRepo.findById(roleId).orElseThrow();
         Users user = new Users();
         user.setUsername(username);
         user.setPass("password123");

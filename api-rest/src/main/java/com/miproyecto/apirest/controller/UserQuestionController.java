@@ -33,8 +33,22 @@ public class UserQuestionController {
 	}
 
 	// Create
+	// Requiere autenticacion y que el usuario objetivo sea el propio usuario
+	// (o un ADMIN). Evita que un usuario autenticado fije las preguntas de
+	// seguridad de cualquier otra cuenta (IDOR / account takeover).
 	@PostMapping
 	public ResponseEntity<UserQuestion> create(@RequestBody UserQuestion userQuestion) {
+		if (userQuestion == null || userQuestion.getUser() == null
+				|| userQuestion.getUser().getId() == null) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		Integer targetUserId = userQuestion.getUser().getId();
+
+		if (!SecurityUtils.isAdminOrSelf(targetUserId)) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
+
 		UserQuestion temp = userQuestionServ.create(userQuestion);
 		if (temp == null)
 			return ResponseEntity.badRequest().build();

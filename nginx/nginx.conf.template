@@ -15,11 +15,14 @@ server {
 
     server_name ${SERVER_IP};
 
-
     ssl_certificate /etc/nginx/certs/server.crt;
 
     ssl_certificate_key /etc/nginx/certs/server.key;
 
+    # TLS hardening: solo TLS 1.2 y 1.3 con cifrados fuertes.
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;
 
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
@@ -34,6 +37,11 @@ server {
     add_header X-Frame-Options "SAMEORIGIN" always;
 
     add_header X-XSS-Protection "0" always;
+
+    # Content-Security-Policy: restringe el origen de scripts/estilos/medios
+    # a lo servido por esta aplicacion. Se permiten inline (Bootstrap/Thymeleaf)
+    # y data: para imagenes.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'" always;
 
 
 

@@ -42,7 +42,11 @@ public class SecurityConfig {
             @Value("${backup.security.password:}") String password,
             PasswordEncoder passwordEncoder) {
 
-        if (password == null || password.isBlank() || "change_me_backup".equals(password)) {
+        if (password == null || password.isBlank()
+                || "change_me_backup".equals(password)
+                || "backup_password".equals(password)
+                || "api_password".equals(password)
+                || "cambia_esto".equals(password)) {
             throw new IllegalStateException(
                     "Backup-service no está configurado: define BACKUP_SERVICE_USER / BACKUP_SERVICE_PASSWORD");
         }

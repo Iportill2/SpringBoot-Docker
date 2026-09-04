@@ -1,5 +1,6 @@
 package com.miproyecto.apirest;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -143,8 +144,33 @@ class UserControllerTests {
                 .andExpect(jsonPath("$").value(false));
     }
 
+    // El PATCH /api/user/{id} requiere rol ADMIN. Un administrador puede
+    // cambiar el rol de OTRO usuario (p.ej. aprobar/activar/bloquear), pero
+    // NO puede auto-elevarse: el endpoint impide que un usuario se suba a
+    // ADMIN (id 2) a traves del endpoint generico.
     @Test
-    void patchApproveRoleUpdatesUser() throws Exception {
+    void patchRoleOfAnotherUserAllowed() throws Exception {
+        Users admin = saveUser("adminuser");
+        Users target = saveUser("targetuser");
+        String token = jwtService.generateToken(admin);
+
+        mockMvc.perform(patch("/api/user/{id}", target.getId())
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"role": {"id": 4}}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(true));
+
+        Users updated = userRepo.findById(target.getId()).orElseThrow();
+        assertTrue(updated.getRole().getId() == 4);
+    }
+
+    // Un administrador no puede auto-elevarse ni "confirmarse" a si mismo
+    // como ADMIN mediante el endpoint generico (anti-auto-elevacion).
+    @Test
+    void patchSelfRoleToAdminIsRejected() throws Exception {
         Users user = saveUser("testuser");
         String token = jwtService.generateToken(user);
 
@@ -154,8 +180,24 @@ class UserControllerTests {
                         .content("""
                                 {"role": {"id": 2}}
                                 """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(true));
+                .andExpect(status().isForbidden());
+    }
+
+    // Un rol inexistente se rechaza con 400 (no se puede asignar un rol
+    // invalido a ningun usuario).
+    @Test
+    void patchWithInvalidRoleIsRejected() throws Exception {
+        Users admin = saveUser("adminuser");
+        Users target = saveUser("targetuser");
+        String token = jwtService.generateToken(admin);
+
+        mockMvc.perform(patch("/api/user/{id}", target.getId())
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"role": {"id": 99}}
+                                """))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

@@ -16,6 +16,7 @@ target/
 # Entorno / credenciales
 .env
 *.key
+body.json
 
 # Sistema
 .DS_Store

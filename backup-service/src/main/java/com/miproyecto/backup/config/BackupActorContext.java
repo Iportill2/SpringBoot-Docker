@@ -17,7 +17,11 @@ public class BackupActorContext {
         if (actor == null || actor.isBlank()) {
             return DEFAULT_ACTOR;
         }
-        String cleaned = actor.replaceAll("[\\r\\n\\t\\x00-\\x1F]", " ").trim();
+        // Solo se permiten caracteres seguros (letras, digitos y unos pocos
+        // simbolos). Se descarta cualquier otro caracter para que un valor
+        // forjado del header X-Actor no pueda inyectar contenido arbitrario
+        // en el log de auditoria.
+        String cleaned = actor.replaceAll("[^A-Za-z0-9@._\\- ]", "").trim();
         if (cleaned.length() > 100) {
             cleaned = cleaned.substring(0, 100);
         }
