@@ -1,10 +1,4 @@
-FROM nginx
-
-RUN apt-get update && \
-    apt-get install -y openssl gettext-base && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN rm -f /etc/nginx/conf.d/default.conf
+FROM iker-nginx:latest
 
 COPY nginx.conf.template /etc/nginx/templates/nginx.conf.template
 

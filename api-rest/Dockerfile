@@ -1,9 +1,12 @@
-FROM eclipse-temurin:21-jdk
+FROM iker-api-rest:latest
+
+RUN (getent group appgroup >/dev/null 2>&1 || groupadd -r appgroup) \
+ && (id appuser >/dev/null 2>&1 || useradd -r -g appgroup -d /app appuser)
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
 COPY target/*.jar app.jar
+
+USER appuser
 
 ENTRYPOINT ["java","-jar","app.jar"]

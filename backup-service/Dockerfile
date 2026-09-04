@@ -1,11 +1,7 @@
-FROM eclipse-temurin:21-jre
+FROM iker-backup-service:latest
 
-RUN apt-get update && \
-    apt-get install -y default-mysql-client gzip && \
-    rm -rf /var/lib/apt/lists/*
+COPY target/*.jar /tmp/app.jar
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-ARG JAR_FILE=target/*.jar
-
-COPY ${JAR_FILE} app.jar
-
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

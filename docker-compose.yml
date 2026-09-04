@@ -1,11 +1,19 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
 
   mysql:
     image: mysql:8.0
     container_name: mysql-db
 
+    logging: *default-logging
+
     ports:
-      - "3307:3306"
+      - "127.0.0.1:3307:3306"
 
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -35,6 +43,8 @@ services:
 
     container_name: backup-service
 
+    logging: *default-logging
+
     ports:
       - "127.0.0.1:8082:8082"
 
@@ -50,7 +60,7 @@ services:
       BACKUP_RETENTION_WEEKLY: ${BACKUP_RETENTION_WEEKLY:-4}
       BACKUP_RETENTION_MONTHLY: ${BACKUP_RETENTION_MONTHLY:-12}
       BACKUP_SERVICE_USER: ${BACKUP_SERVICE_USER:-backup_service}
-      BACKUP_SERVICE_PASSWORD: ${BACKUP_SERVICE_PASSWORD:-change_me_backup}
+      BACKUP_SERVICE_PASSWORD: ${BACKUP_SERVICE_PASSWORD}
       TZ: ${TZ:-Europe/Madrid}
 
     depends_on:
@@ -81,8 +91,10 @@ services:
     profiles:
       - full
 
+    logging: *default-logging
+
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
 
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -90,7 +102,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-14400000}
       TZ: ${TZ:-Europe/Madrid}
 
     depends_on:
@@ -118,14 +130,16 @@ services:
     profiles:
       - full
 
+    logging: *default-logging
+
     ports:
-      - "8081:8081"
+      - "127.0.0.1:8081:8081"
 
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: ${TZ:-Europe/Madrid}
       BACKUP_SERVICE_USER: ${BACKUP_SERVICE_USER:-backup_service}
-      BACKUP_SERVICE_PASSWORD: ${BACKUP_SERVICE_PASSWORD:-change_me_backup}
+      BACKUP_SERVICE_PASSWORD: ${BACKUP_SERVICE_PASSWORD}
 
     depends_on:
       api-rest:
@@ -154,6 +168,8 @@ services:
 
     profiles:
       - full
+
+    logging: *default-logging
 
     ports:
       - "80:80"
