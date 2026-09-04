@@ -1680,12 +1680,11 @@ html.dark-mode .admin-page .crm-list-box .crm-section-title {
 
 .cliente-create-section .cliente-form {
 	margin: 0;
-	flex-wrap: nowrap;
 }
 
 .cliente-create-section .cliente-form input {
 	flex: 1 1 0;
-	min-width: 0;
+	min-width: 140px;
 }
 
 .cliente-create-section .cliente-section-title {
