@@ -8,3 +8,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+
+  # Red de seguridad para el classpath de pruebas: el data.sql de
+  # produccion NUNCA debe ejecutarse desde los tests. El perfil
+  # "test" (application-test.yml) es el que decide si se carga un
+  # script de datos propio (data-test.sql).
+  sql:
+    init:
+      mode: never

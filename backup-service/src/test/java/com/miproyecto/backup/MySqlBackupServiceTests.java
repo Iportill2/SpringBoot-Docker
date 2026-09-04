@@ -193,7 +193,7 @@ class MySqlBackupServiceTests {
         writeBackup(dir, "aplicacion_2024-06-10_10-00-00.sql.gz");
         writeBackup(dir, "aplicacion_2024-12-10_10-00-00.sql.gz");
         writeBackup(dir, "aplicacion_2026-01-15_10-00-00.sql.gz");
-        writeBackup(dir, "aplicacion_2026-08-01_10-00-00.sql.gz");
+        writeBackup(dir, "aplicacion_2026-07-20_10-00-00.sql.gz");
         writeBackup(dir, "aplicacion_2026-08-10_10-00-00.sql.gz");
 
         int deleted = cleanupService.cleanupOldBackups();
@@ -202,7 +202,7 @@ class MySqlBackupServiceTests {
         Path oldJun = dir.resolve("aplicacion_2024-06-10_10-00-00.sql.gz");
         Path oldDec = dir.resolve("aplicacion_2024-12-10_10-00-00.sql.gz");
         Path recentJan = dir.resolve("aplicacion_2026-01-15_10-00-00.sql.gz");
-        Path aug1 = dir.resolve("aplicacion_2026-08-01_10-00-00.sql.gz");
+        Path jul = dir.resolve("aplicacion_2026-07-20_10-00-00.sql.gz");
         Path aug10 = dir.resolve("aplicacion_2026-08-10_10-00-00.sql.gz");
 
         assertEquals(3, deleted);
@@ -211,7 +211,7 @@ class MySqlBackupServiceTests {
         assertFalse(Files.exists(oldJun));
         assertFalse(Files.exists(oldDec));
         assertTrue(Files.exists(recentJan));
-        assertTrue(Files.exists(aug1));
+        assertTrue(Files.exists(jul));
         assertTrue(Files.exists(aug10));
     }
 

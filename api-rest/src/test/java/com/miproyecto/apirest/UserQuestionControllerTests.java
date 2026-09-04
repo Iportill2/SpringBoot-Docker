@@ -193,8 +193,11 @@ class UserQuestionControllerTests {
         return com.jayway.jsonpath.JsonPath.read(body, "$.id");
     }
 
+    // Algunos endpoints (DELETE /{id} -> hasRole('ADMIN')) y la validacion
+    // isAdminOrSelf requieren rol ADMIN para consultar/borrar de otros
+    // usuarios. Se usa el rol 2 (ADMIN) para acceder a todo el controlador.
     private Users saveUser(String username) {
-        Roles role = roleRepo.findById(1).orElseThrow();
+        Roles role = roleRepo.findById(2).orElseThrow();
         Users user = new Users();
         user.setUsername(username);
         user.setPass("password123");

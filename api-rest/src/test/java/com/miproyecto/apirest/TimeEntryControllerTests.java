@@ -124,8 +124,12 @@ class TimeEntryControllerTests {
         return JsonPath.read(body, "$.id");
     }
 
+    // Los endpoints de /api/time-entry validan con SecurityUtils
+    // (isAdminOrSelf / esPropietarioOrAdmin). Se usa el rol 2 (ADMIN) para
+    // poder operar sobre cualquier userId, incluidos ids inexistentes que
+    // deben devolver 400/lista vacia (y no 403 por no ser admin ni self).
     private Users saveUser(String username) {
-        Roles role = roleRepo.findById(1).orElseThrow();
+        Roles role = roleRepo.findById(2).orElseThrow();
         Users user = new Users();
         user.setUsername(username);
         user.setPass("password123");

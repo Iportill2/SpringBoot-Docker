@@ -6,11 +6,19 @@ spring:
     password: ""
   sql:
     init:
-      mode: never
+      # Ejecuta el data-test.sql (propio de pruebas) en lugar del
+      # data.sql de produccion. data-locations sustituye al script
+      # por defecto, por lo que el data.sql real nunca se carga.
+      mode: always
+      data-locations: classpath:data-test.sql
+      encoding: UTF-8
   jpa:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
+    # El data-test.sql se ejecuta DESPUES de que Hibernate cree el
+    # esquema, garantizando que la tabla roles exista.
+    defer-datasource-initialization: true
 
 jwt:
   secret: claveSecretaSuficientementeLargaParaHs256ConAlmenos32Bytes

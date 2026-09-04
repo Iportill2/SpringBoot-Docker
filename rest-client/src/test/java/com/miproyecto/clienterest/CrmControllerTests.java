@@ -26,6 +26,7 @@ import com.miproyecto.clienterest.dto.AdminUserDTO;
 import com.miproyecto.clienterest.dto.ClienteDTO;
 import com.miproyecto.clienterest.dto.TareaDTO;
 import com.miproyecto.clienterest.service.CrmService;
+import com.miproyecto.clienterest.service.ClienteService;
 
 @WebMvcTest(controllers = CrmController.class)
 class CrmControllerTests {
@@ -36,6 +37,9 @@ class CrmControllerTests {
     @MockitoBean
     private CrmService crmService;
 
+    @MockitoBean
+    private ClienteService clienteService;
+
     @Test
     void crmGetAsAdminShowsAllTareas() throws Exception {
         TareaDTO tarea = new TareaDTO();
@@ -43,6 +47,8 @@ class CrmControllerTests {
         tarea.setTitulo("Tarea admin");
 
         when(crmService.findAllTareas()).thenReturn(List.of(tarea));
+        when(crmService.findAllUsuarios()).thenReturn(List.of());
+        when(clienteService.findAllClientes()).thenReturn(List.of());
 
         mockMvc.perform(get("/menu/crm")
                         .sessionAttr("userId", 1)
@@ -58,6 +64,7 @@ class CrmControllerTests {
     @Test
     void crmGetAsEmployeeShowsOnlyOwnTareas() throws Exception {
         when(crmService.findTareasByResponsable(7)).thenReturn(List.of());
+        when(clienteService.findAllClientes()).thenReturn(List.of());
 
         mockMvc.perform(get("/menu/crm")
                         .sessionAttr("userId", 7)
@@ -73,6 +80,7 @@ class CrmControllerTests {
     void crmGetWithoutRoleShowsCrmView() throws Exception {
         when(crmService.findTareasByResponsable(1)).thenReturn(List.of());
         when(crmService.findTareasSinAsignar()).thenReturn(List.of());
+        when(clienteService.findAllClientes()).thenReturn(List.of());
 
         mockMvc.perform(get("/menu/crm")
                         .sessionAttr("userId", 1))
@@ -102,6 +110,14 @@ class CrmControllerTests {
 
     @Test
     void editarRedirectsAndCallsService() throws Exception {
+        TareaDTO existing = new TareaDTO();
+        existing.setId(5);
+        existing.setTitulo("Original");
+        existing.setEstado("PENDIENTE");
+        existing.setPrioridad("MEDIA");
+
+        when(crmService.findTareaById(5)).thenReturn(existing);
+
         mockMvc.perform(post("/menu/crm/editar/5")
                         .sessionAttr("userId", 1)
                         .sessionAttr("role", "ADMIN")
@@ -110,7 +126,7 @@ class CrmControllerTests {
                         .param("prioridad", "BAJA"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/menu/crm"))
-                .andExpect(flash().attribute("message", "Tarea actualizada correctamente"));
+                .andExpect(flash().attribute("message", "Tarea actualizada"));
 
         verify(crmService).actualizarTarea(eq(5), any(TareaDTO.class));
     }

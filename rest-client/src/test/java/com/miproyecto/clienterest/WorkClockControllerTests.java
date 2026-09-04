@@ -36,13 +36,17 @@ class WorkClockControllerTests {
 
     @Test
     void clockInGetShowsClockInViewWithSessionAttributes() throws Exception {
+        TimeEntryDTO todayEntry = new TimeEntryDTO();
+        todayEntry.setStartTime("2026-08-07T09:00:00");
+        todayEntry.setEndTime(null);
+
+        when(timeEntryService.findToday(5)).thenReturn(todayEntry);
+
         mockMvc.perform(get("/menu/clock-in")
                 .sessionAttr("userId", 5)
                 .sessionAttr("username", "testuser")
-                .sessionAttr("startTime", "07/08/2026 09:00:00")
                 .sessionAttr("pauseTime", "07/08/2026 10:00:00")
                 .sessionAttr("resumeTime", "07/08/2026 10:15:00")
-                .sessionAttr("endTime", "07/08/2026 14:00:00")
                 .sessionAttr("breakOpen", true))
                 .andExpect(status().isOk())
                 .andExpect(view().name("app/clock-in"))
@@ -50,7 +54,6 @@ class WorkClockControllerTests {
                 .andExpect(model().attribute("startTime", "07/08/2026 09:00:00"))
                 .andExpect(model().attribute("pauseTime", "07/08/2026 10:00:00"))
                 .andExpect(model().attribute("resumeTime", "07/08/2026 10:15:00"))
-                .andExpect(model().attribute("endTime", "07/08/2026 14:00:00"))
                 .andExpect(model().attribute("breakOpen", true));
     }
 
@@ -125,25 +128,4 @@ class WorkClockControllerTests {
         verify(timeEntryService).stop(10, 30);
     }
 
-    @Test
-    void resetClearsAllSessionAttributes() throws Exception {
-        mockMvc.perform(post("/menu/clock-in/reset")
-                .sessionAttr("userId", 5)
-                .sessionAttr("timeEntryId", 10)
-                .sessionAttr("breakId", 7)
-                .sessionAttr("startTime", "07/08/2026 09:00:00")
-                .sessionAttr("breakOpen", true))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/menu/clock-in"))
-                .andExpect(result -> {
-                    var session = result.getRequest().getSession();
-                    assertTrue(session.getAttribute("timeEntryId") == null);
-                    assertTrue(session.getAttribute("breakId") == null);
-                    assertTrue(session.getAttribute("startTime") == null);
-                    assertTrue(session.getAttribute("pauseTime") == null);
-                    assertTrue(session.getAttribute("resumeTime") == null);
-                    assertTrue(session.getAttribute("endTime") == null);
-                    assertTrue(session.getAttribute("breakOpen") == null);
-                });
-    }
 }

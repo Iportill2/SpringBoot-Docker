@@ -18,7 +18,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
+import com.miproyecto.clienterest.dto.ClienteDTO;
 import com.miproyecto.clienterest.dto.TareaDTO;
+import com.miproyecto.clienterest.service.ClienteService;
 import com.miproyecto.clienterest.service.CrmService;
 
 class CrmServiceTests {
@@ -86,12 +88,17 @@ class CrmServiceTests {
 
         server.expect(requestTo(BASE + "/api/cliente"))
                 .andExpect(method(HttpMethod.GET))
+                .andExpect(header("Authorization", "Bearer token-abc"))
                 .andRespond(withSuccess("""
                         [{"id": 1, "nombre": "Acme"}]
                         """, MediaType.APPLICATION_JSON));
 
-        CrmService service = new CrmService(client);
+        ClienteService service = new ClienteService(client);
 
+        List<ClienteDTO> clientes = service.findAllClientes();
+
+        assertEquals(1, clientes.size());
+        assertEquals("Acme", clientes.get(0).getNombre());
 
         server.verify();
     }

@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -34,10 +36,13 @@ class ProfileControllerTests {
         user.setEmail("testuser@test.com");
 
         when(userService.findByUsername("testuser")).thenReturn(ResponseEntity.ok(user));
+        when(userService.findQuestionsByUserId(1, "token"))
+                .thenReturn(ResponseEntity.ok(List.of()));
 
-        mockMvc.perform(get("/profile")
+        mockMvc.perform(get("/menu/profile")
                         .sessionAttr("userId", 1)
-                        .sessionAttr("username", "testuser"))
+                        .sessionAttr("username", "testuser")
+                        .sessionAttr("jwt", "token"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("app/profile"))
                 .andExpect(model().attribute("user", user));

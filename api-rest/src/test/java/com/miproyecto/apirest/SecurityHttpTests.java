@@ -45,7 +45,7 @@ class SecurityHttpTests {
 
     @Test
     void protectedEndpointWithValidTokenReturns200() throws Exception {
-        Roles role = roleRepo.findById(1).orElseThrow();
+        Roles role = roleRepo.findById(2).orElseThrow();
         Users user = saveUser("testuser", role);
 
         String token = jwtService.generateToken(user);
@@ -62,6 +62,9 @@ class SecurityHttpTests {
                 .andExpect(jsonPath("$").value(false));
     }
 
+    // GET /api/user solo permite rol ADMIN (hasRole('ADMIN')). Se crea el
+    // usuario de prueba con el rol 2 (ADMIN) para probar el acceso con
+    // token valido.
     private Users saveUser(String username, Roles role) {
         Users user = new Users();
         user.setUsername(username);

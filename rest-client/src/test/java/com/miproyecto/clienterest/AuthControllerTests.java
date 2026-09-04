@@ -61,7 +61,7 @@ class AuthControllerTests {
                         .param("username", "testuser")
                         .param("pass", "password123"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/menu/clock-in"))
+                .andExpect(redirectedUrl("/menu/crm"))
                 .andExpect(result ->
                         result.getRequest().getSession().getAttribute("jwt").equals("jwt-token"))
                 .andExpect(result ->
@@ -109,6 +109,7 @@ class AuthControllerTests {
         mockMvc.perform(post("/register")
                         .param("username", "nuevo")
                         .param("pass", "password123")
+                        .param("confirmPass", "password123")
                         .param("email", "nuevo@test.com"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/register/questions?id=5"));

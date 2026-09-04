@@ -43,7 +43,7 @@ class RolesControllerTests {
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[*].name").value(
-                        containsInAnyOrder("EMPLEADO", "ADMIN", "PENDIENTE")));
+                        containsInAnyOrder("EMPLEADO", "ADMIN", "PENDIENTE", "BLOQUEADO")));
     }
 
     @Test
@@ -119,8 +119,10 @@ class RolesControllerTests {
                 .andExpect(jsonPath("$").value(true));
     }
 
+    // Los endpoints de /api/roles exigen rol ADMIN (hasRole('ADMIN')), por
+    // lo que el usuario de prueba se crea con el rol 2 (ADMIN).
     private Users saveUser(String username) {
-        Roles role = roleRepo.findById(1).orElseThrow();
+        Roles role = roleRepo.findById(2).orElseThrow();
         Users user = new Users();
         user.setUsername(username);
         user.setPass("password123");

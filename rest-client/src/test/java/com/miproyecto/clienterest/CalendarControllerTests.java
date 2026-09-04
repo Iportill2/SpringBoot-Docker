@@ -36,7 +36,7 @@ class CalendarControllerTests {
         when(timeEntryService.findByMonth(anyInt(), anyInt(), anyInt()))
                 .thenReturn(List.of());
 
-        mockMvc.perform(get("/calendar")
+        mockMvc.perform(get("/menu/calendar")
                         .sessionAttr("userId", 5))
                 .andExpect(status().isOk())
                 .andExpect(view().name("app/calendar"))
@@ -58,7 +58,7 @@ class CalendarControllerTests {
 
         int expectedOffset = LocalDate.of(2026, 8, 1).getDayOfWeek().getValue() - 1;
 
-        mockMvc.perform(get("/calendar")
+        mockMvc.perform(get("/menu/calendar")
                         .sessionAttr("userId", 5)
                         .param("year", "2026")
                         .param("month", "8"))
@@ -87,7 +87,7 @@ class CalendarControllerTests {
         when(timeEntryService.findByMonth(eq(5), eq(2026), eq(8)))
                 .thenReturn(List.of(withoutHours, withHours));
 
-        mockMvc.perform(get("/calendar")
+        mockMvc.perform(get("/menu/calendar")
                         .sessionAttr("userId", 5)
                         .param("year", "2026")
                         .param("month", "8"))

@@ -57,11 +57,12 @@ class AuthHttpTests {
                 .andExpect(jsonPath("$.error").value("Usuario o contraseña incorrectos"));
     }
 
+    // Un usuario bloqueado es aquel cuyo rol es BLOQUEADO (id 4). El login
+    // debe rechazarlo con 403 y el mensaje de bloqueo.
     @Test
     void loginWithBlockedUserReturns403() throws Exception {
-        Roles role = roleRepo.findById(1).orElseThrow();
-        Users user = saveUser("testuser", "password123", role);
-        userRepo.save(user);
+        Roles role = roleRepo.findById(4).orElseThrow();
+        saveUser("testuser", "password123", role);
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -69,14 +70,15 @@ class AuthHttpTests {
                                 {"username": "testuser", "pass": "password123"}
                                 """))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.error").value("Tu cuenta está bloqueada o baneada"));
+                .andExpect(jsonPath("$.error").value("Tu cuenta ha sido bloqueada"));
     }
 
+    // No existe una rama de login separada para "baneado": el rol BLOQUEADO
+    // (id 4) tambien se usa para usuarios baneados, devolviendo 403.
     @Test
     void loginWithBannedUserReturns403() throws Exception {
-        Roles role = roleRepo.findById(1).orElseThrow();
-        Users user = saveUser("testuser", "password123", role);
-        userRepo.save(user);
+        Roles role = roleRepo.findById(4).orElseThrow();
+        saveUser("testuser", "password123", role);
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

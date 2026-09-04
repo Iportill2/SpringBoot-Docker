@@ -4,7 +4,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -12,15 +11,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.jayway.jsonpath.JsonPath;
 import com.miproyecto.apirest.model.Roles;
-import com.miproyecto.apirest.model.TimeEntry;
 import com.miproyecto.apirest.model.Users;
 import com.miproyecto.apirest.repository.RolesRepository;
-import com.miproyecto.apirest.repository.TimeEntryRepository;
 import com.miproyecto.apirest.repository.UsersRepository;
 import com.miproyecto.apirest.security.JwtService;
 
+/**
+ * Pruebas del controlador de descansos (/api/break).
+ *
+ * <p>El {@link BreakController} actual expone dos endpoints que solo
+ * requieren estar autenticados y devuelven la hora actual del servidor
+ * JSON: {@code POST /api/break/start} y {@code POST /api/break/end}.
+ * Cualquier usuario autenticado (aqui se usa EMPLEADO, rol 1) puede
+ * usarlos.</p>
+ */
 @ApiRestTest
 class BreakControllerTests {
 
@@ -34,77 +39,55 @@ class BreakControllerTests {
     private RolesRepository roleRepo;
 
     @Autowired
-    private TimeEntryRepository timeEntryRepo;
-
-    @Autowired
     private JwtService jwtService;
 
     @Test
-    void startBreakReturns200WithStartTime() throws Exception {
+    void startBreakReturns200WithTime() throws Exception {
         Users user = saveUser("testuser");
         String token = jwtService.generateToken(user);
 
-        TimeEntry entry = saveEntry(user);
-
-        mockMvc.perform(post("/api/break/start/{timeEntryId}", entry.getId())
+        mockMvc.perform(post("/api/break/start")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.startTime").isNotEmpty());
+                .andExpect(jsonPath("$.time").isNotEmpty());
     }
 
     @Test
-    void startBreakWithUnknownEntryReturns400() throws Exception {
-        Users user = saveUser("testuser");
-        String token = jwtService.generateToken(user);
-
-        mockMvc.perform(post("/api/break/start/{timeEntryId}", 99999)
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(status().isBadRequest());
+    void startBreakWithoutTokenReturns401() throws Exception {
+        mockMvc.perform(post("/api/break/start"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void endBreakReturns200WithEndTime() throws Exception {
+    void endBreakReturns200WithTime() throws Exception {
         Users user = saveUser("testuser");
         String token = jwtService.generateToken(user);
 
-        TimeEntry entry = saveEntry(user);
-
-        int breakId = startBreakId(entry.getId(), token);
-
-        mockMvc.perform(post("/api/break/end/{breakId}", breakId)
+        mockMvc.perform(post("/api/break/end")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.endTime").isNotEmpty());
+                .andExpect(jsonPath("$.time").isNotEmpty());
     }
 
     @Test
-    void endBreakWithUnknownIdReturns400() throws Exception {
+    void endBreakWithoutTokenReturns401() throws Exception {
+        mockMvc.perform(post("/api/break/end"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // El endpoint devuelve la hora del servidor truncada a segundos, por lo
+    // que debe coincidir (o ser aproximadamente igual) a LocalDateTime.now().
+    @Test
+    void startBreakTimeMatchesServerClock() throws Exception {
         Users user = saveUser("testuser");
         String token = jwtService.generateToken(user);
 
-        mockMvc.perform(post("/api/break/end/{breakId}", 99999)
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(status().isBadRequest());
-    }
+        String expected = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString();
 
-    private int startBreakId(Integer timeEntryId, String token) throws Exception {
-        String body = mockMvc.perform(post("/api/break/start/{timeEntryId}", timeEntryId)
+        mockMvc.perform(post("/api/break/start")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        return JsonPath.read(body, "$.id");
-    }
-
-    private TimeEntry saveEntry(Users user) {
-        TimeEntry entry = new TimeEntry();
-        entry.setUser(user);
-        entry.setDate(LocalDate.now());
-        entry.setStartTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        return timeEntryRepo.save(entry);
+                .andExpect(jsonPath("$.time").value(expected));
     }
 
     private Users saveUser(String username) {

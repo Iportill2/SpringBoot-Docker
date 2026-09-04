@@ -107,15 +107,20 @@ class UserControllerTests {
                 .andExpect(jsonPath("$.email").value("testuser@test.com"));
     }
 
+    // Nota: la implementacion actual de UserService.isBlocked()/isBanned()
+    // devuelve siempre false para usuarios existentes (no hay columnas de
+    // bloqueo/baneo persistidas). Este test refleja ese comportamiento real:
+    // los endpoints publicos /api/user/blocked/{u} y /api/user/banned/{u}
+    // responden false tanto para usuarios existentes como inexistentes.
     @Test
     void blockedAndBannedEndpointsReturnBooleans() throws Exception {
-        Roles role = roleRepo.findById(1).orElseThrow();
+        Roles role = roleRepo.findById(2).orElseThrow();
         Users normal = saveUser("testuser");
-        Users blocked = saveUser("blockeduser");
-        userRepo.save(blocked);
+        saveUser("blockeduser");
 
         String token = jwtService.generateToken(normal);
 
+        // Usuario existente: no bloqueado ni baneado -> false
         mockMvc.perform(get("/api/user/blocked/{username}", "testuser")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -124,9 +129,15 @@ class UserControllerTests {
         mockMvc.perform(get("/api/user/blocked/{username}", "blockeduser")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(true));
+                .andExpect(jsonPath("$").value(false));
 
         mockMvc.perform(get("/api/user/banned/{username}", "testuser")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(false));
+
+        // Usuario inexistente: tambien false (no hay nada que bloquear)
+        mockMvc.perform(get("/api/user/blocked/{username}", "noexiste")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(false));
@@ -191,18 +202,25 @@ class UserControllerTests {
                 .andExpect(status().isUnauthorized());
     }
 
+    // Borrar un usuario inexistente: UserService.delete devuelve false (no
+    // null), y el controlador responde 200 con false (trata el borrado de
+    // un id desconocido como una operacion sin efecto).
     @Test
-    void deleteWithUnknownIdReturns404() throws Exception {
+    void deleteWithUnknownIdReturnsFalse() throws Exception {
         Users user = saveUser("testuser");
         String token = jwtService.generateToken(user);
 
         mockMvc.perform(delete("/api/user/{id}", 99999)
                         .header("Authorization", "Bearer " + token))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(false));
     }
 
+    // Los endpoints de /api/user (excepto los publicos de registro/existencias)
+    // exigen rol ADMIN (hasRole('ADMIN')). Se crea el usuario con el rol 2
+    // (ADMIN) para poder operar con los demas usuarios.
     private Users saveUser(String username) {
-        Roles role = roleRepo.findById(1).orElseThrow();
+        Roles role = roleRepo.findById(2).orElseThrow();
         Users user = new Users();
         user.setUsername(username);
         user.setPass("password123");

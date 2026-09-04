@@ -121,8 +121,11 @@ class ClienteControllerTests {
                 .andExpect(jsonPath("$").value(true));
     }
 
+    // Los endpoints de escritura de /api/cliente (POST/PUT/DELETE) exigen
+    // rol ADMIN (hasRole('ADMIN')). El usuario de prueba se crea con el
+    // rol 2 (ADMIN) para cubrirlos todos de forma consistente.
     private Users saveUser(String username) {
-        Roles role = roleRepo.findById(1).orElseThrow();
+        Roles role = roleRepo.findById(2).orElseThrow();
         Users user = new Users();
         user.setUsername(username);
         user.setPass("password123");

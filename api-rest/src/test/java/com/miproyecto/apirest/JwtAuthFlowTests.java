@@ -6,11 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.miproyecto.apirest.controller.AuthController;
 import com.miproyecto.apirest.dto.AuthResponse;
@@ -21,21 +18,15 @@ import com.miproyecto.apirest.repository.RolesRepository;
 import com.miproyecto.apirest.repository.UsersRepository;
 import com.miproyecto.apirest.security.JwtService;
 
-@SpringBootTest(properties = {
-        "spring.datasource.url=jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1",
-        "spring.datasource.driver-class-name=org.h2.Driver",
-        "spring.datasource.username=sa",
-        "spring.datasource.password=",
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "jwt.secret=claveSecretaSuficientementeLargaParaHs256ConAlMenos32Bytes",
-        "jwt.expiration-ms=86400000"
-})
-@Sql(statements = {
-        "INSERT INTO roles (id, name) VALUES (1, 'EMPLEADO')",
-        "INSERT INTO roles (id, name) VALUES (2, 'ADMIN')",
-        "INSERT INTO roles (id, name) VALUES (3, 'PENDIENTE')"
-})
-@Transactional
+/**
+ * Pruebas del flujo JWT de bajo nivel, invocando directamente el servicio
+ * y el controlador de autenticacion.
+ *
+ * <p>Usa {@link ApiRestTest} (un unico contexto compartido con el resto de
+ * la suite). Los roles base los aporta {@code data-test.sql}, por lo que no
+ * es necesario insertarlos aqui con {@code @Sql}.</p>
+ */
+@ApiRestTest
 class JwtAuthFlowTests {
 
     @Autowired
