@@ -69,6 +69,11 @@ public class UserQuestionService {
 		if (userOpt.isEmpty() || questionOpt.isEmpty())
 			return null;
 
+		// No sobrescribir respuestas ya existentes (evita que un tercero
+		// reasigne las preguntas de seguridad de una cuenta ya creada).
+		if (userQRepo.findByUserIdAndQuestionId(dto.userId(), dto.questionId()).isPresent())
+			return null;
+
 		UserQuestion uq = new UserQuestion();
 		uq.setUser(userOpt.get());
 		uq.setQuestion(questionOpt.get());

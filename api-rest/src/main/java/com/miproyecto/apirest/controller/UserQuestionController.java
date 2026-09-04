@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import com.miproyecto.apirest.dto.CheckAnswerRequest;
 import com.miproyecto.apirest.dto.UserQuestionDTO;
 import com.miproyecto.apirest.model.UserQuestion;
+import com.miproyecto.apirest.security.SecurityUtils;
 
 import com.miproyecto.apirest.service.UserQuestionService;
 
@@ -65,6 +66,9 @@ public class UserQuestionController {
 		if (id == null || id < 1)
 			return ResponseEntity.badRequest().build();
 
+		if (!SecurityUtils.isAdminOrSelf(id))
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
 		List<UserQuestion> temp = userQuestionServ.findByUser(id);
 
 		if (temp.isEmpty())
@@ -84,6 +88,12 @@ public class UserQuestionController {
 
 	@PostMapping("/check")
 	public ResponseEntity<Boolean> checkAnswer(@RequestBody CheckAnswerRequest request) {
+		if (request.userId() == null || request.userId() < 1)
+			return ResponseEntity.badRequest().build();
+
+		if (!SecurityUtils.isAdminOrSelf(request.userId()))
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
 		Boolean result = userQuestionServ.checkAnswer(
 				request.userId(),
 				request.questionId(),
@@ -104,6 +114,9 @@ public class UserQuestionController {
 
 		if (temp.isEmpty())
 			return ResponseEntity.notFound().build();
+
+		if (!SecurityUtils.isAdminOrSelf(temp.get().getUser().getId()))
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
 		return ResponseEntity.ok(temp.get());
 	}

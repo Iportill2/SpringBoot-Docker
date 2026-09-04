@@ -30,6 +30,17 @@ public class TimeEntryService {
         return timeEntryRepository.findByUserIdAndEndTimeIsNull(userId);
     }
 
+    public Optional<TimeEntry> findById(Integer id) {
+        if (id == null || id < 1) {
+            return Optional.empty();
+        }
+        return timeEntryRepository.findById(id);
+    }
+
+    public Optional<TimeEntry> findTodayByUser(Integer userId) {
+        return timeEntryRepository.findByUserIdAndDate(userId, LocalDate.now());
+    }
+
     public TimeEntry startEntry(Integer userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -45,10 +56,6 @@ public class TimeEntryService {
         entry.setStartTime(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
         return timeEntryRepository.save(entry);
-    }
-
-    public Optional<TimeEntry> findTodayByUser(Integer userId) {
-        return timeEntryRepository.findByUserIdAndDate(userId, LocalDate.now());
     }
 
     public TimeEntry stopEntry(Integer timeEntryId, int pauseMinutes) {

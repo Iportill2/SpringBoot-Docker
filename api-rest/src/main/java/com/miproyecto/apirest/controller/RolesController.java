@@ -34,6 +34,7 @@ public class RolesController {
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Roles> findById(@PathVariable Integer id) {
 
         if (id == null)
@@ -75,6 +76,7 @@ public class RolesController {
 
 
     @GetMapping("/name/{name}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Roles> findByName(@PathVariable String name) {
 
         if (name == null || name.isBlank())

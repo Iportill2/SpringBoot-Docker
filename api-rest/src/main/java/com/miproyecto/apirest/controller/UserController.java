@@ -148,9 +148,6 @@ public class UserController {
             @PathVariable Integer id,
             @RequestBody Users user) {
 
-        System.out.println("ID: " + id);
-        System.out.println("ROLE: " + user.getRole());
-
         Users updatedUser = userService.update(id, user);
 
         if (updatedUser == null)

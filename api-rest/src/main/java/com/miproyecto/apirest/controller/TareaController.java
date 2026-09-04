@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.miproyecto.apirest.dto.HorasRequest;
 import com.miproyecto.apirest.model.Tarea;
+import com.miproyecto.apirest.model.Users;
+import com.miproyecto.apirest.security.SecurityUtils;
 import com.miproyecto.apirest.service.TareaService;
 
 @RestController
@@ -81,6 +83,9 @@ public class TareaController {
         if (id == null || id < 1 || tarea == null) {
             return ResponseEntity.badRequest().build();
         }
+        if (!esAdminOrResponsable(id)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
         Tarea temp = tareaServ.update(id, tarea);
         if (temp == null) {
             return ResponseEntity.notFound().build();
@@ -89,6 +94,7 @@ public class TareaController {
     }
 
     @PostMapping("/{id}/asignar/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Tarea> asignar(@PathVariable Integer id, @PathVariable Integer userId) {
         if (id == null || id < 1 || userId == null || userId < 1) {
             return ResponseEntity.badRequest().build();
@@ -104,6 +110,9 @@ public class TareaController {
     public ResponseEntity<Tarea> actualizarHoras(@PathVariable Integer id, @RequestBody HorasRequest request) {
         if (id == null || id < 1 || request == null) {
             return ResponseEntity.badRequest().build();
+        }
+        if (!esAdminOrResponsable(id)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
         }
         Tarea temp = tareaServ.actualizarHoras(id, request.horasEmpleadas());
         if (temp == null) {
@@ -123,5 +132,19 @@ public class TareaController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(deleted);
+    }
+
+    private boolean esAdminOrResponsable(Integer tareaId) {
+        if (SecurityUtils.isAdmin()) {
+            return true;
+        }
+        Users current = SecurityUtils.currentUser();
+        if (current == null) {
+            return false;
+        }
+        Tarea tarea = tareaServ.findById(tareaId);
+        return tarea != null
+                && tarea.getResponsable() != null
+                && current.getId().equals(tarea.getResponsable().getId());
     }
 }

@@ -23,6 +23,11 @@ public class JwtService {
     public JwtService(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration-ms}") long expirationMs) {
+        if (secret == null || secret.isBlank() || secret.length() < 32) {
+            throw new IllegalStateException(
+                    "JWT_SECRET no está definido o es demasiado corto. "
+                    + "Define una clave segura de al menos 32 bytes en el .env");
+        }
         this.secret = secret;
         this.expirationMs = expirationMs;
     }

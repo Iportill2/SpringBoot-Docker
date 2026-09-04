@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.miproyecto.apirest.model.TimeEntry;
+import com.miproyecto.apirest.model.Users;
+import com.miproyecto.apirest.security.SecurityUtils;
 import com.miproyecto.apirest.service.TimeEntryService;
 
 
@@ -27,6 +29,9 @@ public class TimeEntryController {
 
     @GetMapping("/open/{userId}")
     public ResponseEntity<TimeEntry> findOpen(@PathVariable Integer userId) {
+        if (!SecurityUtils.isAdminOrSelf(userId)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
         return timeEntryServ.findOpenByUser(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
@@ -34,6 +39,9 @@ public class TimeEntryController {
     
     @PostMapping("/start/{userId}")
     public ResponseEntity<TimeEntry> start(@PathVariable Integer userId) {
+        if (!SecurityUtils.isAdminOrSelf(userId)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
         try {
             TimeEntry entry = timeEntryServ.startEntry(userId);
             return ResponseEntity.ok(entry);
@@ -46,11 +54,13 @@ public class TimeEntryController {
     public ResponseEntity<TimeEntry> stop(
             @PathVariable Integer timeEntryId,
             @RequestParam(defaultValue = "0") int pauseMinutes) {
+        if (!esPropietarioOrAdmin(timeEntryId)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
         try {
             TimeEntry entry = timeEntryServ.stopEntry(timeEntryId, pauseMinutes);
             return ResponseEntity.ok(entry);
         } catch (RuntimeException e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
@@ -60,12 +70,18 @@ public class TimeEntryController {
             @PathVariable Integer userId,
             @RequestParam int year,
             @RequestParam int month) {
+        if (!SecurityUtils.isAdminOrSelf(userId)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
         List<TimeEntry> entries = timeEntryServ.findByUserAndMonth(userId, year, month);
         return ResponseEntity.ok(entries);
     }
 
     @GetMapping("/today/{userId}")
     public ResponseEntity<TimeEntry> findToday(@PathVariable Integer userId) {
+        if (!SecurityUtils.isAdminOrSelf(userId)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
         return timeEntryServ.findTodayByUser(userId)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.noContent().build());
@@ -73,6 +89,9 @@ public class TimeEntryController {
     
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> delete(@PathVariable Integer id) {
+        if (!esPropietarioOrAdmin(id)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).build();
+        }
         Boolean result = timeEntryServ.delete(id);
 
         if (result == null)
@@ -83,4 +102,16 @@ public class TimeEntryController {
         return ResponseEntity.ok(true);         
     }
 
+    private boolean esPropietarioOrAdmin(Integer timeEntryId) {
+        if (SecurityUtils.isAdmin()) {
+            return true;
+        }
+        Users current = SecurityUtils.currentUser();
+        if (current == null) {
+            return false;
+        }
+        return timeEntryServ.findById(timeEntryId)
+                .map(e -> e.getUser() != null && current.getId().equals(e.getUser().getId()))
+                .orElse(false);
+    }
 }
