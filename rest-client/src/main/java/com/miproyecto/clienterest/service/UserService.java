@@ -26,7 +26,6 @@ public class UserService {
 
     public ResponseEntity<UsersDTO> create(UsersDTO user) {
 
-        System.out.println("ENVIANDO: " + user);
         return restClient.post()
                 .uri("/api/user")
                 .body(user)

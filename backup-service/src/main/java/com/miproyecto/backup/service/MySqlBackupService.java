@@ -69,18 +69,9 @@ public class MySqlBackupService implements BackupService {
 
         Path file = directory.resolve(fileName);
 
-        String command = String.format(
-                "set -o pipefail; "
-                + "mysqldump --single-transaction --routines --triggers --no-tablespaces --databases "
-                + "-h %s -P %d -u %s %s | gzip > %s",
-                mySqlProperties.getHost(),
-                mySqlProperties.getPort(),
-                mySqlProperties.getUser(),
-                mySqlProperties.getDatabase(),
-                file.toAbsolutePath()
-        );
+        validarConfiguracionMySql();
 
-        String error = ejecutarComando(command);
+        String error = crearBackupConProceso(file);
 
         if (error != null) {
             auditLog.log(
@@ -185,17 +176,9 @@ public class MySqlBackupService implements BackupService {
             return false;
         }
 
-        String command = String.format(
-                "set -o pipefail; "
-                + "gunzip -c %s | mysql -h %s -P %d -u %s %s",
-                file.toAbsolutePath(),
-                mySqlProperties.getHost(),
-                mySqlProperties.getPort(),
-                mySqlProperties.getUser(),
-                mySqlProperties.getDatabase()
-        );
+        validarConfiguracionMySql();
 
-        String error = ejecutarComando(command);
+        String error = restaurarConProceso(file);
 
         if (error != null) {
             auditLog.log(
@@ -408,63 +391,133 @@ public class MySqlBackupService implements BackupService {
         return file;
     }
 
-    private String ejecutarComando(String command) {
+    private void validarConfiguracionMySql() {
+        if (!esAlfanumerico(mySqlProperties.getHost())
+                || !esAlfanumerico(mySqlProperties.getUser())
+                || !esAlfanumerico(mySqlProperties.getDatabase())) {
+            throw new IllegalStateException(
+                    "Configuración de MySQL inválida: host/user/database deben ser alfanuméricos"
+            );
+        }
+        if (mySqlProperties.getPort() <= 0 || mySqlProperties.getPort() > 65535) {
+            throw new IllegalStateException("Configuración de MySQL inválida: puerto fuera de rango");
+        }
+    }
 
-        ProcessBuilder builder =
-                new ProcessBuilder(
-                        "bash",
-                        "-c",
-                        command
-                );
+    private boolean esAlfanumerico(String value) {
+        return value != null && value.matches("[A-Za-z0-9_-]+");
+    }
 
-        builder.environment().put(
-                "MYSQL_PWD",
-                mySqlProperties.getPassword()
+    private String crearBackupConProceso(Path file) {
+
+        ProcessBuilder builder = new ProcessBuilder(
+                "mysqldump",
+                "--single-transaction",
+                "--routines",
+                "--triggers",
+                "--no-tablespaces",
+                "--databases",
+                "-h", mySqlProperties.getHost(),
+                "-P", String.valueOf(mySqlProperties.getPort()),
+                "-u", mySqlProperties.getUser(),
+                mySqlProperties.getDatabase()
         );
+
+        builder.environment().put("MYSQL_PWD", mySqlProperties.getPassword());
 
         try {
 
             Process process = builder.start();
 
-            StringBuilder error = new StringBuilder();
+            String error;
+            try (java.util.zip.GZIPOutputStream gzip =
+                    new java.util.zip.GZIPOutputStream(Files.newOutputStream(file));
+                 java.io.InputStream in = process.getInputStream()) {
 
-            try (BufferedReader reader =
-                    new BufferedReader(
-                            new InputStreamReader(
-                                    process.getErrorStream()))) {
-
-                String line;
-
-                while ((line = reader.readLine()) != null) {
-
-                    error.append(line)
-                         .append("\n");
-                }
+                in.transferTo(gzip);
             }
+
+            error = leerError(process.getErrorStream());
 
             int exitCode = process.waitFor();
 
             if (exitCode != 0) {
-                return error.toString();
+                return error;
             }
 
             return null;
 
         } catch (IOException e) {
 
-            throw new RuntimeException(
-                    "Could not execute the command",
-                    e
-            );
+            throw new RuntimeException("Could not create the backup", e);
 
         } catch (InterruptedException e) {
 
             Thread.currentThread().interrupt();
 
-            throw new RuntimeException(
-                    "El comando fue interrumpido",
-                    e
-            );
+            throw new RuntimeException("El comando fue interrumpido", e);
         }
+    }
+
+    private String restaurarConProceso(Path file) {
+
+        ProcessBuilder builder = new ProcessBuilder(
+                "mysql",
+                "-h", mySqlProperties.getHost(),
+                "-P", String.valueOf(mySqlProperties.getPort()),
+                "-u", mySqlProperties.getUser(),
+                mySqlProperties.getDatabase()
+        );
+
+        builder.environment().put("MYSQL_PWD", mySqlProperties.getPassword());
+
+        try {
+
+            Process process = builder.start();
+
+            try (java.util.zip.GZIPInputStream gzip =
+                    new java.util.zip.GZIPInputStream(Files.newInputStream(file));
+                 java.io.OutputStream out = process.getOutputStream()) {
+
+                gzip.transferTo(out);
+            }
+
+            String error = leerError(process.getErrorStream());
+
+            int exitCode = process.waitFor();
+
+            if (exitCode != 0) {
+                return error;
+            }
+
+            return null;
+
+        } catch (IOException e) {
+
+            throw new RuntimeException("Could not restore the backup", e);
+
+        } catch (InterruptedException e) {
+
+            Thread.currentThread().interrupt();
+
+            throw new RuntimeException("El comando fue interrumpido", e);
+        }
+    }
+
+    private String leerError(java.io.InputStream stream) throws IOException {
+
+        StringBuilder error = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+
+                error.append(line).append("\n");
+            }
+        }
+
+        return error.toString();
     }
 }

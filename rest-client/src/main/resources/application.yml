@@ -9,6 +9,10 @@ server:
     encoding:
       charset: UTF-8
       force: true
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
   port: 8081
   tomcat:
     accesslog:

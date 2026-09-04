@@ -7,11 +7,10 @@ server:
   tomcat:
     accesslog:
       enabled: true
-      directory: /dev
-      prefix: stdout
+      directory: /backup
+      prefix: access_log
+      suffix: .log
       buffered: false
-      suffix: ""
-      file-date-format: ""
       pattern: "%h %l %u %t \"%r\" %s %b"
 
 management:
@@ -26,7 +25,7 @@ backup:
   enabled: ${BACKUP_ENABLED:true}
   security:
     user: ${BACKUP_SERVICE_USER:backup_service}
-    password: ${BACKUP_SERVICE_PASSWORD:change_me_backup}
+    password: ${BACKUP_SERVICE_PASSWORD}
   retention:
     enabled: ${BACKUP_RETENTION_ENABLED:true}
     daily: ${BACKUP_RETENTION_DAILY:7}

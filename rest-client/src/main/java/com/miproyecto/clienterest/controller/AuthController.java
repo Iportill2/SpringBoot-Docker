@@ -76,6 +76,7 @@ public class AuthController {
             AuthResponseDTO body = authResponse.getBody();
 
             HttpSession session = request.getSession(true);
+            request.changeSessionId();
             session.setAttribute("jwt", body.getToken());
             session.setAttribute("userId", body.getUserId());
             session.setAttribute("username", body.getUsername());

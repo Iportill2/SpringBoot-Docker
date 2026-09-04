@@ -10,7 +10,18 @@ public class BackupActorContext {
     private static final String DEFAULT_ACTOR = "UNKNOWN";
 
     public void setActor(String actor) {
-        ACTOR.set(actor != null && !actor.isBlank() ? actor : DEFAULT_ACTOR);
+        ACTOR.set(sanitize(actor));
+    }
+
+    private String sanitize(String actor) {
+        if (actor == null || actor.isBlank()) {
+            return DEFAULT_ACTOR;
+        }
+        String cleaned = actor.replaceAll("[\\r\\n\\t\\x00-\\x1F]", " ").trim();
+        if (cleaned.length() > 100) {
+            cleaned = cleaned.substring(0, 100);
+        }
+        return cleaned.isBlank() ? DEFAULT_ACTOR : cleaned;
     }
 
     public String getActor() {

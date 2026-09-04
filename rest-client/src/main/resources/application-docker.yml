@@ -4,6 +4,12 @@ api:
 backup:
   base-url: http://host.docker.internal:8082
 
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+
 management:
   endpoints:
     web:
