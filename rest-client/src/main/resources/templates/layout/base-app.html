@@ -18,24 +18,28 @@
 </head>
 
 <body class="base-app">
-  <header class="app-header">
-    <div class="app-header-company">
-      <img th:src="@{/img/logo.png}" alt="Logo" class="logo-header" />
-      <h1>Nombre Empresa</h1>
-    </div>
-    <div class="app-header-user">
-      <span class="header-username" th:text="${username}"></span>
-      <button type="button" class="theme-toggle" aria-pressed="false" title="Cambiar a tema oscuro">
-        <span class="theme-toggle-icon">🌙</span>
-      </button>
-      <form th:action="@{/logout}" method="post" class="logout-form">
-        <button type="submit" class="btn-logout">Cerrar sesión</button>
-      </form>
-    </div>
-  </header>
+	<header class="app-header">
+	    <button type="button" class="sidebar-toggle" aria-label="Abrir menú" aria-expanded="false">
+	      <span class="sidebar-toggle-icon">☰</span>
+	    </button>
+	    <div class="app-header-company">
+	      <img th:src="@{/img/logo.png}" alt="Logo" class="logo-header" />
+	      <h1>Nombre Empresa</h1>
+	    </div>
+	    <div class="app-header-user">
+	      <span class="header-username" th:text="${username}"></span>
+	      <button type="button" class="theme-toggle" aria-pressed="false" title="Cambiar a tema oscuro">
+	        <span class="theme-toggle-icon">🌙</span>
+	      </button>
+	      <form th:action="@{/logout}" method="post" class="logout-form">
+	        <button type="submit" class="btn-logout">Cerrar sesión</button>
+	      </form>
+	    </div>
+	</header>
 
   <div class="app-layout">
-    <aside class="sidebar">
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
       <nav>
         <h3 class="sidebar-title">Menú</h3>
         <a th:if="${!isAdmin}" th:href="@{/menu/clock-in}">Fichar</a>
@@ -161,6 +165,37 @@
       });
 
     })();
+	
+	/* ---------- SIDEBAR TOGGLE ---------- */
+	var sidebar = document.getElementById('sidebar');
+	var sidebarOverlay = document.getElementById('sidebarOverlay');
+	var sidebarToggle = document.querySelector('.sidebar-toggle');
+
+	function closeSidebar() {
+	  sidebar.classList.remove('is-open');
+	  sidebarOverlay.classList.remove('show');
+	  sidebarToggle.setAttribute('aria-expanded', 'false');
+	}
+
+	function openSidebar() {
+	  sidebar.classList.add('is-open');
+	  sidebarOverlay.classList.add('show');
+	  sidebarToggle.setAttribute('aria-expanded', 'true');
+	}
+
+	sidebarToggle.addEventListener('click', function () {
+	  if (sidebar.classList.contains('is-open')) {
+	    closeSidebar();
+	  } else {
+	    openSidebar();
+	  }
+	});
+
+	sidebarOverlay.addEventListener('click', closeSidebar);
+
+	sidebar.querySelectorAll('a').forEach(function (link) {
+	  link.addEventListener('click', closeSidebar);
+	});
   </script>
 </body>
 
